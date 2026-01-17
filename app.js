@@ -1,8 +1,13 @@
-let http = require('http');
+const http = require('http');
 
-http.createServer(function (req, res) {
+// Heroku sets the PORT dynamically
+const PORT = process.env.PORT || 3000;
+
+const server = http.createServer((req, res) => {
   res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Hello World!');
-}).listen(8080);
+  res.end('Welcome to our parish.');
+});
 
-console.log('Server running on port 8080');
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
