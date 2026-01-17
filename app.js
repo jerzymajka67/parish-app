@@ -1,13 +1,18 @@
-const http = require('http');
+const express = require('express');
+const app = express();
 
-// Heroku sets the PORT dynamically
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+
+app.use('/en', require('./routes/en'));
+app.use('/es', require('./routes/es'));
+
+app.get('/', (req, res) => {
+  res.render('language'); // later
+});
+
 const PORT = process.env.PORT || 3000;
-
-const server = http.createServer((req, res) => {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Welcome to our parish.');
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
