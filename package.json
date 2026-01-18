@@ -1,7 +1,12 @@
 {
-  "name": "myapp",
+  "name": "parish_website",
   "version": "1.0.0",
   "scripts": {
     "start": "node app.js"
+  },
+  "dependencies": {
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1"
   }
 }

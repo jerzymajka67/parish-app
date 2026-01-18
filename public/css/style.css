@@ -1,0 +1,48 @@
+/* Desktop default */
+.main-menu {
+  display: block;
+}
+
+/* Hamburger hidden on desktop */
+.hamburger {
+  display: none;
+  cursor: pointer;
+}
+
+/* Hamburger bars */
+.hamburger span {
+  display: block;
+  width: 28px;
+  height: 3px;
+  background-color: #0b2f48;
+  margin: 5px 0;
+  border-radius: 2px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+
+  /* Show hamburger */
+  .hamburger {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  /* HIDE menu by default */
+  .main-menu {
+    display: none;
+    text-align: left;
+  }
+
+  /* SHOW menu only when toggled */
+  .main-menu.show {
+    display: block;
+  }
+
+  .menu-link,
+  .lang-link {
+    display: block;
+    margin: 10px 0;
+    font-size: 20px;
+  }
+}
