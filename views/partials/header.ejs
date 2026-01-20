@@ -10,7 +10,6 @@
             flex-wrap: wrap;">
 
   <% 
-    // Map page keys to URLs
     const langMap = {
       home: { en:'/en/home', es:'/es/inicio' },
       about: { en:'/en/about', es:'/es/sobre' },
@@ -30,7 +29,7 @@
     const menuItems = [
       { key:'home', en:'Home', es:'Inicio' },
       { key:'about', en:'About', es:'Sobre' },
-      { key:'masses', en:'Masses & Devotions', es:'Misas y Devociones' },
+      { key:'masses', en:'Masses', es:'Misas' },
       { key:'office', en:'Office', es:'Oficina' },
       { key:'bulletin', en:'Bulletin', es:'Boletín' },
       { key:'groups', en:'Groups', es:'Grupos' },
@@ -120,7 +119,7 @@
   .main-menu {
     display: none;
     width: 100%;
-    text-align: left;
+    text-align: right; /* menu aligns right under hamburger */
     order: 3;
     margin-top: 10px;
   }
