@@ -1,3 +1,20 @@
+.footer-parish-name,
+.footer-parish-address {
+  display: inline;  /* default: inline for desktop */
+  font-size: 20px;
+  color: #e1e9e5;
+  vertical-align: middle;
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .footer-parish-name,
+  .footer-parish-address {
+    display: block;  /* stack vertically on mobile */
+    text-align: center;
+  }
+}
+
 /* Desktop default */
 .main-menu {
   display: block;
