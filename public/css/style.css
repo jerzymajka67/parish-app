@@ -1,3 +1,32 @@
+
+/* Parish Logo */
+
+.parish-logo {
+  width: 100px;      /* adjust as needed */
+  height: 100px;     /* adjust as needed */
+  object-fit: cover;
+  position: absolute; /* so you can place it over header */
+  top: 2px;
+  left: 240px;
+  /* clip-path for top-left quarter circle */
+  clip-path: circle(49% at 50% 50%);
+  border: 2px solid #d4dce1; /* optional: white border */
+}
+
+
+/* Mobile adjustments 
+@media (max-width: 768px) {
+  .parish-logo-container {
+    top: 8px;
+    left: 8px;
+  }
+  .parish-logo {
+    width: 50px;
+    height: 50px;
+  }
+}
+*/
+
 .footer-parish-name,
 .footer-parish-address {
   display: inline;  /* default: inline for desktop */
