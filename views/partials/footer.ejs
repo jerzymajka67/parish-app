@@ -1,67 +1,45 @@
-<footer style="
-  background: linear-gradient(to right, #447441, #280245);
-  padding:6px 6px;
-  text-align:center;
-  border-radius: 0 0 16px 16px;
-  font-family:'Lucida Bright', Georgia, serif;
-">
+<footer>
+  <div class="footer-container">
 
-  <div style="
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    align-items:center;
-    gap:18px;
-    color:#e1e9e5;
-    font-size:20px;
-  ">
-
+    <!-- Parish Mini Logo -->
     <span>
-          <!-- Parish Mini Icon linking to home -->
-    <a href="/<%= lang %>/<%= lang === 'en' ? 'home' : 'inicio' %>">
-      <img src="/images/logo-olqa-mini.png" 
-           alt="Our Lady Queen of Angels" 
-           style="height:34px; vertical-align:middle;">
-    </a>
+      <a href="/<%= lang %>/<%= lang === 'en' ? 'home' : 'inicio' %>">
+        <img src="/images/logo-olqa-mini.png" alt="Our Lady Queen of Angels" class="footer-logo">
+      </a>
     </span>
-    <span class="footer-parish-name">
-      Our Lady, Queen of Angels
-    </span>
-    <span class="footer-parish-address">
-      916 Leo Ave, La Joya, TX
-    </span>
+
+    <!-- Parish Name & Address -->
+    <span class="footer-parish-name">Our Lady, Queen of Angels</span>
+    <span class="footer-parish-address">916 Leo Ave, La Joya, TX</span>
 
     <!-- Google Maps -->
     <a href="https://www.google.com/maps?q=916+Leo+Ave,+La+Joya,+TX+78560"
-       target="_blank"
-       title="Find us on Google Maps"
-       style="color:#ffffff; font-size:20px;">
+       target="_blank" aria-label="Find us on Google Maps">
       <i class="fa-solid fa-location-dot"></i>
     </a>
+
+    <!-- Phone -->
     <span>☎ (956) 585-5223</span>
 
     <!-- Email -->
-    <a href="mailto:olqangels@cdob.org"
-       title="Email:olqangels@cdob.org"
-       style="color:#ffffff; font-size:26px;">
+    <a href="mailto:olqangels@cdob.org" aria-label="Email parish">
       <i class="fa-solid fa-envelope"></i>
     </a>
+
     <!-- Facebook -->
     <a href="https://www.facebook.com/profile.php?id=61574892024341"
-       target="_blank"
-       title="Facebook"
-       style="color:#ffffff; font-size:26px;">
+       target="_blank" aria-label="Facebook">
       <i class="fa-brands fa-facebook-f"></i>
     </a>
-    <!-- Diocese -->
-    <a href="https://cdob.org/"
-       target="_blank"
-       title="Diocese of Brownsville">
-      <img src="/images/logo-cdob.png"
-           alt="Diocese of Brownsville"
-           style="height:46px;">
-    </a>
 
-
-  </div>
+<!-- Diocese Logo -->
+<a href="https://cdob.org/"
+   target="_blank"
+   aria-label="Diocese of Brownsville"
+   class="footer-diocese-link">
+  <img src="/images/logo-cdob.png"
+       alt="Diocese of Brownsville"
+       class="footer-diocese-logo">
+</a>
+</div>
 </footer>

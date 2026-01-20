@@ -1,51 +1,50 @@
-<!-- HEADER PARTIAL -->
-<div class="site-header"
-     style="background: linear-gradient(to right, #fbf186, #215374);
-            padding:66px;
-            border-radius:16px 16px 0 0;
-            font-family:'Lucida Bright', Georgia, serif;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;">
+<!-- PARISH LOGO ABOVE HEADER -->
+<div class="parish-logo-container">
+  <a href="/<%= lang %>/<%= lang === 'en' ? 'home' : 'inicio' %>">
+    <img src="/images/logo-olqa.png" class="parish-logo" alt="Our Lady Queen of Angels">
+  </a>
+</div>
 
-  <% 
-    const langMap = {
-      home: { en:'/en/home', es:'/es/inicio' },
-      about: { en:'/en/about', es:'/es/sobre' },
-      masses: { en:'/en/masses', es:'/es/misas' },
-      office: { en:'/en/office', es:'/es/oficina' },
-      bulletin: { en:'/en/bulletin', es:'/es/boletin' },
-      groups: { en:'/en/groups', es:'/es/grupos' },
-      communities: { en:'/en/communities', es:'/es/comunidades' },
-      homilies: { en:'/en/homilies', es:'/es/homilias' },
-      events: { en:'/en/events', es:'/es/eventos' },
-      contact: { en:'/en/contact', es:'/es/contacto' }
-    };
+<%
+  // ===== LANGUAGE SWITCH & MENU SETUP =====
+  const langMap = {
+    home: { en:'/en/home', es:'/es/inicio' },
+    about: { en:'/en/about', es:'/es/sobre' },
+    masses: { en:'/en/masses', es:'/es/misas' },
+    office: { en:'/en/office', es:'/es/oficina' },
+    bulletin: { en:'/en/bulletin', es:'/es/boletin' },
+    groups: { en:'/en/groups', es:'/es/grupos' },
+    communities: { en:'/en/communities', es:'/es/comunidades' },
+    homilies: { en:'/en/homilies', es:'/es/homilias' },
+    events: { en:'/en/events', es:'/es/eventos' },
+    contact: { en:'/en/contact', es:'/es/contacto' }
+  };
 
-    const switchUrl = langMap[page] ? (lang === 'en' ? langMap[page].es : langMap[page].en) : '/';
-    const switchText = lang === 'en' ? 'Español' : 'English';
+  const switchUrl = langMap[page] ? (lang === 'en' ? langMap[page].es : langMap[page].en) : '/';
+  const switchText = lang === 'en' ? 'Español' : 'English';
 
-    const menuItems = [
-      { key:'home', en:'Home', es:'Inicio' },
-      { key:'about', en:'About', es:'Sobre' },
-      { key:'masses', en:'Masses', es:'Misas' },
-      { key:'office', en:'Office', es:'Oficina' },
-      { key:'bulletin', en:'Bulletin', es:'Boletín' },
-      { key:'groups', en:'Groups', es:'Grupos' },
-      { key:'communities', en:'Communities', es:'Comunidades' },
-      { key:'homilies', en:'Homilies', es:'Homilías' },
-      { key:'events', en:'Events', es:'Eventos' },
-      { key:'contact', en:'Contact', es:'Contacto' }
-    ];
-  %>
+  const menuItems = [
+    { key:'home', en:'Home', es:'Inicio' },
+    { key:'about', en:'About', es:'Sobre' },
+    { key:'masses', en:'Masses', es:'Misas' },
+    { key:'office', en:'Office', es:'Oficina' },
+    { key:'bulletin', en:'Bulletin', es:'Boletín' },
+    { key:'groups', en:'Groups', es:'Grupos' },
+    { key:'communities', en:'Communities', es:'Comunidades' },
+    { key:'homilies', en:'Homilies', es:'Homilías' },
+    { key:'events', en:'Events', es:'Eventos' },
+    { key:'contact', en:'Contact', es:'Contacto' }
+  ];
+%>
 
-  <!-- LANGUAGE SWITCH -->
-  <div class="lang-switch">
-    <a href="<%= switchUrl %>" class="lang-link">
-      <%= switchText %>
-    </a>
-  </div>
+<!-- HEADER -->
+<div class="site-header">
+
+<!-- LANGUAGE SWITCH -->
+<div class="lang-switch">
+  <a href="<%= switchUrl %>" class="lang-btn"><%= switchText %></a>
+</div>
+
 
   <!-- HAMBURGER (mobile only) -->
   <div class="hamburger" onclick="toggleMenu()">
@@ -54,89 +53,23 @@
     <span></span>
   </div>
 
-  <!-- NAVIGATION -->
+  <!-- NAVIGATION MENU -->
   <nav class="main-menu" id="mainMenu">
-    <% menuItems.forEach(item => { %>
+    <% menuItems.forEach(item => {
+        if(item.key !== 'home') { %>
       <a href="<%= langMap[item.key][lang] %>"
-         class="menu-link <%= page === item.key ? 'active' : '' %>">
+        class="menu-link <%= page === item.key ? 'active' : '' %>">
         <%= lang === 'en' ? item.en : item.es %>
       </a>
-    <% }) %>
+    <% }}); %>
   </nav>
 
-</div>
-<!-- Parish Logo Top Left -->
-<div class="parish-logo-container">
-  <a href="/<%= lang %>/<%= lang === 'en' ? 'home' : 'inicio' %>">
-    <img src="/images/logo-olqa.png" alt="Our Lady Queen of Angels" class="parish-logo">
-  </a>
+
 </div>
 
-<style>
-/* ===== GENERAL ===== */
-.menu-link {
-  margin: 0 12px;
-  text-decoration: none;
-  color: #ffffff;
-  font-size: 18px;
-  transition: 0.3s;
-}
-.menu-link:hover,
-.menu-link.active {
-  color: #fffa88;
-  text-decoration: underline;
-  font-weight: bold;
-}
-
-/* LANGUAGE SWITCH */
-.lang-switch .lang-link {
-  font-weight: bold;
-  color: #0b2f48; /* dark blue text */
-  text-decoration: none;
-  margin-right: 15px;
-}
-.lang-switch .lang-link:hover {
-  text-decoration: underline;
-}
-
-/* ===== HAMBURGER ===== */
-.hamburger {
-  display: none;
-  cursor: pointer;
-}
-.hamburger span {
-  display: block;
-  width: 28px;
-  height: 3px;
-  background: #0b2f48;
-  margin: 5px 0;
-  border-radius: 2px;
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 768px) {
-  .hamburger {
-    display: block;
-    order: 2; /* right */
+<script>
+  // Toggle mobile menu
+  function toggleMenu() {
+    document.getElementById('mainMenu').classList.toggle('show');
   }
-  .lang-switch {
-    order: 1; /* left */
-  }
-  .main-menu {
-    display: none;
-    width: 100%;
-    text-align: right; /* menu aligns right under hamburger */
-    order: 3;
-    margin-top: 10px;
-  }
-  .main-menu.show {
-    display: block;
-  }
-  .menu-link {
-    display: block;
-    margin: 10px 0;
-    font-size: 20px;
-    color: #ffffe0;
-  }
-}
-</style>
+</script>
