@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const session = require('express-session');
 const path = require('path');
-const multer = require('multer');
 const expressLayouts = require('express-ejs-layouts');
 
 // =====================
@@ -34,20 +33,6 @@ app.use('/admin/static', express.static(path.join(__dirname, 'admin/static')));
 // =====================
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
-
-// =====================
-// MULTER (IMAGE UPLOAD)
-// =====================
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, 'public/images'));
-  },
-  filename: function (req, file, cb) {
-    const timestamp = Date.now();
-    cb(null, `${timestamp}-${file.originalname}`);
-  }
-});
-const upload = multer({ storage });
 
 // =====================
 // ADMIN AUTH

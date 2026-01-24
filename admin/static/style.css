@@ -33,3 +33,94 @@ form input, form button {
   padding: 6px 12px;
   font-size: 14px;
 }
+/* ================= ADMIN EVENTS ================= */
+
+.admin-events {
+  padding: 20px;
+}
+
+.admin-events-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* Breadcrumbs styled like menu */
+.admin-breadcrumbs {
+  margin-bottom: 16px;
+}
+
+.breadcrumb-sep {
+  margin: 0 6px;
+  color: #fff;
+}
+
+/* Section titles */
+.section-title {
+  margin-bottom: 10px;
+  font-size: 20px;
+  color: #215374;
+}
+
+/* Folder grid */
+.folder-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.folder-btn,
+.file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 16px;
+  text-decoration: none;
+  background: linear-gradient(to right, #fbf186, #215374);
+  color: #fff;
+  transition: 0.3s;
+}
+
+.folder-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(16, 3, 50, 0.6);
+}
+
+.file-btn {
+  opacity: 0.85;
+  cursor: default;
+}
+
+/* Tools */
+.events-tools {
+  background: #eef2f5;
+  padding: 14px;
+  border-radius: 14px;
+}
+
+.tool-form {
+  margin-bottom: 14px;
+}
+
+.tool-form input {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* Action buttons reuse menu style */
+.btn-action {
+  border: 2px solid #ffffff;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .admin-events-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.folder-up {
+  margin-bottom: 12px;
+  background: linear-gradient(to right, #215374, #fbf186);
+}

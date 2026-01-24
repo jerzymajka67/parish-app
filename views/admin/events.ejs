@@ -1,26 +1,101 @@
 <body>
- 
-  <main>
-    <h1>Welcome to Our Lady, Queen of Angels, La Joya Parish</h1>
-    <p>Current page: <%= page %></p>
-    <p>Language: <%= lang %></p>
-  </main>
-<body>
-  <div id="tools">
-    <button id="create-bulletin">Create Bulletin</button>
-    <form action="/admin/upload-image" method="POST" enctype="multipart/form-data">
-  <input type="file" name="image" accept="image/*" required>
-  <button type="submit">Upload</button>
-</form>
+
+<main class="admin-events">
+
+  <!-- ================= BREADCRUMBS ================= -->
+  <nav class="breadcrumbs admin-breadcrumbs">
+    <a class="menu-link" href="/admin/events">Events</a>
+
+    <% breadcrumbs.forEach(crumb => { %>
+      <span class="breadcrumb-sep">›</span>
+      <a class="menu-link"
+         href="/admin/events?path=<%= crumb.path %>">
+        <%= crumb.name %>
+      </a>
+    <% }) %>
+  </nav>
+
+  <!-- ================= LAYOUT ================= -->
+  <div class="admin-events-layout">
+
+    <!-- ========== FOLDER BROWSER ========== -->
+    <section class="events-browser">
+      <h2 class="section-title">Folder contents</h2>
+
+      <% 
+        const parentPath =
+          currentPath && currentPath.includes('/')
+            ? currentPath.split('/').slice(0, -1).join('/')
+            : '';
+      %>
+
+      <% if (currentPath) { %>
+        <a class="folder-btn folder-up"
+           href="/admin/events?path=<%= parentPath %>">
+          ⬆️ Up one level
+        </a>
+      <% } %>
+
+      <% if (items.length === 0) { %>
+        <p class="empty">This folder is empty</p>
+      <% } else { %>
+        <div class="folder-grid">
+
+          <% items.forEach(item => { %>
+
+            <% if (item.type === 'folder') { %>
+              <a class="folder-btn"
+                 href="/admin/events?path=<%= encodeURIComponent(
+                   (currentPath ? currentPath + '/' : '') + item.name
+                 ) %>">
+                📁 <span><%= item.name %></span>
+              </a>
+            <% } else { %>
+              <div class="file-btn">
+                🖼 <span><%= item.name %></span>
+              </div>
+            <% } %>
+
+          <% }) %>
+
+        </div>
+      <% } %>
+    </section>
+
+    <!-- ========== TOOLS ========== -->
+    <aside class="events-tools">
+      <h2 class="section-title">Tools</h2>
+
+      <!-- Upload image -->
+      <form action="/admin/events/upload-image"
+            method="POST"
+            enctype="multipart/form-data"
+            class="tool-form">
+
+        <input type="hidden" name="currentPath" value="<%= currentPath %>">
+        <input type="file" name="image" accept="image/*" required>
+
+        <button class="menu-link btn-action" type="submit">
+          Upload image
+        </button>
+      </form>
+
+      <!-- Create folder -->
+      <form action="/admin/events/create-folder"
+            method="POST"
+            class="tool-form">
+
+        <input type="hidden" name="currentPath" value="<%= currentPath %>">
+        <input type="text" name="folderName" placeholder="New folder name" required>
+
+        <button class="menu-link btn-action" type="submit">
+          Create folder
+        </button>
+      </form>
+    </aside>
+
   </div>
- <div id="messages"></div>
-  <!-- LOGOUT LINK -->
-  <div style="margin-top:20px;">
-    <a href="/admin/logout" style="color:rgb(172, 101, 2); text-decoration:none;">Logout</a>
-  </div>
 
+</main>
 
-  <script src="/admin/static/script.js"></script> 
-
-  
 </body>

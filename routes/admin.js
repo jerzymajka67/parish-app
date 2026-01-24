@@ -2,15 +2,51 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+// Base folder for events content (correct path)
+const EVENTS_ROOT = path.join(__dirname, '..', 'content', 'events');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads');
+    const currentPath = req.body.currentPath || ''; // get folder from form
+    const folderPath = path.join(EVENTS_ROOT, currentPath);
+
+    // Make sure the folder exists
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    cb(null, folderPath);
   },
   filename: function (req, file, cb) {
     const uniqueName = Date.now() + path.extname(file.originalname);
     cb(null, uniqueName);
   }
 });
+
+function buildBreadcrumbs(currentPath) {
+  if (!currentPath) return [];
+
+  const parts = currentPath.split('/');
+  let accumulated = '';
+  return parts.map(part => {
+    accumulated = accumulated ? accumulated + '/' + part : part;
+    return {
+      name: part,
+      path: accumulated
+    };
+  });
+}
+function listDirectory(relativePath = '') {
+  const safePath = path.normalize(relativePath).replace(/^(\.\.(\/|\\|$))+/, '');
+  const fullPath = path.join(EVENTS_ROOT, safePath);
+
+  const items = fs.readdirSync(fullPath, { withFileTypes: true });
+
+  return items.map(item => ({
+    name: item.name,
+    type: item.isDirectory() ? 'folder' : 'file'
+  }));
+}
 
 const upload = multer({ storage });
 
@@ -99,12 +135,18 @@ router.get('/homilies', requireLogin, (req, res) => {
 });
 
 router.get('/events', requireLogin, (req, res) => {
+  const currentPath = req.query.path || '';  // ✅ define first
+  const items = listDirectory(currentPath);
+  const breadcrumbs = buildBreadcrumbs(currentPath);
   res.render('admin/events', { 
     layout: 'layouts/admin',
     title: 'Parish Events - admin', 
     lang: 'en', 
     page: 'events',
-    favicon: '/images/logo-olqa-mini.png'
+    favicon: '/images/logo-olqa-mini.png',
+    currentPath,
+    items,
+    breadcrumbs
   });
 });
 
@@ -118,16 +160,35 @@ router.get('/contact', requireLogin, (req, res) => {
   });
 });
 
-router.post('/upload-image',
-  requireLogin,
-  upload.single('image'),
-  (req, res) => {
+router.post('/events/upload-image', requireLogin, upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.send('No file uploaded');
+  }
 
-    if (!req.file) {
-      return res.send('No file uploaded');
-    }
+  const folder = req.body.currentPath || '';
+  // Redirect back to the current folder after upload
+  res.redirect(`/admin/events?path=${encodeURIComponent(folder)}`);
+});
 
-    res.redirect('/admin');
+router.post('/events/create-folder', requireLogin, (req, res) => {
+  const currentPath = req.body.currentPath || '';
+  const folderName = req.body.folderName;
+
+  if (!folderName) {
+    return res.send('Folder name is required');
+  }
+
+  // Sanitize folder name (remove dangerous characters)
+  const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
+
+  const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
+
+  if (!fs.existsSync(newFolderPath)) {
+    fs.mkdirSync(newFolderPath, { recursive: true });
+  }
+
+  // Redirect back to the current folder after creating
+  res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
 });
 
 module.exports = router;
