@@ -18,7 +18,7 @@ app.use(express.json());
 // SESSION
 // =====================
 app.use(session({
-  secret: 'replace_this_with_a_real_secret',
+  secret: 'borzyowysekret',
   resave: false,
   saveUninitialized: false
 }));
@@ -59,17 +59,21 @@ const ADMIN_PASSWORD = 'jerzy';
 // =====================
 app.get('/admin', (req, res) => {
   if (req.session.loggedIn) {
-    res.render('admin/index', {
-      title: 'Admin Panel',
-      layout: false
+    res.render('admin/admin', {
+      layout: 'layouts/admin', // 👈 THIS is the key line
+      title: 'Admin Panel - Our Lady, Queen of Angels',
+      lang: 'en',
+      page: 'admin',
+      favicon: '/images/logo-olqa-mini.png'
     });
   } else {
     res.render('admin/login', {
-      error: null,
-      layout: false
+      layout: false, // no layout for login page
+      error: null
     });
   }
 });
+
 
 app.post('/admin', (req, res) => {
   const { password } = req.body;
@@ -91,21 +95,7 @@ app.get('/admin/logout', (req, res) => {
   });
 });
 
-app.post('/admin/upload-image', upload.single('image'), (req, res) => {
-  if (!req.session.loggedIn) {
-    return res.redirect('/admin');
-  }
 
-  if (!req.file) {
-    return res.send('No file uploaded');
-  }
-
-  res.send(`
-    <p>Image uploaded successfully!</p>
-    <p><a href="/admin">Back to Admin Panel</a></p>
-    <p>File path: <code>/images/${req.file.filename}</code></p>
-  `);
-});
 
 // =====================
 // PUBLIC ROUTES
@@ -119,6 +109,7 @@ app.get('/', (req, res) => {
 // Language routes
 app.use('/en', require('./routes/en'));
 app.use('/es', require('./routes/es'));
+app.use('/admin', require('./routes/admin'));
 
 // =====================
 // 404 HANDLING

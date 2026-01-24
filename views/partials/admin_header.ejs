@@ -1,0 +1,40 @@
+<!-- PARISH LOGO -->
+<div class="parish-logo-container">
+  <a href="/admin">
+    <img src="/images/logo-olqa.png"
+         class="parish-logo"
+         alt="Our Lady Queen of Angels">
+  </a>
+</div>
+
+<%
+  const menuItems = [
+    { key: 'home', label: 'Home', url: '/admin/home' },
+    { key: 'about', label: 'About', url: '/admin/about' },
+    { key: 'masses', label: 'Masses', url: '/admin/masses' },
+    { key: 'office', label: 'Office', url: '/admin/office' },
+    { key: 'bulletin', label: 'Bulletin', url: '/admin/bulletin' },
+    { key: 'groups', label: 'Groups', url: '/admin/groups' },
+    { key: 'communities', label: 'Communities', url: '/admin/communities' },
+    { key: 'homilies', label: 'Homilies', url: '/admin/homilies' },
+    { key: 'events', label: 'Events', url: '/admin/events' },
+    { key: 'contact', label: 'Contact', url: '/admin/contact' }
+  ];
+%>
+
+<!-- ADMIN HEADER -->
+<div class="site-header">
+
+  <!-- NAVIGATION -->
+  <nav class="main-menu">
+    <% menuItems.forEach(item => { %>
+      <a href="<%= item.url %>"
+         class="menu-link <%= page === item.key ? 'active' : '' %>">
+        <%= item.label %>
+      </a>
+    <% }); %>
+
+    <a href="/admin/logout" class="menu-link">Logout</a>
+  </nav>
+
+</div>

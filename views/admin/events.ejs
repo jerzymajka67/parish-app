@@ -1,0 +1,26 @@
+<body>
+ 
+  <main>
+    <h1>Welcome to Our Lady, Queen of Angels, La Joya Parish</h1>
+    <p>Current page: <%= page %></p>
+    <p>Language: <%= lang %></p>
+  </main>
+<body>
+  <div id="tools">
+    <button id="create-bulletin">Create Bulletin</button>
+    <form action="/admin/upload-image" method="POST" enctype="multipart/form-data">
+  <input type="file" name="image" accept="image/*" required>
+  <button type="submit">Upload</button>
+</form>
+  </div>
+ <div id="messages"></div>
+  <!-- LOGOUT LINK -->
+  <div style="margin-top:20px;">
+    <a href="/admin/logout" style="color:rgb(172, 101, 2); text-decoration:none;">Logout</a>
+  </div>
+
+
+  <script src="/admin/static/script.js"></script> 
+
+  
+</body>
