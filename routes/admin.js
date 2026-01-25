@@ -4,6 +4,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
+const { buildTreeHTML } = require('../helpers/treeHelper');  // require JS helper
+
 // Base folder for events content (correct path)
 const EVENTS_ROOT = path.join(__dirname, '..', 'content', 'events');
 const tmpFolder = path.join(EVENTS_ROOT, 'tmp');
@@ -162,7 +164,8 @@ router.get('/events', requireLogin, (req, res) => {
     favicon: '/images/logo-olqa-mini.png',
     currentPath,
     items,
-    breadcrumbs
+    breadcrumbs,
+     buildTreeHTML   // pass helper function to EJS
   });
 });
 
