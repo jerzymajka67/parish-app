@@ -27,6 +27,7 @@ app.use(session({
 // =====================
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin/static', express.static(path.join(__dirname, 'admin/static')));
+app.use('/content', express.static(path.join(__dirname, 'content')));
 
 // =====================
 // EJS LAYOUTS (PUBLIC ONLY)

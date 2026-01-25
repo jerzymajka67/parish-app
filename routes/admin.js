@@ -3,8 +3,13 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 // Base folder for events content (correct path)
 const EVENTS_ROOT = path.join(__dirname, '..', 'content', 'events');
+const tmpFolder = path.join(EVENTS_ROOT, 'tmp');
+if (!fs.existsSync(tmpFolder)) {
+  fs.mkdirSync(tmpFolder, { recursive: true });
+}
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const currentPath = req.body.currentPath || ''; // get folder from form
@@ -36,19 +41,30 @@ function buildBreadcrumbs(currentPath) {
     };
   });
 }
-function listDirectory(relativePath = '') {
-  const safePath = path.normalize(relativePath).replace(/^(\.\.(\/|\\|$))+/, '');
-  const fullPath = path.join(EVENTS_ROOT, safePath);
+function listDirectory(currentPath) {
+  const fullPath = path.join(EVENTS_ROOT, currentPath);
+  const items = [];
 
-  const items = fs.readdirSync(fullPath, { withFileTypes: true });
+  fs.readdirSync(fullPath, { withFileTypes: true }).forEach(dirent => {
+    // Skip tmp folder
+    if (dirent.name === 'tmp') return;
 
-  return items.map(item => ({
-    name: item.name,
-    type: item.isDirectory() ? 'folder' : 'file'
-  }));
+    if (dirent.isDirectory()) {
+      items.push({ name: dirent.name, type: 'folder' });
+    } else {
+      items.push({ name: dirent.name, type: 'file' });
+    }
+  });
+
+  return items;
 }
 
-const upload = multer({ storage });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // max 5 MB
+});
+
 
 // middleware/auth.js
 const requireLogin = require('../middleware/auth');
@@ -160,14 +176,39 @@ router.get('/contact', requireLogin, (req, res) => {
   });
 });
 
-router.post('/events/upload-image', requireLogin, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.send('No file uploaded');
-  }
+router.post('/events/upload-image', requireLogin, upload.single('image'), async (req, res) => {
+  try {
+    const currentPath = req.body.currentPath || '';
+    const targetFolder = path.join(EVENTS_ROOT, currentPath);
 
-  const folder = req.body.currentPath || '';
-  // Redirect back to the current folder after upload
-  res.redirect(`/admin/events?path=${encodeURIComponent(folder)}`);
+    if (!req.file) {
+      return res.send('No file uploaded');
+    }
+
+    // Create target folder if it does not exist
+    if (!fs.existsSync(targetFolder)) {
+      fs.mkdirSync(targetFolder, { recursive: true });
+    }
+
+    const inputPath = req.file.path; // temp file
+    const filenameWithoutExt = path.parse(req.file.originalname).name;
+    const outputPath = path.join(targetFolder, filenameWithoutExt + '.webp');
+
+    // Resize + convert to WebP
+    await sharp(inputPath)
+      .resize({ width: 1200 })      // max width
+      .webp({ quality: 80 })        // ~200KB typical
+      .toFile(outputPath);
+
+    // Delete temporary file
+    fs.unlinkSync(inputPath);
+
+    // Redirect back to the current folder
+    res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error processing image');
+  }
 });
 
 router.post('/events/create-folder', requireLogin, (req, res) => {
@@ -190,5 +231,43 @@ router.post('/events/create-folder', requireLogin, (req, res) => {
   // Redirect back to the current folder after creating
   res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
 });
+router.get('/events/view', requireLogin, (req, res) => {
+  const filePath = req.query.file;
+  if (!filePath) return res.sendStatus(400);
+
+  const absolutePath = path.join(EVENTS_ROOT, filePath);
+
+  // Security: prevent path traversal
+  if (!absolutePath.startsWith(EVENTS_ROOT)) {
+    return res.sendStatus(403);
+  }
+
+  res.sendFile(absolutePath);
+});
+// Delete selected files and folders
+router.post('/events/delete-selected', requireLogin, (req, res) => {
+  const { selected = [], currentPath = '' } = req.body;
+
+  const items = Array.isArray(selected) ? selected : [selected];
+
+  items.forEach(entry => {
+    const [type, relativePath] = entry.split(':');
+
+    if (!type || !relativePath) return;
+
+    const targetPath = path.join(EVENTS_ROOT, relativePath);
+
+    if (!fs.existsSync(targetPath)) return;
+
+    if (type === 'folder') {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    } else if (type === 'file') {
+      fs.unlinkSync(targetPath);
+    }
+  });
+
+  res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
+});
+
 
 module.exports = router;
