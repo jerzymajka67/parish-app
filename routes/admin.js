@@ -213,7 +213,6 @@ router.post('/events/upload-image', requireLogin, upload.single('image'), async 
     res.status(500).send('Error processing image');
   }
 });
-
 router.post('/events/create-folder', requireLogin, (req, res) => {
   const currentPath = req.body.currentPath || '';
   const folderName = req.body.folderName;
@@ -222,18 +221,30 @@ router.post('/events/create-folder', requireLogin, (req, res) => {
     return res.send('Folder name is required');
   }
 
-  // Sanitize folder name (remove dangerous characters)
+  // Sanitize folder name
   const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
 
   const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
 
-  if (!fs.existsSync(newFolderPath)) {
+  // Check if folder already exists
+  if (fs.existsSync(newFolderPath)) {
+    // Redirect back with a warning or append a number automatically
+    let counter = 1;
+    let uniqueName = safeName;
+    while (fs.existsSync(path.join(EVENTS_ROOT, currentPath, uniqueName))) {
+      uniqueName = `${safeName} (${counter})`;
+      counter++;
+    }
+    fs.mkdirSync(path.join(EVENTS_ROOT, currentPath, uniqueName), { recursive: true });
+  } else {
     fs.mkdirSync(newFolderPath, { recursive: true });
   }
 
-  // Redirect back to the current folder after creating
+  // Redirect back to the current folder
   res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
 });
+
+// View image file
 router.get('/events/view', requireLogin, (req, res) => {
   const filePath = req.query.file;
   if (!filePath) return res.sendStatus(400);
