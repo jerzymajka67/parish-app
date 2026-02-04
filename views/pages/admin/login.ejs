@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/admin/static/style.css">
+</head>
+<body>
+
+
+  <h1>Admin Login</h1>
+  <h2>Authorized users, please log in to manage the website.</h2>
+
+  <form action="/admin" method="POST">
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+  <h2>Not authorized? </h2>
+  <h2>Click the parish logo below to return to the homepage.</h2>
+  <div class="parish-logo-container">
+  <a href="/">
+    <img src="/images/logo-olqa.png" class="parish-logo" alt="Our Lady Queen of Angels">
+  </a>
+</div>
+
+</body>
+</html>

@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
+
 const requireLogin = require('../../middleware/auth');
 
-router.get('/', requireLogin, (req, res) => {
-  res.render('admin/home', {
+
+// All admin routes (kept existing behavior; add buildTreeHTML to /events render)
+router.get('/',  requireLogin, (req, res) => {
+  res.render('pages/admin/home', { 
     layout: 'layouts/admin',
-    title: 'Home - admin',
-    lang: 'en',
+    title: 'Home - admin', 
+    lang: 'en', 
     page: 'home',
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-
 module.exports = router;

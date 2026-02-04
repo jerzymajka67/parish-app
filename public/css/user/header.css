@@ -1,0 +1,161 @@
+/* ====================== PARISH LOGO ABOVE HEADER ====================== */
+.parish-logo-container {
+  position: absolute;  /* floats above header */
+  top: 2px;          /* adjust vertical position */
+  left: 30px;          /* adjust horizontal position */
+  z-index: 10;         /* make sure it’s above header */
+}
+
+.parish-logo {
+  width: 95px;
+  height: 95px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #e5ef77;
+}
+.parish-logo {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.parish-logo:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(16, 3, 50, 0.9);
+}
+
+/* Mobile logo adjustments */
+@media (max-width: 768px) {
+  .parish-logo-container {
+    top: 2px;        /* closer on mobile */
+    left: 15px;         /* center horizontally */
+  }
+  .parish-logo {
+    width: 80px;
+    height: 80px;
+  }
+}
+/* ====================== LANGUAGE SWITCH BUTTON ====================== */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  margin-left: 200px; /* space between logo and button */
+}
+
+/* ====================== TRANSPARENT LANGUAGE SWITCH BUTTON ====================== */
+.lang-btn {
+  display: inline-block;
+  padding: 8px 20px;          /* controls pill width */
+  background-color: transparent; /* transparent */
+  color: #ffffff;             /* dark blue text */
+  font-weight: bold;
+  text-decoration: none;
+  border: 2px solid #ffffff; /* dark blue border */
+  border-radius: 999px;       /* semicircular pill */
+  transition: 0.3s;
+  font-size: 18px;
+}
+
+/* Hover effect: fill background and invert text */
+.lang-btn:hover {
+  background-color: #f9f9f9;  /* dark blue background */
+  color: #beb504;             /* light yellow text */
+  border-color: #f9f9f9;      /* keep border same color */
+}
+
+
+.site-header {
+  background: linear-gradient(to right, #fbf186, #215374);
+  margin-top: 18px;
+  padding: 12px; /* extra top space so logo does not overlap */
+  border-radius: 16px 16px 0 0;
+  font-family: 'Lucida Bright', Georgia, serif;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.lang-switch {
+  display: flex;
+  align-items: center;
+  margin-left: 200px; /* space between logo and button */
+}
+.main-menu {
+  display: block;
+}
+
+.menu-link {
+  margin: 0 12px;
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 22px;
+  transition: 0.3s;
+}
+
+.menu-link:hover,
+.menu-link.active {
+  color: #fffa88;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .site-header {
+    padding: 6px;
+    margin-top: 10px; /* more space for logo above */
+    border-radius: 12px 12px 0 0;
+  }
+  .lang-btn {
+    padding: 6px 14px;
+    font-size: 14px;
+    justify-content: center;
+  }
+
+}
+
+/* ===== HAMBURGER ===== */
+.hamburger {
+  display: none; /* hidden on desktop */
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  width: 28px;
+  height: 3px;
+  background-color: #0b2f48;
+  margin: 5px 0;
+  border-radius: 2px;
+}
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .hamburger {
+    margin-left: auto;
+    display: block;
+    order: 2;
+  }
+
+  .lang-switch {
+    order: 1;
+  }
+
+  .main-menu {
+    display: none;
+    width: 100%;
+    text-align: right;
+    order: 3;
+    margin-top: 1px;
+  }
+
+  .main-menu.show {
+    display: block;
+    background: linear-gradient(to right, #fbf186, #215374);
+    padding: 10px;
+  }
+
+  .menu-link {
+    display: block;
+    margin: 10px 0;
+    font-size: 18px;
+    color: #ffffe0;
+  }
+}

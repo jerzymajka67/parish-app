@@ -1,0 +1,204 @@
+const express = require('express');
+const router = express.Router();
+
+const fs = require('fs/promises');
+const path = require('path');
+const multer = require('multer');
+const { PDFDocument } = require('pdf-lib');
+
+const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
+const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
+const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
+const requireLogin = require(path.join(APP_ROOT,  'middleware', 'auth'));
+
+
+/* ============================================================
+   CONFIG
+============================================================ */
+
+const EVENTS_ROOT = path.join(APP_ROOT, 'content/bulletins');
+const MAX_PDF_SIZE = 300 * 1024; // 300 KB
+
+let tree = {};
+
+/* ============================================================
+   INTERNAL HELPERS (kept in this file)
+============================================================ */
+
+function getNode(obj, pathStr) {
+  if (!pathStr) return obj;
+  return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
+}
+
+async function validateAndCompressPdf(buffer) {
+  const pdfDoc = await PDFDocument.load(buffer);
+
+  if (pdfDoc.getPageCount() !== 1) {
+    throw new Error('PDF must contain exactly one page');
+  }
+
+  let output = buffer;
+
+  if (buffer.length > MAX_PDF_SIZE) {
+    output = await pdfDoc.save({
+      useObjectStreams: true,
+      compress: true
+    });
+  }
+
+  if (output.length > MAX_PDF_SIZE) {
+    throw new Error('PDF exceeds 300 KB even after compression');
+  }
+
+  return output;
+}
+
+/* ============================================================
+   MULTER (PDF only, memory)
+============================================================ */
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter(req, file, cb) {
+    if (file.mimetype !== 'application/pdf') {
+      return cb(new Error('Only PDF files are allowed'));
+    }
+    cb(null, true);
+  }
+});
+
+/* ============================================================
+   ROUTES
+============================================================ */
+
+// Admin about page
+router.get('/', requireLogin, (req, res) => {
+  tree = {};
+  res.render('pages/admin/bulletin', {
+    layout: 'layouts/admin',
+    title: 'Bulletin - admin',
+    lang: 'en',
+    page: 'bulletin',
+    favicon: '/images/logo-olqa-mini.png'
+  });
+});
+
+// List directories (AJAX)
+router.get('/ls', requireLogin, async (req, res) => {
+  try {
+    const relativePath = req.query.path || '';
+    const content = transformDirList(
+      await readDir(EVENTS_ROOT, relativePath)
+    );
+
+    storeDirInTree(tree, relativePath, content);
+    res.json(getNode(tree, relativePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create folder
+router.post('/create-folder', requireLogin, async (req, res) => {
+  try {
+    const currentPath = req.body.currentPath || '';
+    const folderName = req.body.folderName;
+
+    if (!folderName) {
+      return res.status(400).send('Folder name is required');
+    }
+
+    const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
+    const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
+
+    await fs.mkdir(newFolderPath, { recursive: true });
+
+    res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error while creating folder');
+  }
+});
+
+// Delete selected folder/file
+// Delete selected
+router.post('/delete-selected', requireLogin, async (req, res) => {
+  try {
+    const { files, folder } = req.body; // get files array and folder
+
+    // 1️⃣ MULTI FILE DELETE
+    if (files && files.length) {
+      const list = Array.isArray(files) ? files : [files];
+
+      for (const relPath of list) {
+        const fullPath = path.join(EVENTS_ROOT, relPath);
+
+        if (!fullPath.startsWith(EVENTS_ROOT)) continue;
+
+        // Delete the file
+        await fs.rm(fullPath, { force: true });
+
+        // Delete thumbnail if exists
+        const thumb = path.join(
+          path.dirname(fullPath),
+          'thumbs',
+          path.basename(fullPath)
+        );
+        await fs.rm(thumb, { force: true }).catch(() => {});
+      }
+    }
+
+    // 2️⃣ FOLDER DELETE
+    if (folder) {
+      const fullFolder = path.join(EVENTS_ROOT, folder);
+
+      if (!fullFolder.startsWith(EVENTS_ROOT)) {
+        return res.status(403).send('Access denied');
+      }
+
+      // Delete folder recursively
+      await fs.rm(fullFolder, { recursive: true, force: true });
+    }
+
+    // Respond JSON for the browser
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Delete failed' });
+  }
+});
+
+// 📄 Upload / load PDF
+router.post('/load-file', requireLogin, upload.single('pdf'), async (req, res) => {
+  try {
+    const currentPath = req.body.currentPath || '';
+    const targetDir = path.join(EVENTS_ROOT, currentPath);
+
+    // safety check
+    if (!targetDir.startsWith(EVENTS_ROOT)) {
+      return res.status(403).send('Access denied');
+    }
+
+    if (!req.file) {
+      return res.status(400).send('No PDF uploaded');
+    }
+
+    const finalPdf = await validateAndCompressPdf(req.file.buffer);
+
+    await fs.mkdir(targetDir, { recursive: true });
+    const originalName = req.file.originalname;
+    await fs.writeFile(path.join(targetDir, originalName), finalPdf);
+
+
+    res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}`);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send(err.message);
+  }
+});
+
+/* ============================================================
+   EXPORT
+============================================================ */
+
+module.exports = router;

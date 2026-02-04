@@ -1,0 +1,29 @@
+<body>
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/admin/static/style.css">
+</head>
+  <h1>Welcome to the Admin Panel</h1>
+
+  <div id="tools">
+    <button id="create-bulletin">Create Bulletin</button>
+    <form action="/admin/upload-image" method="POST" enctype="multipart/form-data">
+  <input type="file" name="image" accept="image/*" required>
+  <button type="submit">Upload</button>
+</form>
+  </div>
+ <div id="messages"></div>
+  <!-- LOGOUT LINK -->
+  <div style="margin-top:20px;">
+    <a href="/admin/logout" style="color:rgb(172, 101, 2); text-decoration:none;">Logout</a>
+  </div>
+ 
+
+
+
+
+ 
+
+  <script src="/admin/static/script.js"></script> 
+</body>
