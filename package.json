@@ -10,10 +10,20 @@
     "express": "^5.2.1",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.19.0",
+    "module-alias": "^2.2.3",
     "multer": "^2.0.2",
+    "pdf-lib": "^1.17.1",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
+  },
+  "_moduleAliases": {
+    "@root": ".",
+    "@controllers": "controllers",
+    "@helpers": "helpers",
+    "@middleware": "middleware",
+    "@routes": "routes",
+    "@content": "content"
   }
 }

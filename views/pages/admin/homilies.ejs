@@ -1,0 +1,507 @@
+<body>
+<style>
+  #editor {
+  display: block !important;
+  visibility: visible !important;
+  height: 400px;
+}
+</style>
+
+<h2><%= title %></h2>
+
+<!-- CREATE FOLDER -->
+<form id="createFolderForm"
+      action="/admin/homilies/create-folder"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit" class="btn btn-primary">Create Folder</button>
+
+  <input id="root-folder"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px">
+
+  <input type="text"
+         name="folderName"
+         placeholder="New folder name"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+<!-- CREATE HTML FILE -->
+<form id="createHtmlForm"
+      action="/admin/homilies/create-html"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit" class="btn btn-success">Create HTML</button>
+
+  <input id="root-html"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px">
+
+  <input type="text"
+         name="fileName"
+         placeholder="New HTML file name"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+<!-- PUBLISH HTML FILE -->
+<!-- PUBLISH HTML FILE -->
+<form id="publishHtmlForm"
+      action="/admin/homilies/publish"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+
+  <!-- path context (same idea as others) -->
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-primary"
+          id="publishBtn"
+          disabled>
+    Publish HTML
+  </button>
+
+  <!-- WHERE (context / folder) -->
+  <input id="publish-path"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px"
+         placeholder="No folder selected">
+
+  <!-- WHAT (file name) -->
+  <input id="publish-file"
+         type="text"
+         name="fileName"
+         readonly
+         class="form-control"
+         style="max-width:300px"
+         placeholder="No file selected">
+</form>
+
+<!-- UPLOAD HTML FILE -->
+<form id="uploadHtmlForm"
+      action="/admin/homilies/upload-file"
+      method="POST"
+      enctype="multipart/form-data"
+      class="mb-3 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-success"
+          id="uploadBtn"
+          disabled>
+    Upload HTML File
+  </button>
+
+  <input type="file"
+         name="html"
+         accept=".html"
+         required
+         class="form-control"
+         style="max-width:420px">
+</form>
+
+<!-- DELETE (FILES OR FOLDER) -->
+<form id="deleteSelectedForm"
+      class="mb-3 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-danger"
+          id="deleteBtn"
+          disabled>
+    Delete
+  </button>
+
+  <input id="delete-folder-name"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px"
+         placeholder="Nothing selected">
+</form>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm delete</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Delete <strong id="modal-folder-name"></strong>?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ACTION BUTTONS -->
+
+
+<!-- TINYMCE EDITOR MODAL -->
+<div class="modal fade" id="editHtmlModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit HTML File</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="editor"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-success" id="saveHtmlBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSER -->
+<div id="browser-container">
+  <div id="browser" class="list-group"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const editModalEl = document.getElementById('editHtmlModal');
+    editModalEl.addEventListener('hidden.bs.modal', function () {
+    tinymce.remove('#editor');
+  });
+
+  const browser = document.getElementById('browser');
+  const createPath = document.querySelector('#createFolderForm input[name="currentPath"]');
+  const createFolderPath = document.querySelector('#createFolderForm input[name="currentPath"]');
+  const createHtmlPath   = document.querySelector('#createHtmlForm input[name="currentPath"]');
+  const createHtmlPathView =
+  document.getElementById('root-html');
+
+  const uploadPath       = document.querySelector('#uploadHtmlForm input[name="currentPath"]');
+  const deletePath       = document.querySelector('#deleteSelectedForm input[name="currentPath"]');
+  const publishPath      = document.querySelector('#publishHtmlForm input[name="currentPath"]');
+
+  const rootInfo  = document.getElementById('root-folder');
+  const deleteName = document.getElementById('delete-folder-name');
+  const deleteBtn  = document.getElementById('deleteBtn');
+  const uploadBtn  = document.getElementById('uploadBtn');
+  const publishPathView = document.getElementById('publish-path');
+  const publishFileView = document.getElementById('publish-file');
+  const publishBtn      = document.getElementById('publishBtn');
+
+  const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+  const modalName = document.getElementById('modal-folder-name');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+  let selectedItem = null;
+console.log('createHtmlPath:', createHtmlPath);
+console.log('createHtmlPathView:', createHtmlPathView);
+
+function getSelectedFiles() {
+    return [...document.querySelectorAll('input[name="files[]"]:checked')]
+      .map(cb => cb.value);
+  }
+function setCurrent(path) {
+
+  /* =====================================================
+     NO SELECTION (RESET EVERYTHING)
+     ===================================================== */
+  if (!path) {
+
+    // folder / upload / delete
+    createPath.value =
+    uploadPath.value =
+    deletePath.value =
+    '';
+
+    rootInfo.value = 'In: /';
+    deleteName.value = '';
+    deleteBtn.disabled = uploadBtn.disabled = true;
+
+    // create HTML
+    createHtmlPath.value = '';
+    createHtmlPathView.value = '';
+
+    // publish
+    publishPath.value = '';
+    publishPathView.value = '';
+    publishFileView.value = '';
+    publishBtn.disabled = true;
+
+    return;
+  }
+
+  /* =====================================================
+     COMMON PATH CALCULATION
+     ===================================================== */
+
+  const parts = path.split('/');
+  const isFile = selectedItem && selectedItem.tagName === 'DIV';
+
+  const folderPath = isFile
+    ? parts.slice(0, -1).join('/')
+    : path;
+
+  const name = parts.at(-1);
+
+  /* =====================================================
+     FOLDER CONTEXT (ALL FORMS)
+     ===================================================== */
+
+  createPath.value =
+  uploadPath.value =
+  deletePath.value =
+  folderPath;
+
+  rootInfo.value = 'In: ' + folderPath;
+  deleteName.value = name;
+  deleteBtn.disabled = uploadBtn.disabled = false;
+
+  /* =====================================================
+     CREATE HTML
+     ===================================================== */
+
+  createHtmlPath.value = folderPath;
+  createHtmlPathView.value = 'In: ' + folderPath;
+
+  /* =====================================================
+     PUBLISH
+     ===================================================== */
+
+  publishPath.value = folderPath;
+  publishPathView.value = 'In: ' + folderPath;
+
+  if (isFile) {
+    publishFileView.value = name;
+    publishBtn.disabled = false;
+  } else {
+    publishFileView.value = '';
+    publishBtn.disabled = true;
+  }
+}
+
+function select(el, path) {
+  selectedItem?.classList.remove('active');
+  selectedItem = el;
+  el.classList.add('active');
+  setCurrent(path);
+}
+
+  function render(tree, basePath, container) {
+
+    for (const name in tree) {
+      if (name === 'files') continue;
+
+      const fullPath = basePath ? basePath + '/' + name : name;
+
+      const folder = document.createElement('a');
+      folder.href = '#';
+      folder.className = 'list-group-item list-group-item-action';
+      folder.textContent = name;
+
+      const collapse = document.createElement('div');
+      collapse.className = 'collapse ps-3';
+
+      const bs = new bootstrap.Collapse(collapse, { toggle:false });
+
+      folder.onclick = e => {
+        e.preventDefault();
+        e.stopPropagation();
+        select(folder, fullPath);
+        if (!collapse.hasChildNodes()) load(fullPath, collapse);
+        bs.toggle();
+      };
+
+      container.append(folder, collapse);
+    }
+
+(tree.files || []).forEach(file => {
+
+  const filePath = basePath ? basePath + '/' + file : file;
+
+  // row (same behavior as folders)
+  const item = document.createElement('div');
+  item.className =
+    'list-group-item list-group-item-action d-flex align-items-center gap-2';
+
+  // checkbox (delete only)
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.name = 'files[]';
+  cb.value = filePath;
+
+  cb.onclick = e => {
+    e.stopPropagation();
+    select(item, filePath); // SAME as clicking row
+  };
+
+  // file link (open editor)
+  const link = document.createElement('span');
+  link.className = 'file-link';
+  link.textContent = file;
+
+  link.onclick = e => {
+    e.stopPropagation();
+    select(item, filePath);
+    openFile(filePath);
+  };
+
+  // clicking row selects (like folder)
+  item.onclick = () => select(item, filePath);
+
+  item.append(cb, link);
+  container.appendChild(item);
+});
+
+
+  }
+
+  function load(path, container) {
+    fetch('/admin/homilies/ls?path=' + encodeURIComponent(path))
+      .then(r => r.json())
+      .then(data => render(data, path, container));
+  }
+  fetch('/admin/homilies/ls')
+    .then(r => r.json())
+    .then(data => render(data, '', browser));
+
+  // DELETE FORM
+document.getElementById('deleteSelectedForm').onsubmit = e => {
+  e.preventDefault();
+
+  const files = getSelectedFiles();
+  let folder = null;
+
+  // If no files are selected, check if a folder is selected
+  if (!files.length && selectedItem && selectedItem.tagName === 'A') {
+    folder = deletePath.value; // the folder path from hidden input
+  }
+
+  if (!files.length && !folder) {
+    alert('No file or folder selected');
+    return;
+  }
+
+modalName.textContent =
+  files.length === 1
+    ? files[0].split('/').pop()
+    : files.length > 1
+      ? `${files.length} files`
+      : folder.split('/').pop();
+
+  modal.show();
+
+  confirmDeleteBtn.onclick = () => {
+    modal.hide();
+
+    fetch('/admin/homilies/delete-selected', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files, folder })
+    })
+    .then(res => res.json())
+    .then(() => location.reload())
+    .catch(err => console.error(err));
+  };
+};
+const createHtmlBtn = document.getElementById('createHtmlBtn');
+const publishHtmlBtn = document.getElementById('publishHtmlBtn');
+
+const editModal = new bootstrap.Modal(document.getElementById('editHtmlModal'));
+let selectedFile = null;  // current file selected in browser
+
+// SAVE HTML (from TinyMCE)
+document.getElementById('saveHtmlBtn').onclick = () => {
+  if(!selectedFile) return;
+  const content = tinymce.get('editor').getContent();
+  fetch('/admin/homilies/save', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ path:selectedFile, content, hidden:hiddenFlag })
+  }).then(r=>r.json())
+    .then(data=>{
+      if(data.ok){
+        editModal.hide();
+        alert('File saved!');
+      }
+    });
+};
+function extractBody(html) {
+  if (!html || typeof html !== 'string') {
+    console.error('extractBody: invalid html input', html);
+    return '';
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  if (!doc || !doc.body) {
+    console.error('extractBody: failed to parse HTML');
+    return '';
+  }
+
+  return doc.body.innerHTML || '';
+}
+function openFile(filePath) {
+  fetch('/admin/homilies/file?path=' + encodeURIComponent(filePath))
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (data) {
+      console.log('File content loaded into editor', data);
+
+      const bodyContent = extractBody(data.content);
+
+      // ONLY open modal + init editor via existing logic
+      editModal.show();
+
+      setTimeout(function () {
+        tinymce.remove('#editor');
+        tinymce.init({
+          selector: '#editor',
+          height: 500,
+          plugins: 'image link code',
+          toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | image link code',
+          setup: function (editor) {
+            editor.on('init', function () {
+              editor.setContent(bodyContent, { format: 'raw' });
+            });
+          }
+        });
+      }, 300);
+    })
+    .catch(function (err) {
+      console.error('Error loading file', err);
+    });
+}
+
+function updatePublishButton() {
+  publishHtmlBtn.disabled = !selectedFile;
+}
+});
+
+
+</script>
+
+</body>

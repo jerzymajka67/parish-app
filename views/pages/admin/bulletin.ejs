@@ -1,0 +1,246 @@
+<body>
+
+<h2><%= title %></h2>
+
+<!-- CREATE FOLDER -->
+<form id="createFolderForm"
+      action="/admin/bulletin/create-folder"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit" class="btn btn-primary">Create Folder</button>
+
+  <input id="root-folder"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px">
+
+  <input type="text"
+         name="folderName"
+         placeholder="New folder name"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+
+<!-- UPLOAD IMAGE -->
+<form id="uploadImageForm"
+      action="/admin/bulletin/upload-image"
+      method="POST"
+      enctype="multipart/form-data"
+      class="mb-3 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-success"
+          id="uploadBtn"
+          disabled>
+    Upload Image
+  </button>
+
+  <input type="file"
+         name="image"
+         accept="image/*"
+         required
+         class="form-control"
+         style="max-width:420px">
+</form>
+
+<!-- DELETE (FILES OR FOLDER) -->
+<form id="deleteSelectedForm"
+      class="mb-3 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-danger"
+          id="deleteBtn"
+          disabled>
+    Delete
+  </button>
+
+  <input id="delete-folder-name"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px"
+         placeholder="Nothing selected">
+</form>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm delete</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Delete <strong id="modal-folder-name"></strong>?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- BROWSER -->
+<div id="browser-container">
+  <div id="browser" class="list-group"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const browser = document.getElementById('browser');
+
+  const createPath = document.querySelector('#createFolderForm input[name="currentPath"]');
+  const uploadPath = document.querySelector('#uploadImageForm input[name="currentPath"]');
+  const deletePath = document.querySelector('#deleteSelectedForm input[name="currentPath"]');
+
+  const rootInfo  = document.getElementById('root-folder');
+  const deleteName = document.getElementById('delete-folder-name');
+  const deleteBtn  = document.getElementById('deleteBtn');
+  const uploadBtn  = document.getElementById('uploadBtn');
+
+  const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+  const modalName = document.getElementById('modal-folder-name');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+  let selectedItem = null;
+
+  function getSelectedFiles() {
+    return [...document.querySelectorAll('input[name="files[]"]:checked')]
+      .map(cb => cb.value);
+  }
+
+  function setCurrent(path) {
+    createPath.value = uploadPath.value = deletePath.value = path;
+    rootInfo.value = 'In: ' + (path || '/');
+    deleteName.value = path.split('/').pop() || '';
+    deleteBtn.disabled = uploadBtn.disabled = !path;
+  }
+
+  function select(el, path) {
+    selectedItem?.classList.remove('active');
+    selectedItem = el;
+    el.classList.add('active');
+    setCurrent(path);
+  }
+
+  function render(tree, basePath, container) {
+
+    for (const name in tree) {
+      if (name === 'files') continue;
+
+      const fullPath = basePath ? basePath + '/' + name : name;
+
+      const folder = document.createElement('a');
+      folder.href = '#';
+      folder.className = 'list-group-item list-group-item-action';
+      folder.textContent = name;
+
+      const collapse = document.createElement('div');
+      collapse.className = 'collapse ps-3';
+
+      const bs = new bootstrap.Collapse(collapse, { toggle:false });
+
+      folder.onclick = e => {
+        e.preventDefault();
+        e.stopPropagation();
+        select(folder, fullPath);
+        if (!collapse.hasChildNodes()) load(fullPath, collapse);
+        bs.toggle();
+      };
+
+      container.append(folder, collapse);
+    }
+
+    (tree.files || []).forEach(file => {
+
+      const filePath = basePath ? basePath + '/' + file : file;
+
+      const item = document.createElement('div');
+      item.className = 'list-group-item d-flex align-items-center gap-2';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.name = 'files[]';
+      cb.value = filePath;
+
+      const link = document.createElement('a');
+      link.href = '/content/bulletins/' + encodeURIComponent(filePath);
+      link.target = '_blank';
+      link.textContent = file;
+      link.onclick = e => e.stopPropagation();
+
+      item.append(cb, link);
+      item.onclick = () => select(item, filePath);
+
+      container.appendChild(item);
+    });
+  }
+
+  function load(path, container) {
+    fetch('/admin/bulletin/ls?path=' + encodeURIComponent(path))
+      .then(r => r.json())
+      .then(data => render(data, path, container));
+  }
+
+  fetch('/admin/bulletin/ls')
+    .then(r => r.json())
+    .then(data => render(data, '', browser));
+
+  // DELETE FORM
+document.getElementById('deleteSelectedForm').onsubmit = e => {
+  e.preventDefault();
+
+  const files = getSelectedFiles();
+  let folder = null;
+
+  // If no files are selected, check if a folder is selected
+  if (!files.length && selectedItem && selectedItem.tagName === 'A') {
+    folder = deletePath.value; // the folder path from hidden input
+  }
+
+  if (!files.length && !folder) {
+    alert('No file or folder selected');
+    return;
+  }
+
+  modalName.textContent =
+    files.length
+      ? `${files.length} file(s)`
+      : folder;
+
+  modal.show();
+
+  confirmDeleteBtn.onclick = () => {
+    modal.hide();
+
+    fetch('/admin/bulletin/delete-selected', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files, folder })
+    })
+    .then(res => res.json())
+    .then(() => location.reload())
+    .catch(err => console.error(err));
+  };
+};
+
+
+});
+</script>
+
+</body>

@@ -1,0 +1,92 @@
+/* ====================== FOOTER ====================== */
+footer {
+  background: linear-gradient(to right, #447441, #280245);
+  padding: 6px;
+  text-align: center;
+  border-radius: 0 0 16px 16px;
+  font-family: 'Lucida Bright', Georgia, serif;
+}
+
+footer .footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  color: #e1e9e5;
+  font-size: 20px;
+}
+
+.footer-parish-name,
+.footer-parish-address {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+footer a {
+  color: #ffffff;
+  font-size: 26px;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: #dbebea;
+}
+
+/* Footer logos */
+.footer-logo {
+  height: 34px;
+  vertical-align: middle;
+}
+
+.footer-diocese-logo {
+  height: 46px;
+}
+/* ================== FOOTER LOGO HOVER EFFECT ================== */
+.footer-logo,
+.footer-diocese-logo {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+.footer-logo:hover,
+.footer-diocese-logo:hover {
+  transform: scale(1.1); /* slightly enlarge */
+  box-shadow: 0 0 10px rgba(221, 240, 52, 0.8); /* soft glow */
+  opacity: 0.9; /* slight transparency effect */
+}
+
+/* ====================== FOOTER MOBILE ADJUSTMENTS ====================== */
+ @media (max-width: 768px) {
+
+  .footer-parish-name,
+  .footer-parish-address {
+    display: block;
+    text-align: center;
+  }
+
+  footer a {
+    font-size: 22px;
+  }
+
+  .footer-logo {
+    height: 28px;
+  }
+
+  .footer-diocese-logo {
+    height: 36px;
+  }
+
+  /* Diocese logos on one line */
+  .footer-diocese-logos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .footer-diocese-link {
+    width: auto;          /* IMPORTANT */
+    display: inline-flex; /* keep anchor tight */
+  }
+}
