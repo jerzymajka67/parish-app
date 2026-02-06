@@ -1,0 +1,146 @@
+<body>
+ <h2 ><%= title %></h2>
+
+  <main>
+
+    <form method="POST" action="/admin/home/publish-en" class="mb-3 d-flex gap-2 align-items-center">
+  <label>
+    File name:
+    <input
+      type="text"
+      name="filename"
+      placeholder="homily.html"
+      required
+    >
+  </label>
+  <button type="submit">
+    Copy file
+  </button>
+</form>
+
+   <!-- CREATE HTML FILE -->
+<form id="createHtmlForm"
+      action="/admin/home/create-html"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+ 
+  <button type="submit" class="btn btn-success">Create HTML</button>
+
+  <input type="text"
+         name="fileName"
+         placeholder="New HTML file name"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+<!-- PUBLISH HTML FILE -->
+<!-- PUBLISH HTML FILE -->
+<form id="publishHtmlForm"
+      action="/admin/homilies/publish"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+
+  <!-- path context (same idea as others) -->
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-primary"
+          id="publishBtn"
+          disabled>
+    Publish HTML
+  </button>
+
+  <!-- WHERE (context / folder) -->
+  <input id="publish-path"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px"
+         placeholder="No folder selected">
+
+  <!-- WHAT (file name) -->
+  <input id="publish-file"
+         type="text"
+         name="fileName"
+         readonly
+         class="form-control"
+         style="max-width:300px"
+         placeholder="No file selected">
+</form>
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="/admin/home/upload-file" method="POST" enctype="multipart/form-data">
+  <input type="file" name="html" accept=".html" required>
+  <button type="submit">Upload</button>
+</form>
+
+</body>
+</html>
+
+<!-- UPLOAD HTML FILE -->
+<form id="uploadHtmlForm"
+      action="/admin/home/upload-file"
+      method="POST"
+      enctype="multipart/form-data"
+      class="mb-3 d-flex gap-2 align-items-center">
+  <button type="submit"
+          class="btn btn-success"
+          id="uploadBtn">
+    Upload HTML File
+  </button>
+
+  <input type="file"
+         name="html"
+         accept=".html"
+         required
+         class="form-control"
+         style="max-width:420px">
+</form>
+
+<!-- DELETE (FILES OR FOLDER) -->
+<form id="deleteSelectedForm"
+      class="mb-3 d-flex gap-2 align-items-center">
+
+  <input type="hidden" name="currentPath">
+
+  <button type="submit"
+          class="btn btn-danger"
+          id="deleteBtn"
+          disabled>
+    Delete
+  </button>
+
+  <input id="delete-folder-name"
+         type="text"
+         readonly
+         class="form-control"
+         style="max-width:420px"
+         placeholder="Nothing selected">
+</form>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm delete</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Delete <strong id="modal-folder-name"></strong>?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+  </main>
+</body>

@@ -6,3 +6,18 @@
 .list-group-item.active .file-link {
   color: #fff;
 }
+/* ================================
+   Section Title (H2)
+   ================================ */
+h2 {
+  font-family: 'Playfair Display', serif; /* fancy but readable */
+  text-align: center;
+  margin: 15px 0;
+  color: #3c763d; /* smooth greenish color */
+  font-size: 2rem;
+}
+  #editor {
+  display: block !important;
+  visibility: visible !important;
+  height: 400px;
+}

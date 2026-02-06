@@ -6,6 +6,7 @@
     "dev": "nodemon app.js"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
     "express-ejs-layouts": "^2.5.1",

@@ -1,13 +1,7 @@
 <body>
-<style>
-  #editor {
-  display: block !important;
-  visibility: visible !important;
-  height: 400px;
-}
-</style>
 
-<h2><%= title %></h2>
+
+<h2 ><%= title %></h2>
 
 <!-- CREATE FOLDER -->
 <form id="createFolderForm"
@@ -55,7 +49,7 @@
          class="form-control"
          style="max-width:300px">
 </form>
-<!-- PUBLISH HTML FILE -->
+
 <!-- PUBLISH HTML FILE -->
 <form id="publishHtmlForm"
       action="/admin/homilies/publish"
@@ -64,7 +58,6 @@
 
   <!-- path context (same idea as others) -->
   <input type="hidden" name="currentPath">
-
   <button type="submit"
           class="btn btn-primary"
           id="publishBtn"

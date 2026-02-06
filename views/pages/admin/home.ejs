@@ -1,10 +1,148 @@
 <body>
- 
-  <main>
-    <h1>Welcome to Our Lady, Queen of Angels, La Joya Parish</h1>
-    <p>Current page: <%= page %></p>
-    <p>Language: <%= lang %></p>
-  </main>
+ <h2 ><%= title %></h2>
+<!-- UPLOAD HTML FILE -->
+<form id="uploadHtmlForm"
+      action="/admin/home/upload-file"
+      method="POST"
+      enctype="multipart/form-data"
+      class="mb-3 d-flex gap-2 align-items-center">
+  <button type="submit"
+          class="btn btn-success"
+          id="uploadBtn">
+    Upload HTML File
+  </button>
 
-  
+  <input type="file"
+         name="html"
+         accept=".html"
+         required
+         class="form-control"
+         style="max-width:420px">
+</form>
+   <!-- CREATE HTML FILE -->
+<form id="createHtmlForm"
+      action="/admin/home/create-html"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+ 
+  <button type="submit" class="btn btn-success">Create HTML</button>
+
+  <input type="text"
+         name="fileName"
+         placeholder="New HTML file name"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+<form id="publishEnForm"
+      action="/admin/home/publish-en"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+ 
+  <button type="submit" class="btn btn-primary">Publish EN</button>
+
+  <input type="text"
+        id="publishEN"
+         name="fileName"
+         placeholder="Publish EN"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+<form id="publishEsForm"
+      action="/admin/home/publish-es"
+      method="POST"
+      class="mb-2 d-flex gap-2 align-items-center">
+ 
+  <button type="submit" class="btn btn-primary">Publish ES</button>
+
+  <input type="text"
+         name="fileName"
+         id="publishES"
+         placeholder="Publish ES"
+         required
+         class="form-control"
+         style="max-width:300px">
+</form>
+<form method="POST" 
+  action="/admin/home/delete-file"
+  id="deleteForm"
+  class="mb-3 d-flex gap-2 align-items-center">
+    <button type="submit" 
+    class="btn btn-danger"
+    id="deleteBtn">
+    Delete
+  </button>
+  <input
+    type="text"
+    name="fileName"
+    id="delete-file-name"
+    class="form-control"
+    placeholder="File  to delete"
+    style="max-width:300px"
+    required>
+</form>
+
+
+ <div id="browser-container">
+    <div id="browser" class="list-group">
+      <!-- dynamically inserted items -->
+    </div>
+        <div id="browser2" class="list-group">
+      <!-- dynamically inserted items -->
+    </div>
+  </div>
+<div class="modal fade" id="editHtmlModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Edit HTML</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <textarea id="editor"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="button"
+                class="btn btn-success"
+                id="saveHtmlBtn">
+          Save
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+  <button
+  type="button"
+  id="loadFilesBtn"
+  class="btn btn-outline-secondary mb-2">
+  Load files
+</button>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const btn = document.getElementById('loadFilesBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      fetchFileList('/admin/home/ls');
+    });
+  }
+
+  // optional auto-load
+  //fetchFileList();
+
+});
+
+</script>
 </body>
