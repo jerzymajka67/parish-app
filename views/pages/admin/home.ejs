@@ -1,4 +1,5 @@
 <body>
+ 
  <h2 ><%= title %></h2>
 <!-- UPLOAD HTML FILE -->
 <form id="uploadHtmlForm"
@@ -83,14 +84,11 @@
     required>
 </form>
 
+<div id="server-feedback" class="feedback hidden"></div>
 
  <div id="browser-container">
     <div id="browser" class="list-group">
       <!-- dynamically inserted items -->
-    </div>
-        <div id="browser2" class="list-group">
-      <!-- dynamically inserted items -->
-    </div>
   </div>
 <div class="modal fade" id="editHtmlModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -122,27 +120,13 @@
   </div>
 </div>
 
-  <button
-  type="button"
-  id="loadFilesBtn"
-  class="btn btn-outline-secondary mb-2">
-  Load files
-</button>
+<% if (msg && status) { %>
+  <div class="server-feedback <%= status %>">
+    <%= msg %>
+  </div>
+<% } %>
 
-  <script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  const btn = document.getElementById('loadFilesBtn');
-  if (btn) {
-    btn.addEventListener('click', function () {
-      fetchFileList('/admin/home/ls');
-    });
-  }
-
-  // optional auto-load
-  //fetchFileList();
-
-});
-
+<script>
+    fetchFileList('/admin/home/ls');
 </script>
 </body>

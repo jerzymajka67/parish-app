@@ -21,3 +21,26 @@ h2 {
   visibility: visible !important;
   height: 400px;
 }
+.server-feedback {
+  margin: 15px 0;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.server-feedback.success {
+  background-color: #e6f6ec;
+  color: #145c2e;
+  border: 1px solid #9fd9b0;
+}
+
+.server-feedback.error {
+  background-color: #fdeaea;
+  color: #8a1f1f;
+  border: 1px solid #f5b5b5;
+}
+#browser-container {
+  margin-left: 10%;
+  margin-right: 40%;
+}
+
