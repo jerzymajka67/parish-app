@@ -43,4 +43,15 @@ h2 {
   margin-left: 10%;
   margin-right: 40%;
 }
+.btn-amber {
+  background-color: #68adde;   /* soft amber */
+  border-color: #070468;
+  color: #212529;
+}
+
+.btn-amber:hover {
+  background-color: #3988b3;
+  border-color: #136a77;
+  color: #212529;
+}
 
