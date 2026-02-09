@@ -1,142 +1,146 @@
 <body>
- 
  <h2 ><%= title %></h2>
 <div class="container-fluid">
   <div class="row" >
-
-    <!-- LEFT COLUMN: ACTIONS -->
+<!-- LEFT COLUMN: ACTIONS -->
     <div class="col-md-4 border-end p-3">
-              <!-- UPLOAD HTML FILE -->
-        <form id="uploadHtmlForm"
+      <form id="uploadHtmlForm"
               action="/admin/about/upload-file"
               method="POST"
               enctype="multipart/form-data"
               class="mb-3 d-flex flex-column gap-2">
-
           <button type="submit"
                   class="btn btn-success"
                   id="uploadBtn">
             Upload HTML File
           </button>
-
           <input type="file"
                 name="html"
                 accept=".html"
                 required
-                class="form-control"
-              >
-        </form>
-
-        <!-- CREATE HTML FILE -->
-        <form id="createHtmlForm"
+                class="form-control">
+      </form>
+      <form id="createHtmlForm"
               action="/admin/about/create-html"
               method="POST"
               class="mb-2 d-flex flex-column gap-2">
-
           <button type="submit" class="btn btn-success">
             Create HTML
           </button>
-
           <input type="text"
                 name="fileName"
                 placeholder="New HTML file name"
                 required
                 class="form-control">
-        </form>
-        <form action="/admin/about/rename"
-      method="POST"
-      class="d-flex flex-column gap-2">
-
-  <input type="hidden" name="fileName">
-  <button type="submit"
-          class="btn btn-amber">
-    Rename
-  </button> 
-  <input type="text"
-         name="newName"
-         placeholder="New file name"
-         required
-         class="form-control">
-</form>
-<button type="button"
+      </form>
+      <form id="renameForm" action="/admin/about/rename"
+          method="POST"
+          class="d-flex flex-column gap-2">
+        <input id="renameOldName" type="hidden" name="fileName">
+        <button type="submit"
+            class="btn btn-amber">
+            Rename
+        </button> 
+        <input id="renameNewName" type="text"
+            name="newName"
+            placeholder="New file name"
+            required
+            class="form-control">
+      </form>
+      <button id="editBtn" type="button"
         class="btn btn-secondary w-100 mt-3"
         onclick="editSelectedFile()">
-  Edit
-</button>
-
-
-        <form action="/admin/about/view"
+          Edit
+      </button>
+      <form id="viewForm" action="/admin/about/view"
               method="GET"
               target="_blank"
               class="d-grid gap-2 mt-3">
-
-          <input type="hidden"
-                id="view"
-                name="fileName">
-
+        <input id="viewFileName" type="hidden"
+              name="fileName">
           <button type="submit" class="btn btn-outline-secondary">
-            View
+             View
           </button>
-        </form>
-
-        <div class="d-flex gap-2 mt-3 mb-2">
-
-          <form id="publishEnForm"
+      </form>
+      <div class="d-flex gap-2 mt-3 mb-2">
+        <form id="publishEnForm"
                 action="/admin/about/publish-en"
                 method="POST"
                 class="flex-fill">
-            <input type="hidden" id="publishEN" name="fileName">
-            <button type="submit" class="btn btn-primary w-100">
+          <input id="publishEN" type="hidden"  name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
               Publish EN
-            </button>
-          </form>
-
-          <form id="publishEsForm"
+          </button>
+        </form>
+        <form id="publishEsForm"
                 action="/admin/about/publish-es"
                 method="POST"
                 class="flex-fill">
-            <input type="hidden" id="publishES" name="fileName">
-            <button type="submit" class="btn btn-primary w-100">
+          <input id="publishES" type="hidden" name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
               Publish ES
-            </button>
-          </form>
-
-        </div>
-        <form id="deleteForm"method="POST" 
-          action="/admin/about/delete-file"
-          class="mb-3 d-flex gap-2 align-items-center">
-            <button type="submit" 
-            class="btn btn-danger"
-            id="deleteBtn">
-            Delete
           </button>
-          <input type="hidden"
-                id="deleteFileName"
-                name="fileName">
         </form>
-    </div>
+      </div>
+      <form id="deleteForm" method="POST"
+            action="/admin/about/delete-file"
+            class="mb-3 d-flex gap-2 align-items-center">
 
-    <!-- RIGHT COLUMN: CONTENT -->
-    <div class="col-md-8 p-4">
-      <h4>Files</h4>
-      <div class="border p-3 mt-3">
-         <div id="browser-container">
-    <div id="browser" class="list-group">
-      <!-- dynamically inserted items -->
-  </div>
+        <button type="button"
+                class="btn btn-danger"
+                id="deleteBtn">
+          Delete
+        </button>
+
+        <input id="deleteFileName"
+              type="hidden"
+              name="fileName">
+      </form>
+    </div>
+  <div class="col-md-8 p-4">
+    <h4>Files</h4>
+    <div class="row mt-3">
+      <!-- LEFT: Browser -->
+      <div class="col-md-7">
+        <div class="border p-3">
+          <div id="browser-container">
+            <div id="browser" class="list-group">
+              <!-- dynamically inserted items -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- RIGHT: Feedback message -->
+      <div class="col-md-5">
+        <% if (msg && status) { %>
+          <div class="server-feedback <%= status %> border p-3">
+            <%= msg %>
+          </div>
+        <% } %>
       </div>
     </div>
-
+  </div>
+  <!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm delete</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Delete <strong id="modal-folder-name"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
   </div>
 </div>
-
-<% if (msg && status) { %>
-  <div class="server-feedback <%= status %>">
-    <%= msg %>
-  </div>
-<% } %>
-
-<script>
+  <script>
+    let selectedFile = null;
     fetchFileList('/admin/about/ls');
-</script>
+    initDeleteModal();
+  </script>
 </body>

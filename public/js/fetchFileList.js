@@ -22,10 +22,13 @@ async function fetchFileList(route) {
             el.classList.remove('active');
           });
         item.classList.add('active');
-        // fill forms (keep your existing behavior)
-        document.getElementById('delete-file-name').value = file;
+        selectedFile = file;
+        document.getElementById('deleteFileName').value = file;
         document.getElementById('publishEN').value = file;
         document.getElementById('publishES').value = file;
+        document.getElementById('viewFileName').value = file;
+        document.getElementById('renameOldName').value = file;
+      
       });
 
       browser.appendChild(item);
