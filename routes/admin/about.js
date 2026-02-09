@@ -233,10 +233,12 @@ router.post('/rename', requireLogin, async (req, res) => {
     return res.redirect(`/admin/about?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-router.get('/file', requireLogin, async(req, res) => {
+router.get('/edit', requireLogin, async(req, res) => {
  const fileName = req.query.fileName;
+ console.log('Edit request received for file:', fileName);
   const filePath = path.join(EVENTS_ROOT, fileName);
   console.log('Resolved full path:', filePath);
+  
    try {
       const content = await fs.readFile(filePath, 'utf8');
       res.json({ path: fileName, content });

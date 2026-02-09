@@ -1,5 +1,3 @@
-
-
 // ---------- STATE ----------
 let selectedItem = null;
 let currentDraft = null;
@@ -11,31 +9,45 @@ let editModal = null;
 function initEditor() {
   const modalEl = document.getElementById('editHtmlModal');
   if (!modalEl) return;
-
-  editModal = new bootstrap.Modal(modalEl, {
+    editModal = new bootstrap.Modal(modalEl, {
     backdrop: 'static',
     keyboard: false
   });
 }
+function initEditButton() {
+  const editBtn = document.getElementById('editBtn');
+  if (!editBtn) return;
+  editBtn.addEventListener('click', () => {
+      if (!window.selectedFile) {
+      alert('No file selected');
+      return;
+    }
+    console.log('Selected file success:', window.selectedFile);
+    openFileInEditor(window.selectedFile);
+  });
+}
+
 // ---------- OPEN EDITOR ----------
 async function openFileInEditor(fileName) {
+  console.log('Opening file in editor:', fileName);
+  if (!editModal) {
+  console.error('Edit modal not initialized');
+  return;
+}else {
+  console.log('Edit modal initialized successfully');
+}
   const res = await fetch(
-    '/admin/home/edit?fileName=' + encodeURIComponent(fileName)
+    '/admin/about/edit?fileName=' + encodeURIComponent(fileName)
   );
-
   if (res.redirected) {
     window.location.href = res.url;
     return;
   }
-
   const data = await res.json();
-
   originalFile = data.original;
   currentDraft = data.path;
   undoTempFile = data.undo || null;
-
   editModal.show();
-
   setTimeout(() => {
     tinymce.remove('#editor');
     tinymce.init({

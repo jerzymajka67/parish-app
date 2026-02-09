@@ -47,10 +47,10 @@
             required
             class="form-control">
       </form>
-      <button id="editBtn" type="button"
-        class="btn btn-secondary w-100 mt-3"
-        onclick="editSelectedFile()">
-          Edit
+      <button id="editBtn"
+              type="button"
+              class="btn btn-secondary w-100 mt-3">
+        Edit
       </button>
       <form id="viewForm" action="/admin/about/view"
               method="GET"
@@ -138,9 +138,33 @@
     </div>
   </div>
 </div>
+<!-- TINYMCE EDITOR MODAL -->
+<div class="modal fade" id="editHtmlModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit HTML File</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="editor"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-success" id="saveHtmlBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
   <script>
-    let selectedFile = null;
-    fetchFileList('/admin/about/ls');
-    initDeleteModal();
+    document.addEventListener('DOMContentLoaded', () => {
+      window.selectedFile = null;
+      fetchFileList('/admin/about/ls');
+      initDeleteModal(); 
+      if (document.getElementById('editHtmlModal')) {
+        initEditor();
+        initEditButton();
+      }
+    });
   </script>
 </body>
