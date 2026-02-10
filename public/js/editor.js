@@ -1,10 +1,30 @@
 // ---------- STATE ----------
 let selectedItem = null;
-let currentDraft = null;
-let undoTempFile = null;
+let draftFile = null;
 let originalFile = null;
 let editModal = null;
-
+function stampFileName(filename) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  });
+  const parts = Object.fromEntries(
+    formatter.formatToParts(new Date()).map(p => [p.type, p.value])
+  );
+  const timestamp = `${parts.year}-${parts.month}-${parts.day}_${parts.hour}-${parts.minute}`;
+  // remove existing timestamp if present
+  const cleanName = filename.replace(/_\d{2}-\d{2}-\d{2}_\d{2}-\d{2}(?=\.)?/g, "");
+  // insert timestamp before extension (or at end if no extension)
+  return cleanName.replace(
+    /(\.[^./\\]+)?$/,
+    `_${timestamp}$1`
+  );
+}
 // ---------- INIT ----------
 function initEditor() {
   const modalEl = document.getElementById('editHtmlModal');
@@ -26,16 +46,8 @@ function initEditButton() {
     openFileInEditor(window.selectedFile);
   });
 }
-
 // ---------- OPEN EDITOR ----------
 async function openFileInEditor(fileName) {
-  console.log('Opening file in editor:', fileName);
-  if (!editModal) {
-  console.error('Edit modal not initialized');
-  return;
-}else {
-  console.log('Edit modal initialized successfully');
-}
   const res = await fetch(
     '/admin/about/edit?fileName=' + encodeURIComponent(fileName)
   );
@@ -44,9 +56,8 @@ async function openFileInEditor(fileName) {
     return;
   }
   const data = await res.json();
-  originalFile = data.original;
-  currentDraft = data.path;
-  undoTempFile = data.undo || null;
+  originalFile = data.originalFile;
+  draftFile = data.draftFile;
   editModal.show();
   setTimeout(() => {
     tinymce.remove('#editor');
@@ -64,61 +75,26 @@ async function openFileInEditor(fileName) {
     });
   }, 150);
 }
-
 // ---------- EDITOR BUTTONS ----------
 document.addEventListener('DOMContentLoaded', () => {
-
   initEditor();
-
   const saveBtn = document.getElementById('saveOnlyBtn');
-  const undoBtn = document.getElementById('undoBtn');
   const saveExitBtn = document.getElementById('saveExitBtn');
-  const exitNoSaveBtn = document.getElementById('exitNoSaveBtn');
-
   if (saveBtn) {
     saveBtn.onclick = async () => {
       const content = tinymce.get('editor').getContent();
-
-      const res = await fetch('/admin/home/save', {
+      const res = await fetch('/admin/about/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          path: currentDraft,
-          content,
-          undo: undoTempFile
+          draftFile: draftFile,
+          originalFile: originalFile,
+          content
         })
       });
 
       if (res.redirected) {
         window.location.href = res.url;
-        return;
-      }
-
-      const data = await res.json();
-      if (data.ok) {
-        undoTempFile = data.undo;
-        showEditorMessage(data.msg, 'success');
-      }
-    };
-  }
-
-  if (undoBtn) {
-    undoBtn.onclick = async () => {
-      if (!currentDraft || !undoTempFile) return;
-
-      const res = await fetch('/admin/home/undo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          draft: currentDraft,
-          undo: undoTempFile
-        })
-      });
-
-      const data = await res.json();
-      if (data.ok) {
-        tinymce.get('editor').setContent(data.content, { format: 'raw' });
-        showEditorMessage('Reverted to previous saved version', 'info');
       }
     };
   }
@@ -126,29 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saveExitBtn) {
     saveExitBtn.onclick = async () => {
       const content = tinymce.get('editor').getContent();
-
-      const res = await fetch('/admin/home/save-exit', {
+      const res = await fetch('/admin/about/save-exit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          draft: currentDraft,
-          undo: undoTempFile,
+          draftFile: draftFile,
+          originalFile: originalFile,
           content
-        })
-      });
-
-      window.location.href = res.url;
-    };
-  }
-
-  if (exitNoSaveBtn) {
-    exitNoSaveBtn.onclick = async () => {
-      const res = await fetch('/admin/home/exit-no-save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          path: currentDraft,
-          undo: undoTempFile
         })
       });
 
@@ -157,14 +117,3 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ---------- UI FEEDBACK ----------
-function showEditorMessage(msg, status) {
-  const box = document.getElementById('editor-feedback');
-  if (!box) return;
-
-  box.textContent = msg;
-  box.className = `alert alert-${status}`;
-  box.classList.remove('d-none');
-
-  setTimeout(() => box.classList.add('d-none'), 3000);
-}

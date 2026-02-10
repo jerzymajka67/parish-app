@@ -112,11 +112,12 @@
       </div>
       <!-- RIGHT: Feedback message -->
       <div class="col-md-5">
-        <% if (msg && status) { %>
-          <div class="server-feedback <%= status %> border p-3">
-            <%= msg %>
-          </div>
-        <% } %>
+  <% if (msg && status) { %>
+    <div id="server-feedback" class="server-feedback <%= status %> border p-3">
+      <%= msg %>
+    </div>
+  <% } %>
+
       </div>
     </div>
   </div>
@@ -144,14 +145,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Edit HTML File</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <textarea id="editor"></textarea>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button class="btn btn-success" id="saveHtmlBtn">Save</button>
+        <button id="saveOnlyBtn"class="btn btn-success" >Save</button>
+        <button id="saveExitBtn"class="btn btn-secondary" data-bs-dismiss="modal">Save & Exit</button>
       </div>
     </div>
   </div>
@@ -166,5 +166,20 @@
         initEditButton();
       }
     });
+  (function () {
+    const feedback = document.getElementById('server-feedback');
+    if (!feedback) return;
+    const clear = () => {
+      feedback.remove();
+      document.removeEventListener('click', clear);
+      document.removeEventListener('keydown', clear);
+      document.removeEventListener('scroll', clear);
+    };
+
+    // first meaningful user interaction clears message
+    document.addEventListener('click', clear, { once: true });
+    document.addEventListener('keydown', clear, { once: true });
+    document.addEventListener('scroll', clear, { once: true });
+  })();
   </script>
 </body>

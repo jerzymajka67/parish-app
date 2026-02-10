@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs/promises');
-const ejs = require('ejs');
+//const ejs = require('ejs');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
-const cheerio = require('cheerio');
+//const cheerio = require('cheerio');
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
-const sanitizeHtml = require(path.join(APP_ROOT, 'helpers', 'sanitizeHtml'));
+const stampFileName = require(path.join(APP_ROOT, 'helpers', 'stampFileName'));
+//const sanitizeHtml = require(path.join(APP_ROOT, 'helpers', 'sanitizeHtml'));
 const { extractBody, extractAssets } = require(path.join(APP_ROOT, 'helpers', 'htmlUtils'));
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/about');
 const TargetDir = path.join(APP_ROOT, 'views/pages/user');
@@ -233,17 +234,81 @@ router.post('/rename', requireLogin, async (req, res) => {
     return res.redirect(`/admin/about?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-router.get('/edit', requireLogin, async(req, res) => {
- const fileName = req.query.fileName;
- console.log('Edit request received for file:', fileName);
-  const filePath = path.join(EVENTS_ROOT, fileName);
-  console.log('Resolved full path:', filePath);
-  
-   try {
-      const content = await fs.readFile(filePath, 'utf8');
-      res.json({ path: fileName, content });
-    } catch (err) {
-      res.status(404).json({ error: 'File not found' });
-    }
+router.get('/edit', requireLogin, async (req, res) => {
+  const originalFile = req.query.fileName;
+  const draftFile = stampFileName(originalFile);
+  console.log('Editing file:', originalFile, 'Draft file:', draftFile);
+  if (!originalFile) {
+    return res.redirect('/admin/about?msg=File+name+required&status=error');
+  }
+  const filePath = path.join(EVENTS_ROOT, originalFile);
+  const backupPath = path.join(EVENTS_ROOT, draftFile);
+  console.log('File path:', filePath);
+  console.log('Backup path:', backupPath);
+  try {
+    await fs.copyFile(filePath, backupPath);
+    const content = await fs.readFile(backupPath, 'utf8');
+    return res.json({
+      draftFile,
+      originalFile,
+      content
+    });
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/admin/about?msg=File+error&status=error');
+  }
+});
+router.post('/save', requireLogin, async (req, res) => {
+  console.log('Saving file:', req.body);
+  const { draftFile, content } = req.body;
+
+  if (!draftFile || content === undefined) {
+    return res.redirect('/admin/about?msg=Invalid+data&status=error');
+  }
+
+  try {
+    await fs.writeFile(
+      path.join(EVENTS_ROOT, draftFile),
+      content,
+      'utf8'
+    );
+
+    return res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/admin/about?msg=Save+failed&status=error');
+  }
+});
+router.post('/save-exit', requireLogin, async (req, res) => {
+  const { draftFile, originalFile, content } = req.body;
+
+  if (!draftFile || !originalFile || content === undefined) {
+    const msg = 'File name and content are required';
+    const status = 'error';
+    return res.redirect(
+      `/admin/about?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  }
+
+  const filePath = path.join(EVENTS_ROOT, draftFile);
+
+  try {
+    await fs.writeFile(filePath, content, 'utf8');
+
+    const msg =
+      `New version of original file "${originalFile}" is now in "${draftFile}" and ready to be published. ` +
+      `Please review it and publish when ready.`;
+    const status = 'success';
+    return res.redirect(
+      `/admin/about?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  } catch (err) {
+    console.error(err);
+    const msg = 'Failed to save file';
+    const status = 'error';
+    return res.redirect(
+      `/admin/about?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  }
 });
 module.exports = router;
