@@ -3,28 +3,6 @@ let selectedItem = null;
 let draftFile = null;
 let originalFile = null;
 let editModal = null;
-function stampFileName(filename) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Chicago",
-    year: "2-digit",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  });
-  const parts = Object.fromEntries(
-    formatter.formatToParts(new Date()).map(p => [p.type, p.value])
-  );
-  const timestamp = `${parts.year}-${parts.month}-${parts.day}_${parts.hour}-${parts.minute}`;
-  // remove existing timestamp if present
-  const cleanName = filename.replace(/_\d{2}-\d{2}-\d{2}_\d{2}-\d{2}(?=\.)?/g, "");
-  // insert timestamp before extension (or at end if no extension)
-  return cleanName.replace(
-    /(\.[^./\\]+)?$/,
-    `_${timestamp}$1`
-  );
-}
 // ---------- INIT ----------
 function initEditor() {
   const modalEl = document.getElementById('editHtmlModal');
@@ -42,7 +20,6 @@ function initEditButton() {
       alert('No file selected');
       return;
     }
-    console.log('Selected file success:', window.selectedFile);
     openFileInEditor(window.selectedFile);
   });
 }
@@ -58,12 +35,17 @@ async function openFileInEditor(fileName) {
   const data = await res.json();
   originalFile = data.originalFile;
   draftFile = data.draftFile;
+  const titleEl = document.getElementById('editorTitle');
+if (titleEl) {
+  titleEl.textContent = `Editing: Your file ${originalFile} will be saved as ${draftFile}`;
+}
   editModal.show();
   setTimeout(() => {
     tinymce.remove('#editor');
     tinymce.init({
       selector: '#editor',
       height: 520,
+      //height: '100%',
       plugins: 'link image code',
       toolbar:
         'undo redo | bold italic | alignleft aligncenter alignright | link image | code',

@@ -26,7 +26,7 @@
          style="max-width:300px">
 </form>
 
-<!-- UPLOAD IMAGE -->
+<!-- UPLOAD IMAGES -->
 <form id="uploadImageForm"
       action="/admin/events/upload-image"
       method="POST"
@@ -39,16 +39,18 @@
           class="btn btn-success"
           id="uploadBtn"
           disabled>
-    Upload Image
+    Upload Images
   </button>
 
   <input type="file"
-         name="image"
+         name="images"
          accept="image/*"
+         multiple
          required
          class="form-control"
          style="max-width:420px">
 </form>
+
 
 <!-- DELETE (FILES OR FOLDER) -->
 <form id="deleteSelectedForm"

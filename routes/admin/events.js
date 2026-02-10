@@ -5,11 +5,9 @@ const path = require('path');
 const multer = require('multer');
 const sharp = require('sharp');
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
-
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
-
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
 let tree = {};
 
@@ -126,12 +124,11 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
     res.status(500).json({ error: 'Delete failed' });
   }
 });
-
-// Upload image
+// Upload images (MULTI)
 router.post(
   '/upload-image',
   requireLogin,
-  upload.single('image'),
+  upload.array('images', 20),
   async (req, res) => {
     try {
       const currentPath = req.body.currentPath || '';
@@ -142,44 +139,47 @@ router.post(
         return res.status(403).send('Access denied');
       }
 
-      if (!req.file) {
-        return res.status(400).send('No image uploaded');
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).send('No images uploaded');
       }
 
-      // Ensure target + thumbs folders exist
+      // Ensure folders exist
       const thumbsFolder = path.join(targetFolder, 'thumbs');
       await fs.mkdir(targetFolder, { recursive: true });
       await fs.mkdir(thumbsFolder, { recursive: true });
 
-      const inputPath = req.file.path;
-      const baseName = path.parse(req.file.originalname).name;
+      // Process each uploaded image
+      for (const file of req.files) {
+        const inputPath = file.path;
+        const baseName = path.parse(file.originalname).name;
 
-      const fullImagePath = path.join(targetFolder, baseName + '.webp');
-      const thumbImagePath = path.join(thumbsFolder, baseName + '.webp');
+        const fullImagePath = path.join(targetFolder, baseName + '.webp');
+        const thumbImagePath = path.join(thumbsFolder, baseName + '.webp');
 
-      // FULL IMAGE (display / open in new window)
-      await sharp(inputPath)
-        .resize({ width: 1200, withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toFile(fullImagePath);
+        // FULL IMAGE
+        await sharp(inputPath)
+          .resize({ width: 1200, withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(fullImagePath);
 
-      // THUMBNAIL (folder preview)
-      await sharp(inputPath)
-        .resize({ width: 150, withoutEnlargement: true })
-        .webp({ quality: 65 })
-        .toFile(thumbImagePath);
+        // THUMBNAIL
+        await sharp(inputPath)
+          .resize({ width: 150, withoutEnlargement: true })
+          .webp({ quality: 65 })
+          .toFile(thumbImagePath);
 
-      // Remove temp upload
-      await fs.unlink(inputPath);
+        // Remove temp file
+        await fs.unlink(inputPath);
+      }
 
       // Back to admin view
       res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
+
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error processing image');
+      res.status(500).send('Error processing images');
     }
   }
 );
-
 
 module.exports = router;

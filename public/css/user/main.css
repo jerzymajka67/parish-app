@@ -1,0 +1,10 @@
+.intro-column a {
+  color: #1f3c88;
+  text-decoration: none;
+  border-bottom: 1px dotted #1f3c88;
+}
+
+.intro-column a:hover {
+  color: #0d2b6b;
+  border-bottom-style: solid;
+}

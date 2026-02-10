@@ -112,12 +112,11 @@
       </div>
       <!-- RIGHT: Feedback message -->
       <div class="col-md-5">
-  <% if (msg && status) { %>
-    <div id="server-feedback" class="server-feedback <%= status %> border p-3">
-      <%= msg %>
-    </div>
-  <% } %>
-
+        <% if (msg && status) { %>
+          <div id="server-feedback" class="server-feedback <%= status %> border p-3">
+            <%= msg %>
+          </div>
+        <% } %>
       </div>
     </div>
   </div>
@@ -144,10 +143,9 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit HTML File</h5>
+        <h5 id="editorTitle" class="modal-title"></h5>
       </div>
-      <div class="modal-body">
-        <textarea id="editor"></textarea>
+      <div id="editor"class="modal-body">
       </div>
       <div class="modal-footer">
         <button id="saveOnlyBtn"class="btn btn-success" >Save</button>
