@@ -4,12 +4,12 @@
   <div class="row">
     <!-- LEFT: INTRO TEXT -->
     <div class="col-md-7 p-5 intro-column">
+      <div id="gallery" class="row g-3 mt-4"></div>
       <h2 class="mb-4">Parish Events Gallery</h2>
       <p class="lead">
         On this page you will find photos from various parish events
         and interesting places within our parish community.
       </p>
-      <div id="gallery" class="row g-3 mt-4"></div>
       <p>
         This page is still under construction, so for now we invite you
         to browse photos of
@@ -39,51 +39,160 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="imageModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark">
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"aria-label="Close"></button>
+      <div class="modal-body text-center position-relative p-0">
+          <button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y fs-1 px-4"
+          onclick="prevImage()">‹</button>
+            <img id="modalImage" class="img-fluid">
+        <button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y fs-1 px-4"
+          onclick="nextImage()">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </main>
 <script>
-  function renderGallery(folderPath, thumbs) {
+let currentGallery = [];
+let currentIndex = 0;
+function openAdminViewer(filePath) {
+  currentFile = filePath;
+  currentRotation = 0;
+
+  const img = document.getElementById('modalImage'); // ← updated ID
+
+  const encodedPath = filePath
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/');
+
+  img.onload = () => {
+    const isVertical = img.naturalHeight > img.naturalWidth;
+
+    if (isVertical) {
+      img.style.height = '90vh';
+      img.style.width = 'auto';
+    } else {
+      img.style.width = '80vw';
+      img.style.height = 'auto';
+    }
+  };
+
+  img.src = '/content/events/' + encodedPath;
+
+  // ✅ Bootstrap modal show
+  const modal = new bootstrap.Modal(
+    document.getElementById('imageModal')
+  );
+  modal.show();
+}
+
+function closeViewer() {
+  const img = document.getElementById('modalImage');
+
+  // reset rotation
+  img.style.transform = 'rotate(0deg)';
+
+  // optional: clear source (safe)
+  img.removeAttribute('src');
+
+  currentFile = null;
+  currentRotation = 0;
+
+  // Bootstrap hide
+  const modalEl = document.getElementById('imageModal');
+  const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+  if (modalInstance) {
+    modalInstance.hide();
+  }
+}
+
+function nextImage() {
+    currentIndex = (currentIndex + 1) % currentGallery.length;
+    showImage();
+    }
+function prevImage() {
+    currentIndex =
+      (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+    showImage();
+    }
+function showImage() {
+  const img = document.getElementById('modalImage');
+  img.src = currentGallery[currentIndex];
+}
+function openLightbox(index) {
+  //onsole.log('Opening lightbox for index:', index, 'Gallery:', currentGallery);
+  currentIndex = index;
+  showImage();
+  const modalElement = document.getElementById('imageModal');
+  if (!modalElement) {
+    console.error('imageModal not found in DOM');
+    return;
+  }
+
+  let modalInstance = bootstrap.Modal.getInstance(modalElement);
+
+  if (!modalInstance) {
+    modalInstance = new bootstrap.Modal(modalElement);
+  }
+
+  modalInstance.show();
+}
+function renderGallery(folderPath, thumbs) {
+
+  console.log('renderGallery called', folderPath, thumbs);
+
+  currentGallery = thumbs.map(file =>
+    `/content/events/${folderPath}/${file}`
+  );
+
   const gallery = document.getElementById('gallery');
   gallery.innerHTML = '';
-  thumbs.forEach(file => {
-    const col = document.createElement('div');
-    col.className = 'col-6 col-md-4 col-lg-3';
+
+  thumbs.forEach((file, index) => {
     const img = document.createElement('img');
     img.src = `/content/events/${folderPath}/thumbs/${file}`;
-    img.onclick = () => {
-      openImage(`/content/events/${folderPath}/${file}`);
-    };
-    col.appendChild(img);
-    gallery.appendChild(col);
+    img.onclick = () => openLightbox(index);
+    gallery.appendChild(img);
   });
 }
-  function loadGallery(folderPath) {
-    fetch('/en/events/thumbs?path=' + encodeURIComponent(folderPath))
-      .then(r => r.json())
-      .then(data => {
-        const gallery = document.getElementById('gallery');
-        gallery.innerHTML = '';
-        if (!data.isGallery) {
-          return; // not a gallery, nothing to show
-        }
-        data.thumbs.forEach(file => {
-          const col = document.createElement('div');
-          col.className = 'col-6 col-md-4 col-lg-3';
-          const img = document.createElement('img');
-          img.src = `/content/events/${folderPath}/thumbs/${file}`;
-          img.onclick = () => {
-            openImage(`/content/events/${folderPath}/${file}`);
-          };
-          col.appendChild(img);
-          gallery.appendChild(col);
-        });
-      });
-    }
+async function loadGallery(folderPath) {
+
+  const res = await fetch(
+    '/en/events/thumbs?path=' + encodeURIComponent(folderPath)
+  );
+  const data = await res.json();
+
+  if (!data.isGallery) {
+    document.getElementById('gallery').innerHTML = '';
+    return false;
+  }
+
+  renderGallery(folderPath, data.thumbs);
+  return true;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeViewer();
+});
+const img = document.getElementById('modalImage');
+
+img.addEventListener('click', function () {
+  console.log('Image clicked');
+  img.classList.toggle('zoomed');
+});
+
   const browser = document.getElementById('browser');
   function render(tree, basePath, container) {
     for (const name in tree) {
       if (name === 'files') continue;
+       if (name === 'thumbs') continue; 
       const fullPath = basePath ? basePath + '/' + name : name;
       const folder = document.createElement('a');
       folder.href = '#';
@@ -114,14 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       container.append(folder, collapse);
     }
-    (tree.files || []).forEach(file => {
-      const filePath = basePath ? basePath + '/' + file : file;
-      const link = document.createElement('a');
-      link.className = 'list-group-item ps-4';
-      link.href = '/content/events/' + encodeURIComponent(filePath);
-      link.textContent = '📄 ' + file;
-      container.appendChild(link);
-    });
   }
   function load(path, container) {
     fetch('/en/events/ls?path=' + encodeURIComponent(path))
@@ -137,6 +238,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
-
-  
 </body>

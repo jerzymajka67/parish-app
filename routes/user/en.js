@@ -96,27 +96,18 @@ router.get('/events', (req, res) => {
 router.get('/events/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';
-    console.log('Listing directory for path:', req.query.path);
-    const fullPath = path.join(EVENTS_ROOT, relativePath);
-    console.log('Full path to read:', fullPath);
     const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
-    console.log('Directory content:', content);
     storeDirInTree(tree, relativePath, content);
-    console.log('Updated tree:', tree);
-    console.log('Returning content for path:', relativePath, getNode(tree, relativePath));
-    console.log('relativePath:', relativePath);
     res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 router.get('/events/thumbs', async (req, res) => {
-
   const relPath = req.query.path;
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
   }
-
   const thumbsDir = path.join(
     APP_ROOT,
     'content',
@@ -124,25 +115,20 @@ router.get('/events/thumbs', async (req, res) => {
     relPath,
     'thumbs'
   );
-
   try {
     const files = await fs.readdir(thumbsDir);
-
     const thumbs = files.filter(f =>
       f.toLowerCase().endsWith('.webp')
     );
-
     res.json({
       isGallery: thumbs.length > 0,
       thumbs
     });
-
   } catch (err) {
     // thumbs/ does not exist → NOT a gallery
     res.json({ isGallery: false, thumbs: [] });
   }
 });
-
 router.get('/contact', (req, res) => {
   res.render('pages/user/en/contact', { 
     title: 'Contact Us - Our Lady, Queen of Angels', 

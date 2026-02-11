@@ -11,9 +11,8 @@ const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'))
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
 let tree = {};
 
-// -------------------
-// Multer (images only)
-// -------------------
+
+
 const upload = multer({
   dest: path.join(APP_ROOT, 'tmp'),
   fileFilter(req, file, cb) {
@@ -24,18 +23,10 @@ const upload = multer({
   }
 });
 
-// -------------------
-// Helpers
-// -------------------
 function getNode(obj, pathStr) {
   if (!pathStr) return obj;
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
-
-// -------------------
-// Routes
-// -------------------
-
 // Admin Events page
 router.get('/', requireLogin, (req, res) => {
   tree = {};
@@ -47,7 +38,6 @@ router.get('/', requireLogin, (req, res) => {
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-
 // List directories (AJAX)
 router.get('/ls', requireLogin, async (req, res) => {
   try {
@@ -59,7 +49,6 @@ router.get('/ls', requireLogin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 // Create folder
 router.post('/create-folder', requireLogin, async (req, res) => {
   try {
@@ -77,7 +66,6 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     res.status(500).send('Error creating folder');
   }
 });
-
 // Delete selected
 router.post('/delete-selected', requireLogin, async (req, res) => {
   try {
@@ -125,8 +113,7 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
   }
 });
 // Upload images (MULTI)
-router.post(
-  '/upload-image',
+router.post('/upload-image',
   requireLogin,
   upload.array('images', 20),
   async (req, res) => {
@@ -134,7 +121,6 @@ router.post(
       const currentPath = req.body.currentPath || '';
       const targetFolder = path.join(EVENTS_ROOT, currentPath);
 
-      // Safety check
       if (!targetFolder.startsWith(EVENTS_ROOT)) {
         return res.status(403).send('Access denied');
       }
@@ -181,5 +167,45 @@ router.post(
     }
   }
 );
-
+router.post('/rotation', requireLogin, async (req, res) => {
+  try {
+    const { file, angle } = req.body;
+    if (!file || typeof angle !== 'number') {
+      return res.status(400).json({ error: 'Invalid parameters' });
+    }
+    const originalPath = path.join(EVENTS_ROOT, file);
+    await fs.access(originalPath);
+    // ---- ROTATE ORIGINAL (buffer → overwrite) ----
+    const rotatedOriginal = await sharp(originalPath)
+      .rotate(angle)
+      .toBuffer();
+    await fs.writeFile(originalPath, rotatedOriginal);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Rotation failed:', err);
+    res.status(500).json({ error: 'Rotation failed' });
+  }
+});
+router.post('/rotation-thumbs', requireLogin, async (req, res) => {
+  console.log('Rotation-thumbs request:', req.body);
+  try {
+    const { file, angle } = req.body;
+    if (!file || typeof angle !== 'number') {
+      return res.status(400).json({ error: 'Invalid parameters' });
+    }
+    const originalPath = path.join(EVENTS_ROOT, file);
+    const thumbPath = path.join(path.dirname(originalPath),'thumbs',
+      path.basename(originalPath)
+    );
+    await fs.access(thumbPath);
+    const rotatedThumb = await sharp(thumbPath)
+      .rotate(angle)
+      .toBuffer();
+      await fs.writeFile(thumbPath, rotatedThumb);
+   res.json({ ok: true });
+  } catch (err) {
+    console.error('Rotation-thumbs failed:', err);
+    res.status(500).json({ error: 'Rotation-thumbs failed' });
+  }
+});
 module.exports = router;

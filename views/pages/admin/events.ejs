@@ -100,8 +100,123 @@
 <div id="browser-container">
   <div id="browser" class="list-group"></div>
 </div>
+<div id="photoViewer" class="modal hidden">
+  <div class="viewer-body">
+    <img id="viewerImage" />
+
+    <div class="viewer-controls">
+      <button onclick="rotatePreview(-90)">⟲</button>
+      <button onclick="rotatePreview(90)">⟳</button>
+      <button onclick="saveRotation()">💾 Save</button>
+      <button onclick="closeViewer()">✖</button>
+    </div>
+  </div>
+</div>
 
 <script>
+// ===============================
+// Admin Photo Viewer – Rotation
+// ===============================
+
+// current file relative to content/events
+let currentFile = null;
+
+// current preview rotation (degrees)
+let currentRotation = 0;
+
+// -------------------------------
+// Open admin viewer
+// -------------------------------
+function openAdminViewer(filePath) {
+  console.log('Opening viewer for', filePath);
+
+  currentFile = filePath;
+  currentRotation = 0;
+
+  const img = document.getElementById('viewerImage');
+
+  // reset preview rotation
+  img.style.transform = 'rotate(0deg)';
+
+  // encode path SAFELY (keep slashes!)
+const encodedPath = filePath
+  .split('/')
+  .map(encodeURIComponent)
+  .join('/');
+
+img.onload = () => {
+  console.log('Image loaded:', img.naturalWidth, img.naturalHeight);
+};
+
+img.onerror = () => {
+  console.error('Image failed to load:', img.src);
+};
+
+img.src = '/content/events/' + encodedPath;
+
+
+  // show viewer
+  document.getElementById('photoViewer').classList.remove('hidden');
+}
+// -------------------------------
+// Rotate preview ONLY (CSS)
+// -------------------------------
+function rotatePreview(delta) {
+  currentRotation = (currentRotation + delta) % 360;
+  if (currentRotation < 0) currentRotation += 360;
+
+  document.getElementById('viewerImage').style.transform =
+    `rotate(${currentRotation}deg)`;
+}
+// -------------------------------
+// Save rotation (PERMANENT)
+// -------------------------------
+async function saveRotation() {
+  if (!currentFile || currentRotation === 0) {
+    return; // nothing to do
+  }
+  try {
+    const res = await fetch('/admin/events/rotation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        file: currentFile,   // relative to content/events
+        angle: currentRotation
+      })
+    });
+    const resThumb = await fetch('/admin/events/rotation-thumbs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        file: currentFile,   // relative to content/events
+        angle: currentRotation
+      })
+    });
+    if (!res.ok) {
+      console.error('Rotation failed');
+      return;
+    }
+    currentRotation = 0;
+    document.getElementById('viewerImage').style.transform = 'rotate(0deg)';
+  } catch (err) {
+    console.error('Rotation error:', err);
+  }
+}
+
+// -------------------------------
+// Close viewer (discard preview)
+// -------------------------------
+function closeViewer() {
+  const img = document.getElementById('viewerImage');
+
+  img.style.transform = 'rotate(0deg)';
+
+  currentFile = null;
+  currentRotation = 0;
+
+  document.getElementById('photoViewer').classList.add('hidden');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   const browser = document.getElementById('browser');
@@ -168,29 +283,27 @@ document.addEventListener('DOMContentLoaded', () => {
       container.append(folder, collapse);
     }
 
-    (tree.files || []).forEach(file => {
+   (tree.files || []).forEach(file => {
+        const filePath = basePath ? basePath + '/' + file : file;
+        const item = document.createElement('div');
+        item.className = 'list-group-item d-flex align-items-center gap-2';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.name = 'files[]';
+        cb.value = filePath;
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = file;
+        link.onclick = e => {
+          e.preventDefault();
+          e.stopPropagation();
+          openAdminViewer(filePath);
+        };
+        item.append(cb, link);
+        item.onclick = () => select(item, filePath);
+        container.appendChild(item);
+      });
 
-      const filePath = basePath ? basePath + '/' + file : file;
-
-      const item = document.createElement('div');
-      item.className = 'list-group-item d-flex align-items-center gap-2';
-
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.name = 'files[]';
-      cb.value = filePath;
-
-      const link = document.createElement('a');
-      link.href = '/content/events/' + encodeURIComponent(filePath);
-      link.target = '_blank';
-      link.textContent = file;
-      link.onclick = e => e.stopPropagation();
-
-      item.append(cb, link);
-      item.onclick = () => select(item, filePath);
-
-      container.appendChild(item);
-    });
   }
 
   function load(path, container) {

@@ -8,3 +8,83 @@
   color: #0d2b6b;
   border-bottom-style: solid;
 }
+#gallery img {
+  width: 20%;
+  height: 160px;          /* ← this makes them thumbnails */
+  object-fit: cover;     /* ← crop nicely, no distortion */
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#gallery img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+/* ===== Bootstrap Modal Adjustments ===== */
+/* ===============================
+   Bootstrap Modal Layout
+================================ */
+
+/* ===============================
+   Fixed Frame Modal
+================================ */
+
+#imageModal .modal-dialog {
+  margin: 0 auto;
+  max-width: 80vw;          /* FIXED WIDTH */
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+#imageModal .modal-content {
+  background: rgba(0, 0, 0, 0.95);
+  border: none;
+  width: 78vw;              /* fixed width */
+  height: 100vh;             /* fixed height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  position: relative;
+}
+
+#imageModal .modal-body {
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#modalImage {
+  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
+  transition: transform 0.25s ease;
+}
+#imageModal .btn-close {
+  position: absolute;   /* relative to modal-content */
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+  filter: invert(1);    /* white icon */
+  transform: scale(1.2);
+}
+#modalImage {
+  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
+  transition: transform 0.25s ease;
+  cursor: zoom-in;
+}
+
+#modalImage.zoomed {
+  transform: scale(2);     /* zoom level */
+  cursor: grab;
+}
+
+#modalImage.dragging {
+  cursor: grabbing;
+}
