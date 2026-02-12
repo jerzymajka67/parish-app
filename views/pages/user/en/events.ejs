@@ -13,11 +13,13 @@
       <p>
         This page is still under construction, so for now we invite you
         to browse photos of
-        <a href="/content/events/2026/01.%20January/Photos%20of%20our%20churches">
+        <a href="#"
+          onclick="loadGallery('2026/01. January/Photos of our churches/OLQA'); return false;">
           our parish churches
         </a>
         as well as photos of the
-        <a href="/content/events/2025/12.%20December/Schonstatt%20Movement%20in%20Our%20Parish">
+        <a href="#"
+          onclick="loadGallery('2025/12. December/Schonstatt Movement in Our Parish'); return false;">
           Schoenstatt Movement in our parish
         </a>.
       </p>
@@ -63,89 +65,29 @@
 </main>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
   const browser = document.getElementById('browser');
-
-  /* =========================
-     GALLERY RENDER
-  ========================== */
-
-  function renderGallery(folderPath, thumbs) {
-
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = '';
-
-    const galleryPaths = thumbs.map(file =>
-      `/content/events/${folderPath}/${file}`
-    );
-
-    // Give images to Viewer module
-    Viewer.setGallery(galleryPaths);
-
-    thumbs.forEach((file, index) => {
-      const img = document.createElement('img');
-      img.src = `/content/events/${folderPath}/thumbs/${file}`;
-      img.onclick = () => Viewer.open(index);
-      gallery.appendChild(img);
-    });
-  }
-
-  /* =========================
-     LOAD GALLERY
-  ========================== */
-
-  async function loadGallery(folderPath) {
-
-    const res = await fetch(
-      '/en/events/thumbs?path=' + encodeURIComponent(folderPath)
-    );
-
-    const data = await res.json();
-
-    if (!data.isGallery) {
-      document.getElementById('gallery').innerHTML = '';
-      return false;
-    }
-
-    renderGallery(folderPath, data.thumbs);
-    return true;
-  }
-
-  /* =========================
-     FOLDER TREE
-  ========================== */
-
   function render(tree, basePath, container) {
-
     for (const name in tree) {
-
       if (name === 'files') continue;
       if (name === 'thumbs') continue;
-
       const fullPath = basePath
         ? basePath + '/' + name
         : name;
-
       const folder = document.createElement('a');
       folder.href = '#';
       folder.className =
         'list-group-item list-group-item-action fw-bold';
       folder.textContent = '📁 ' + name;
-
       const collapse = document.createElement('div');
       collapse.className = 'collapse ps-3';
-
       const bs = new bootstrap.Collapse(
         collapse,
         { toggle: false }
       );
-
       folder.onclick = async e => {
         e.preventDefault();
         e.stopPropagation();
-
         const isGallery = await loadGallery(fullPath);
-
         // If gallery → do not expand tree
         if (isGallery) {
           bs.hide();
