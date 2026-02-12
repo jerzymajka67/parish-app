@@ -3,9 +3,11 @@
 
   let gallery = [];
   let index = 0;
-  let wasDragging = false;
+
   let isMagnifierActive = false;
   let isDragging = false;
+  let dragMoved = false;
+
   let startX = 0;
   let startY = 0;
   let translateX = 0;
@@ -41,14 +43,30 @@
     img.src = gallery[index];
   }
 
+  function enterZoom() {
+    const img = getImage();
+    const modalContent = getModalContent();
+
+    isMagnifierActive = true;
+
+    document.body.classList.add("zoom-active");
+    modalContent.classList.add("zoom-mode");
+    img.classList.add("zoom-fullscreen");
+
+    img.style.transform = "translate(0px, 0px) scale(2)";
+  }
+
   function exitZoom() {
     const img = getImage();
     const modalContent = getModalContent();
 
     isMagnifierActive = false;
     isDragging = false;
+    dragMoved = false;
     translateX = 0;
     translateY = 0;
+
+    document.body.classList.remove("zoom-active");
     modalContent.classList.remove("zoom-mode");
     img.classList.remove("zoom-fullscreen");
 
@@ -92,23 +110,21 @@
 
     if (!img || !modalContent) return;
 
-    // Disable browser ghost dragging
+    // Disable browser ghost drag
     img.setAttribute("draggable", "false");
     img.addEventListener("dragstart", e => e.preventDefault());
 
-    /* ===== ENTER ZOOM ===== */
-    img.addEventListener("click", function (e) {
+    /* ===== CLICK TO TOGGLE ZOOM ===== */
+    img.addEventListener("click", function () {
 
-      if (isMagnifierActive) return;
+      if (!isMagnifierActive) {
+        enterZoom();
+      } else if (!dragMoved) {
+        // only close if it was a real click, not a drag
+        exitZoom();
+      }
 
-      e.stopPropagation();
-
-      isMagnifierActive = true;
-
-      modalContent.classList.add("zoom-mode");
-      img.classList.add("zoom-fullscreen");
-
-      img.style.transform = "translate(0px, 0px) scale(2)";
+      dragMoved = false;
     });
 
     /* ===== DRAG START ===== */
@@ -118,6 +134,8 @@
       e.preventDefault();
 
       isDragging = true;
+      dragMoved = false;
+
       startX = e.clientX - translateX;
       startY = e.clientY - translateY;
     });
@@ -125,6 +143,8 @@
     /* ===== DRAG MOVE ===== */
     document.addEventListener("mousemove", function (e) {
       if (!isDragging || !isMagnifierActive) return;
+
+      dragMoved = true;
 
       translateX = e.clientX - startX;
       translateY = e.clientY - startY;
@@ -134,26 +154,9 @@
     });
 
     /* ===== DRAG END ===== */
-document.addEventListener("mouseup", function () {
-  if (isDragging) {
-    wasDragging = true;
-  }
-
-  isDragging = false;
-
-  setTimeout(() => {
-    wasDragging = false;
-  }, 50);
-});
-
-    /* ===== EXIT ZOOM ON CLICK ===== */
-document.addEventListener("click", function () {
-
-  if (!isMagnifierActive) return;
-  if (wasDragging) return;   // ignore click caused by drag
-
-  exitZoom();
-});
+    document.addEventListener("mouseup", function () {
+      isDragging = false;
+    });
 
     /* ===== ESC CLOSES MODAL ===== */
     document.addEventListener("keydown", function (e) {

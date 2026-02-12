@@ -21,14 +21,6 @@
   transform: scale(1.03);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
-/* ===== Bootstrap Modal Adjustments ===== */
-/* ===============================
-   Bootstrap Modal Layout
-================================ */
-
-/* ===============================
-   Fixed Frame Modal
-================================ */
 
 #imageModal .modal-dialog {
   margin: 0 auto;
@@ -41,7 +33,7 @@
 #imageModal .modal-content {
   background: rgba(0, 0, 0, 0.95);
   border: none;
-  width: 78vw;              /* fixed width */
+  width: 80vw;              /* fixed width */
   height: 100vh;             /* fixed height */
   display: flex;
   align-items: center;
@@ -94,9 +86,7 @@
 .modal-backdrop.magnifier-mode {
   display: none !important;
 }
-#modalContent.zoom-mode .modal-body > *:not(#modalImage) {
-  visibility: hidden;
-}
+
 
 #modalImage.zoom-fullscreen {
   position: fixed;
@@ -109,13 +99,23 @@
   visibility: hidden;
 }
 
+
+
+/* Hide Bootstrap backdrop completely in zoom mode */
+body.zoom-active .modal-backdrop {
+  display: none !important;
+}
+
+/* Hide buttons but keep image visible */
+#modalContent.zoom-mode .modal-body > *:not(#modalImage) {
+  visibility: hidden;
+}
+
+/* Fullscreen image */
 #modalImage.zoom-fullscreen {
   position: fixed;
   inset: 0;
   margin: auto;
   z-index: 2000;
   cursor: grab;
-}
-body.zoom-active .modal-backdrop {
-  display: none !important;
 }
