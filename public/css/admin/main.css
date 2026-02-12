@@ -76,5 +76,35 @@ h2 {
   object-fit: contain;
 }
 
+.viewer-message {
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+}
 
+.viewer-message.success {
+  background: #d1e7dd;
+  color: #0f5132;
+}
 
+.viewer-message.error {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.viewer-message.warning {
+  background: #fff3cd;
+  color: #664d03;
+}
+
+.server-feedback {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+}
+.server-feedback {
+  white-space: pre-line;
+}

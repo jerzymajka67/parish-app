@@ -27,7 +27,6 @@ function getNode(obj, pathStr) {
   if (!pathStr) return obj;
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
-// Admin Events page
 router.get('/', requireLogin, (req, res) => {
   tree = {};
   res.render('pages/admin/events', {
@@ -35,10 +34,11 @@ router.get('/', requireLogin, (req, res) => {
     title: 'Events - admin',
     lang: 'en',
     page: 'events',
-    favicon: '/images/logo-olqa-mini.png'
+    favicon: '/images/logo-olqa-mini.png',
+    msg: req.query.msg || null,
+    status: req.query.status || null
   });
 });
-// List directories (AJAX)
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
@@ -49,24 +49,39 @@ router.get('/ls', requireLogin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Create folder
 router.post('/create-folder', requireLogin, async (req, res) => {
   try {
     const currentPath = req.body.currentPath || '';
     const folderName = req.body.folderName;
-    if (!folderName) return res.status(400).send('Folder name required');
+    if (!folderName) {
+      const msg = 'Folder name is required';
+      const status = 'error';
+      return res.redirect(
+        `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+      );
+    }
 
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
     const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
 
     await fs.mkdir(newFolderPath, { recursive: true });
-    res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
+      const folderDisplay = currentPath ? `/${currentPath}` : '/';
+      const msg = encodeURIComponent(`Folder created successfully in ${folderDisplay}`);
+      const status = 'success';
+        res.redirect(
+          `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${msg}&status=${status}`
+        );
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error creating folder');
+
+    const msg = 'Error creating folder';
+    const status = 'error';
+
+    res.redirect(
+      `/admin/events?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
   }
 });
-// Delete selected
 router.post('/delete-selected', requireLogin, async (req, res) => {
   try {
     const { files, folder } = req.body; // get files array and folder
@@ -112,7 +127,6 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
     res.status(500).json({ error: 'Delete failed' });
   }
 });
-// Upload images (MULTI)
 router.post('/upload-image',
   requireLogin,
   upload.array('images', 20),
@@ -121,20 +135,28 @@ router.post('/upload-image',
       const currentPath = req.body.currentPath || '';
       const targetFolder = path.join(EVENTS_ROOT, currentPath);
 
+      // ❌ Security check
       if (!targetFolder.startsWith(EVENTS_ROOT)) {
-        return res.status(403).send('Access denied');
+        const msg = 'Access denied';
+        const status = 'error';
+        return res.redirect(
+          `/admin/events?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+        );
       }
 
+      // ❌ No files
       if (!req.files || req.files.length === 0) {
-        return res.status(400).send('No images uploaded');
+        const msg = 'No images selected';
+        const status = 'error';
+        return res.redirect(
+          `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+        );
       }
 
-      // Ensure folders exist
       const thumbsFolder = path.join(targetFolder, 'thumbs');
       await fs.mkdir(targetFolder, { recursive: true });
       await fs.mkdir(thumbsFolder, { recursive: true });
 
-      // Process each uploaded image
       for (const file of req.files) {
         const inputPath = file.path;
         const baseName = path.parse(file.originalname).name;
@@ -142,28 +164,33 @@ router.post('/upload-image',
         const fullImagePath = path.join(targetFolder, baseName + '.webp');
         const thumbImagePath = path.join(thumbsFolder, baseName + '.webp');
 
-        // FULL IMAGE
         await sharp(inputPath)
           .resize({ width: 1200, withoutEnlargement: true })
           .webp({ quality: 80 })
           .toFile(fullImagePath);
 
-        // THUMBNAIL
         await sharp(inputPath)
           .resize({ width: 150, withoutEnlargement: true })
           .webp({ quality: 65 })
           .toFile(thumbImagePath);
 
-        // Remove temp file
         await fs.unlink(inputPath);
       }
-
-      // Back to admin view
-      res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}`);
-
+      const folderDisplay = currentPath ? `/${currentPath}` : '/';
+      const msg = encodeURIComponent(`Images uploaded successfully to ${folderDisplay}`);
+      const status = 'success';
+        res.redirect(
+          `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${msg}&status=${status}`
+        );
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error processing images');
+
+      const msg = 'Error processing images';
+      const status = 'error';
+
+      res.redirect(
+        `/admin/events?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+      );
     }
   }
 );
@@ -171,19 +198,30 @@ router.post('/rotation', requireLogin, async (req, res) => {
   try {
     const { file, angle } = req.body;
     if (!file || typeof angle !== 'number') {
-      return res.status(400).json({ error: 'Invalid parameters' });
+      return res.status(400).json({
+          ok: false,
+          status: 'error',
+          msg: 'Invalid parameters'
+        });
     }
     const originalPath = path.join(EVENTS_ROOT, file);
     await fs.access(originalPath);
-    // ---- ROTATE ORIGINAL (buffer → overwrite) ----
     const rotatedOriginal = await sharp(originalPath)
       .rotate(angle)
       .toBuffer();
     await fs.writeFile(originalPath, rotatedOriginal);
-    res.json({ ok: true });
+    const msg =  `Images uploaded successfully to ${file}. You can verify this in the user view after refreshing the page.`
+    return res.json({
+        ok: true,
+        status: 'success',
+        msg: msg
+      });
   } catch (err) {
-    console.error('Rotation failed:', err);
-    res.status(500).json({ error: 'Rotation failed' });
+      return  res.status(500).json({
+        ok: false,
+        status: 'error',
+        msg: 'Rotation failed'
+      });
   }
 });
 router.post('/rotation-thumbs', requireLogin, async (req, res) => {
