@@ -39,17 +39,22 @@
     </div>
   </div>
 </div>
-
 <div class="modal fade" id="imageModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark">
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"aria-label="Close"></button>
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div id="modalContent" class="modal-content bg-dark">
+      <button type="button" class="btn-close btn-close-white"
+              data-bs-dismiss="modal"></button>
+
       <div class="modal-body text-center position-relative p-0">
-          <button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y fs-1 px-4"
-          onclick="prevImage()">‹</button>
-            <img id="modalImage" class="img-fluid">
+
+        <button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y fs-1 px-4"
+                onclick="Viewer.prev()">‹</button>
+
+        <img id="modalImage" class="img-fluid">
+
         <button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y fs-1 px-4"
-          onclick="nextImage()">›</button>
+                onclick="Viewer.next()">›</button>
+
       </div>
     </div>
   </div>
@@ -57,180 +62,119 @@
 
 </main>
 <script>
-let currentGallery = [];
-let currentIndex = 0;
-function openAdminViewer(filePath) {
-  currentFile = filePath;
-  currentRotation = 0;
-
-  const img = document.getElementById('modalImage'); // ← updated ID
-
-  const encodedPath = filePath
-    .split('/')
-    .map(encodeURIComponent)
-    .join('/');
-
-  img.onload = () => {
-    const isVertical = img.naturalHeight > img.naturalWidth;
-
-    if (isVertical) {
-      img.style.height = '90vh';
-      img.style.width = 'auto';
-    } else {
-      img.style.width = '80vw';
-      img.style.height = 'auto';
-    }
-  };
-
-  img.src = '/content/events/' + encodedPath;
-
-  // ✅ Bootstrap modal show
-  const modal = new bootstrap.Modal(
-    document.getElementById('imageModal')
-  );
-  modal.show();
-}
-
-function closeViewer() {
-  const img = document.getElementById('modalImage');
-
-  // reset rotation
-  img.style.transform = 'rotate(0deg)';
-
-  // optional: clear source (safe)
-  img.removeAttribute('src');
-
-  currentFile = null;
-  currentRotation = 0;
-
-  // Bootstrap hide
-  const modalEl = document.getElementById('imageModal');
-  const modalInstance = bootstrap.Modal.getInstance(modalEl);
-
-  if (modalInstance) {
-    modalInstance.hide();
-  }
-}
-
-function nextImage() {
-    currentIndex = (currentIndex + 1) % currentGallery.length;
-    showImage();
-    }
-function prevImage() {
-    currentIndex =
-      (currentIndex - 1 + currentGallery.length) % currentGallery.length;
-    showImage();
-    }
-function showImage() {
-  const img = document.getElementById('modalImage');
-  img.src = currentGallery[currentIndex];
-}
-function openLightbox(index) {
-  //onsole.log('Opening lightbox for index:', index, 'Gallery:', currentGallery);
-  currentIndex = index;
-  showImage();
-  const modalElement = document.getElementById('imageModal');
-  if (!modalElement) {
-    console.error('imageModal not found in DOM');
-    return;
-  }
-
-  let modalInstance = bootstrap.Modal.getInstance(modalElement);
-
-  if (!modalInstance) {
-    modalInstance = new bootstrap.Modal(modalElement);
-  }
-
-  modalInstance.show();
-}
-function renderGallery(folderPath, thumbs) {
-
-  console.log('renderGallery called', folderPath, thumbs);
-
-  currentGallery = thumbs.map(file =>
-    `/content/events/${folderPath}/${file}`
-  );
-
-  const gallery = document.getElementById('gallery');
-  gallery.innerHTML = '';
-
-  thumbs.forEach((file, index) => {
-    const img = document.createElement('img');
-    img.src = `/content/events/${folderPath}/thumbs/${file}`;
-    img.onclick = () => openLightbox(index);
-    gallery.appendChild(img);
-  });
-}
-async function loadGallery(folderPath) {
-
-  const res = await fetch(
-    '/en/events/thumbs?path=' + encodeURIComponent(folderPath)
-  );
-  const data = await res.json();
-
-  if (!data.isGallery) {
-    document.getElementById('gallery').innerHTML = '';
-    return false;
-  }
-
-  renderGallery(folderPath, data.thumbs);
-  return true;
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeViewer();
-});
-const img = document.getElementById('modalImage');
-
-img.addEventListener('click', function () {
-  console.log('Image clicked');
-  img.classList.toggle('zoomed');
-});
 
   const browser = document.getElementById('browser');
+
+  /* =========================
+     GALLERY RENDER
+  ========================== */
+
+  function renderGallery(folderPath, thumbs) {
+
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+
+    const galleryPaths = thumbs.map(file =>
+      `/content/events/${folderPath}/${file}`
+    );
+
+    // Give images to Viewer module
+    Viewer.setGallery(galleryPaths);
+
+    thumbs.forEach((file, index) => {
+      const img = document.createElement('img');
+      img.src = `/content/events/${folderPath}/thumbs/${file}`;
+      img.onclick = () => Viewer.open(index);
+      gallery.appendChild(img);
+    });
+  }
+
+  /* =========================
+     LOAD GALLERY
+  ========================== */
+
+  async function loadGallery(folderPath) {
+
+    const res = await fetch(
+      '/en/events/thumbs?path=' + encodeURIComponent(folderPath)
+    );
+
+    const data = await res.json();
+
+    if (!data.isGallery) {
+      document.getElementById('gallery').innerHTML = '';
+      return false;
+    }
+
+    renderGallery(folderPath, data.thumbs);
+    return true;
+  }
+
+  /* =========================
+     FOLDER TREE
+  ========================== */
+
   function render(tree, basePath, container) {
+
     for (const name in tree) {
+
       if (name === 'files') continue;
-       if (name === 'thumbs') continue; 
-      const fullPath = basePath ? basePath + '/' + name : name;
+      if (name === 'thumbs') continue;
+
+      const fullPath = basePath
+        ? basePath + '/' + name
+        : name;
+
       const folder = document.createElement('a');
       folder.href = '#';
-      folder.className = 'list-group-item list-group-item-action fw-bold';
+      folder.className =
+        'list-group-item list-group-item-action fw-bold';
       folder.textContent = '📁 ' + name;
+
       const collapse = document.createElement('div');
       collapse.className = 'collapse ps-3';
-      const bs = new bootstrap.Collapse(collapse, { toggle: false });
-        folder.onclick = async e => {
-          e.preventDefault();
-          e.stopPropagation();
 
-          // 1️⃣ Ask backend what this folder is
-          const isGallery = await loadGallery(fullPath);
+      const bs = new bootstrap.Collapse(
+        collapse,
+        { toggle: false }
+      );
 
-          // 2️⃣ If it is a gallery → DO NOT expand tree
-          if (isGallery) {
-            bs.hide();
-            return;
-          }
+      folder.onclick = async e => {
+        e.preventDefault();
+        e.stopPropagation();
 
-          // 3️⃣ Normal folder behavior
-          if (!collapse.hasChildNodes()) {
-            load(fullPath, collapse);
-          }
+        const isGallery = await loadGallery(fullPath);
 
-          bs.toggle();
-        };
+        // If gallery → do not expand tree
+        if (isGallery) {
+          bs.hide();
+          return;
+        }
+
+        // Otherwise load subfolders
+        if (!collapse.hasChildNodes()) {
+          load(fullPath, collapse);
+        }
+
+        bs.toggle();
+      };
+
       container.append(folder, collapse);
     }
   }
+
   function load(path, container) {
     fetch('/en/events/ls?path=' + encodeURIComponent(path))
       .then(r => r.json())
       .then(data => render(data, path, container))
       .catch(err => console.error(err));
   }
-  // initial load (root)
+
+  /* =========================
+     INITIAL LOAD
+  ========================== */
+
   fetch('/en/events/ls')
     .then(r => r.json())
     .then(data => render(data, '', browser))

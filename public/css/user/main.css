@@ -88,3 +88,34 @@
 #modalImage.dragging {
   cursor: grabbing;
 }
+#imageModal.magnifier-mode {
+    background-color: rgba(0,0,0,0) !important;
+}
+.modal-backdrop.magnifier-mode {
+  display: none !important;
+}
+#modalContent.zoom-mode .modal-body > *:not(#modalImage) {
+  visibility: hidden;
+}
+
+#modalImage.zoom-fullscreen {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  z-index: 2000;
+  cursor: grab;
+}
+#modalContent.zoom-hidden {
+  visibility: hidden;
+}
+
+#modalImage.zoom-fullscreen {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  z-index: 2000;
+  cursor: grab;
+}
+body.zoom-active .modal-backdrop {
+  display: none !important;
+}
