@@ -110,13 +110,39 @@
           </div>
         </div>
       </div>
-      <!-- RIGHT: Feedback message -->
+      <!-- RIGHT: Welcome + Feedback -->
       <div class="col-md-5">
-        <% if (msg && status) { %>
-          <div id="server-feedback" class="server-feedback <%= status %> border p-3">
-            <%= msg %>
-          </div>
-        <% } %>
+        <!-- WELCOME PANEL -->
+        <div class="border p-3 mb-3 bg-light">
+          <!-- SERVER FEEDBACK -->
+            <% if (msg && status) { %>
+              <div id="server-feedback" class="server-feedback <%= status %> border p-3 mt-3">
+                <%= msg %>
+              </div>
+            <% } %>
+          <h5>Welcome, Catalina & Samantha!</h5>
+          <p>
+            This page allows you to manage the <strong>About</strong> section of our parish website.
+          </p>
+          <p class="small">
+            The About page should present who we are as a parish: our history, mission,
+            leadership, and the spirit of our community. It should be clear, welcoming,
+            and reflect our bilingual and multicultural identity.
+          </p>
+
+          <ul class="small">
+            <li>You may <strong>upload existing HTML files</strong> or create new ones.</li>
+            <li>You can <strong>edit files safely</strong> using the editor.</li>
+            <li>The original file is never modified.</li>
+            <li>When you edit a file, the system creates a new version with the same name plus the <strong>date and time of editing</strong>.</li>
+            <li>After reviewing your changes, you may publish the page in <strong>English (EN)</strong> or <strong>Spanish (ES)</strong>.</li>
+          </ul>
+          <p class="small mb-0">
+            Thank you for your dedication and generosity in serving our parish community.
+          </p>
+        </div>
+
+
       </div>
     </div>
   </div>
@@ -164,20 +190,14 @@
         initEditButton();
       }
     });
-  (function () {
-    const feedback = document.getElementById('server-feedback');
-    if (!feedback) return;
-    const clear = () => {
-      feedback.remove();
-      document.removeEventListener('click', clear);
-      document.removeEventListener('keydown', clear);
-      document.removeEventListener('scroll', clear);
-    };
+    (function () {
+  const feedback = document.getElementById('server-feedback');
+  if (!feedback) return;
 
-    // first meaningful user interaction clears message
-    document.addEventListener('click', clear, { once: true });
-    document.addEventListener('keydown', clear, { once: true });
-    document.addEventListener('scroll', clear, { once: true });
-  })();
+  // Auto-hide after 7 seconds
+  setTimeout(() => {
+    feedback.remove();
+  }, 7000);
+})();
   </script>
 </body>

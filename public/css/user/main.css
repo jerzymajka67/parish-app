@@ -115,3 +115,25 @@ body.zoom-active .modal-backdrop {
   z-index: 2000;
   cursor: grab;
 }
+
+/*for about page */
+    .hero-section {
+      background: linear-gradient(rgba(0,51,102,0.7), rgba(0,51,102,0.7)),
+                  url('/images/church.jpg') center/cover no-repeat;
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .section-title {
+      color: #003366;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .construction-note {
+      background-color: #f8f9fa;
+      border-left: 4px solid #0d6efd;
+      padding: 15px;
+      font-style: italic;
+    }

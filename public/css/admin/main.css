@@ -41,11 +41,10 @@ h2 {
   border: 1px solid #f5b5b5;
 }
 #browser-container {
-  margin-left: 4%;
-  margin-right: 10%;
+  margin-right: 3%;
   background-color: #f8f9fa;   /* Bootstrap-like light gray */
-  border-radius: 6px;
-  padding: 12px;
+  border-radius:4px;
+  padding: 2px;
 }
 .btn-amber {
   background-color: #68adde;   /* soft amber */

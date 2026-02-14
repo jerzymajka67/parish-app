@@ -1,52 +1,56 @@
-  
 
 
-<h2 ><%= title %></h2>
- <!-- UPLOAD HTML FILE -->
- <form id="uploadHtmlForm"
-       action="/admin/about/upload-file"
-       method="POST"
-       enctype="multipart/form-data"
-       class="mb-3 d-flex gap-2 align-items-center">
-  <input type="file" name="htmlFile" accept=".html" class="form-control" required>
-  <button type="submit" class="btn btn-primary">Upload</button>
- </form>
+<!-- HERO -->
+<section class="hero-section">
+  <div class="container">
+    <h1 class="display-5 fw-bold">Our Lady, Queen of Angels</h1>
+    <p class="lead">A Catholic Community in La Joya, Texas</p>
+  </div>
+</section>
 
-    <!-- CREATE HTML FILE -->
- <form id="createHtmlForm"
-       action="/admin/about/create-html"
-       method="POST"
-       class="mb-2 d-flex gap-2 align-items-center">
-  <input type="text" name="fileName" class="form-control" placeholder="New HTML file name (without .html)" style="max-width:300px" required>
-  <button type="submit" class="btn btn-success">Create</button>
- </form>
+<div class="container my-5">
 
-    <!-- PUBLISH ENGLISH VERSION -->
- <form id="publishEnForm"
-       action="/admin/about/publish-en"
-       method="POST"
-       class="mb-2 d-flex gap-2 align-items-center">
-  <input type="text" name="fileName" class="form-control" placeholder="HTML file to publish as English version (without .html)" style="max-width:300px" required>
-  <button type="submit" class="btn btn-info">Publish EN</button>
- </form>
+  <!-- Who We Are -->
+  <section class="mb-5">
+    <h2 class="section-title">Who We Are</h2>
+    <p>
+      Our Lady, Queen of Angels Parish serves the faithful of La Joya and the surrounding
+      Rio Grande Valley. We are a bilingual Catholic community rooted in prayer,
+      celebration of the sacraments, and service to others.
+    </p>
+    <p>
+      <strong>Address:</strong> 916 South Leo Avenue, La Joya, TX 78560<br>
+      <strong>Phone:</strong> (956) 585-5223
+    </p>
+  </section>
 
-    <!-- PUBLISH SPANISH VERSION -->
- <form id="publishEsForm"
-       action="/admin/about/publish-es"
-       method="POST"
-       class="mb-2 d-flex gap-2 align-items-center">
-  <input type="text" name="fileName" class="form-control" placeholder="HTML file to publish as Spanish version (without .html)" style="max-width:300px" required>
-  <button type="submit" class="btn btn-info">Publish ES</button>
- </form>
+  <!-- Mission -->
+  <section class="mb-5">
+    <h2 class="section-title">Our Mission</h2>
+    <p>
+      We strive to be a welcoming parish family where all may grow in faith, hope, and love.
+      Through worship, formation, and outreach, we seek to live the Gospel
+      and serve Christ in one another.
+    </p>
+  </section>
 
-    <!-- DELETE HTML FILE -->
- <form method="POST" 
-  action="/admin/about/delete-file"
-   id="deleteForm"
-   class="mb-3 d-flex gap-2 align-items-center">
-     <button type="submit" 
-             class="btn btn-danger"
-             id="deleteBtn">Delete HTML File
+  <!-- Sacraments -->
+  <section class="mb-5">
+    <h2 class="section-title">Mass & Sacraments</h2>
+    <p>
+      Mass is celebrated in both English and Spanish.
+      Please consult our parish announcements for current schedules.
+    </p>
+  </section>
 
-</button>
+  <!-- Construction Notice -->
+  <div class="construction-note">
+    <strong>Website Under Construction:</strong><br>
+    This website is currently being developed. We kindly ask for your patience
+    and collaboration as we continue improving our online presence.
+  </div>
+
+</div>
+
+<!-- Bootstrap JS -->
 
