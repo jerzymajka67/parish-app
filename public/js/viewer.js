@@ -40,6 +40,8 @@
   function showImage() {
     const img = getImage();
     if (!img || !gallery.length) return;
+
+    exitZoom();   // important: reset zoom when changing photo
     img.src = gallery[index];
   }
 
@@ -110,55 +112,138 @@
 
     if (!img || !modalContent) return;
 
-    // Disable browser ghost drag
     img.setAttribute("draggable", "false");
     img.addEventListener("dragstart", e => e.preventDefault());
 
-    /* ===== CLICK TO TOGGLE ZOOM ===== */
-    img.addEventListener("click", function () {
+    /* ======================================================
+       DESKTOP BEHAVIOR (NO TOUCH SUPPORT)
+    ====================================================== */
 
-      if (!isMagnifierActive) {
-        enterZoom();
-      } else if (!dragMoved) {
-        // only close if it was a real click, not a drag
-        exitZoom();
-      }
+    if (!('ontouchstart' in window)) {
 
-      dragMoved = false;
-    });
+      /* CLICK TO TOGGLE ZOOM */
+      img.addEventListener("click", function () {
 
-    /* ===== DRAG START ===== */
-    img.addEventListener("mousedown", function (e) {
-      if (!isMagnifierActive) return;
+        if (!isMagnifierActive) {
+          enterZoom();
+        } else if (!dragMoved) {
+          exitZoom();
+        }
 
-      e.preventDefault();
+        dragMoved = false;
+      });
 
-      isDragging = true;
-      dragMoved = false;
+      /* DRAG START */
+      img.addEventListener("mousedown", function (e) {
+        if (!isMagnifierActive) return;
 
-      startX = e.clientX - translateX;
-      startY = e.clientY - translateY;
-    });
+        e.preventDefault();
 
-    /* ===== DRAG MOVE ===== */
-    document.addEventListener("mousemove", function (e) {
-      if (!isDragging || !isMagnifierActive) return;
+        isDragging = true;
+        dragMoved = false;
 
-      dragMoved = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+      });
 
-      translateX = e.clientX - startX;
-      translateY = e.clientY - startY;
+      /* DRAG MOVE */
+      document.addEventListener("mousemove", function (e) {
+        if (!isDragging || !isMagnifierActive) return;
 
-      img.style.transform =
-        `translate(${translateX}px, ${translateY}px) scale(2)`;
-    });
+        dragMoved = true;
 
-    /* ===== DRAG END ===== */
-    document.addEventListener("mouseup", function () {
-      isDragging = false;
-    });
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
 
-    /* ===== ESC CLOSES MODAL ===== */
+        img.style.transform =
+          `translate(${translateX}px, ${translateY}px) scale(2)`;
+      });
+
+      /* DRAG END */
+      document.addEventListener("mouseup", function () {
+        isDragging = false;
+      });
+
+    }
+
+    /* ======================================================
+       MOBILE TOUCH BEHAVIOR
+    ====================================================== */
+
+    if ('ontouchstart' in window) {
+
+      let touchStartX = 0;
+      let initialDistance = 0;
+      let scale = 1;
+      let isZooming = false;
+
+      /* SWIPE */
+      img.addEventListener("touchstart", e => {
+
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+        }
+
+        if (e.touches.length === 2) {
+          isZooming = true;
+        }
+
+      });
+
+      img.addEventListener("touchend", e => {
+
+        if (isZooming) {
+          isZooming = false;
+          return;
+        }
+
+        const touchEndX = e.changedTouches[0].clientX;
+        const diff = touchStartX - touchEndX;
+
+        if (Math.abs(diff) > 60) {
+
+          if (diff > 0) {
+            Viewer.next();
+          } else {
+            Viewer.prev();
+          }
+
+        }
+
+      });
+
+      /* PINCH ZOOM */
+      img.addEventListener("touchmove", e => {
+
+        if (e.touches.length === 2) {
+
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (!initialDistance) {
+            initialDistance = distance;
+          } else {
+
+            scale = distance / initialDistance;
+            scale = Math.min(Math.max(scale, 1), 4);
+
+            img.style.transform = `scale(${scale})`;
+          }
+
+          e.preventDefault();
+        }
+
+      });
+
+      img.addEventListener("touchend", () => {
+        initialDistance = 0;
+      });
+
+    }
+
+    /* ESC CLOSES MODAL */
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
         Viewer.close();
