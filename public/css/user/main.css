@@ -86,8 +86,6 @@
 .modal-backdrop.magnifier-mode {
   display: none !important;
 }
-
-
 #modalImage.zoom-fullscreen {
   position: fixed;
   inset: 0;
@@ -98,8 +96,6 @@
 #modalContent.zoom-hidden {
   visibility: hidden;
 }
-
-
 
 /* Hide Bootstrap backdrop completely in zoom mode */
 body.zoom-active .modal-backdrop {

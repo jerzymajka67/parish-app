@@ -127,103 +127,162 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
     res.status(500).json({ error: 'Delete failed' });
   }
 });
-router.post('/upload-image',
-  requireLogin,
-  upload.array('images', 20),
-  async (req, res) => {
+router.post('/upload-image', requireLogin, (req, res) => {
+
+  const uploadHandler = upload.array('images', 20);
+
+  uploadHandler(req, res, async function (err) {
+
+    if (err) {
+      let msg = 'Upload error';
+      const status = 'error';
+
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        msg = 'One of the images exceeds 10MB limit.';
+      } else if (err.code === 'LIMIT_FILE_COUNT') {
+        msg = 'You can upload maximum 20 images at once.';
+      } else {
+        msg = err.message;
+      }
+
+      return res.redirect(`/admin/events?msg=${encodeURIComponent(msg)}&status=${status}`);
+    }
+
     try {
       const currentPath = req.body.currentPath || '';
       const targetFolder = path.join(EVENTS_ROOT, currentPath);
 
-      // ❌ Security check
       if (!targetFolder.startsWith(EVENTS_ROOT)) {
-        const msg = 'Access denied';
-        const status = 'error';
-        return res.redirect(
-          `/admin/events?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
-        );
+        return res.redirect(`/admin/events?msg=Access denied&status=error`);
       }
 
-      // ❌ No files
       if (!req.files || req.files.length === 0) {
-        const msg = 'No images selected';
-        const status = 'error';
-        return res.redirect(
-          `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
-        );
+        return res.redirect(`/admin/events?path=${encodeURIComponent(currentPath)}&msg=No images selected&status=error`);
       }
 
       const thumbsFolder = path.join(targetFolder, 'thumbs');
+
       await fs.mkdir(targetFolder, { recursive: true });
       await fs.mkdir(thumbsFolder, { recursive: true });
 
       for (const file of req.files) {
+
         const inputPath = file.path;
         const baseName = path.parse(file.originalname).name;
 
         const fullImagePath = path.join(targetFolder, baseName + '.webp');
         const thumbImagePath = path.join(thumbsFolder, baseName + '.webp');
 
-        await sharp(inputPath)
-          .resize({ width: 1200, withoutEnlargement: true })
-          .webp({ quality: 80 })
+        const image = sharp(inputPath).rotate();
+
+        // FULL IMAGE
+        await image.clone()
+          .resize({
+            width: 1200,
+            height: 1200,
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .webp({ quality: 75 })
           .toFile(fullImagePath);
 
-        await sharp(inputPath)
-          .resize({ width: 150, withoutEnlargement: true })
+        // THUMBNAIL
+        await image.clone()
+          .resize({
+            width: 300,
+            height: 300,
+            fit: 'inside',
+            withoutEnlargement: true
+          })
           .webp({ quality: 65 })
           .toFile(thumbImagePath);
 
         await fs.unlink(inputPath);
       }
-      const folderDisplay = currentPath ? `/${currentPath}` : '/';
-      const msg = encodeURIComponent(`Images uploaded successfully to ${folderDisplay}`);
-      const status = 'success';
-        res.redirect(
-          `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${msg}&status=${status}`
-        );
-    } catch (err) {
-      console.error(err);
 
-      const msg = 'Error processing images';
-      const status = 'error';
+      const folderDisplay = currentPath ? `/${currentPath}` : '/';
 
       res.redirect(
-        `/admin/events?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+        `/admin/events?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(`Images uploaded successfully to ${folderDisplay}`)}&status=success`
       );
+
+    } catch (error) {
+      console.error(error);
+      res.redirect(`/admin/events?msg=Error processing images&status=error`);
     }
-  }
-);
+
+  });
+
+});
 router.post('/rotation', requireLogin, async (req, res) => {
   try {
     const { file, angle } = req.body;
+
     if (!file || typeof angle !== 'number') {
       return res.status(400).json({
-          ok: false,
-          status: 'error',
-          msg: 'Invalid parameters'
-        });
-    }
-    const originalPath = path.join(EVENTS_ROOT, file);
-    await fs.access(originalPath);
-    const rotatedOriginal = await sharp(originalPath)
-      .rotate(angle)
-      .toBuffer();
-    await fs.writeFile(originalPath, rotatedOriginal);
-    const msg =  `Images uploaded successfully to ${file}. You can verify this in the user view after refreshing the page.`
-    return res.json({
-        ok: true,
-        status: 'success',
-        msg: msg
-      });
-  } catch (err) {
-      return  res.status(500).json({
         ok: false,
         status: 'error',
-        msg: 'Rotation failed'
+        msg: 'Invalid parameters'
       });
+    }
+
+    const originalPath = path.join(EVENTS_ROOT, file);
+    const thumbPath = path.join(
+      path.dirname(originalPath),
+      'thumbs',
+      path.basename(originalPath)
+    );
+
+    await fs.access(originalPath);
+
+    const tempOriginal = originalPath + '.tmp';
+    const tempThumb = thumbPath + '.tmp';
+
+    const image = sharp(originalPath).rotate(angle);
+
+    // FULL IMAGE → write temp
+    await image.clone()
+      .resize({
+        width: 1200,
+        height: 1200,
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      //.webp({ quality: 75 })
+      .toFile(tempOriginal);
+
+    // THUMB → write temp
+    await image.clone()
+      .resize({
+        width: 300,
+        height: 300,
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .webp({ quality: 65 })
+      .toFile(tempThumb);
+
+    // ATOMIC REPLACE
+    await fs.rename(tempOriginal, originalPath);
+    await fs.rename(tempThumb, thumbPath);
+
+    return res.json({
+      ok: true,
+      status: 'success',
+      msg: 'Image rotated successfully.'
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      ok: false,
+      status: 'error',
+      msg: 'Rotation failed'
+    });
   }
 });
+
 router.post('/rotation-thumbs', requireLogin, async (req, res) => {
   console.log('Rotation-thumbs request:', req.body);
   try {

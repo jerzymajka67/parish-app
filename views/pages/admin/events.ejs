@@ -111,7 +111,6 @@
 let currentFile = null;
 let currentRotation = 0;
 function openAdminViewer(filePath) {
-  console.log('Opening viewer for', filePath);
   currentFile = filePath;
   currentRotation = 0;
   const img = document.getElementById('viewerImage');
@@ -120,12 +119,6 @@ function openAdminViewer(filePath) {
   .split('/')
   .map(encodeURIComponent)
   .join('/');
-img.onload = () => {
-  console.log('Image loaded:', img.naturalWidth, img.naturalHeight);
-};
-img.onerror = () => {
-  console.error('Image failed to load:', img.src);
-};
 img.src = '/content/events/' + encodedPath;
   document.getElementById('photoViewer').classList.remove('hidden');
 }
@@ -157,14 +150,14 @@ async function saveRotation() {
               angle: currentRotation
             })
           });
-      const resThumb = await fetch('/admin/events/rotation-thumbs', {
+      /*const resThumb = await fetch('/admin/events/rotation-thumbs', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 file: currentFile,   // relative to content/events
                 angle: currentRotation
               })
-            });
+            });*/
       const data = await response.json();
           if (!response.ok || !data.ok) {
             showViewerMessage(data.msg || 'Rotation failed', 'error');
@@ -311,6 +304,21 @@ document.getElementById('deleteSelectedForm').onsubmit = e => {
   };
 };
 });
+ document.addEventListener("DOMContentLoaded", function () {
+    const feedback = document.getElementById("server-feedback");
+
+    if (feedback) {
+      setTimeout(() => {
+        feedback.classList.add("hide");
+
+        setTimeout(() => {
+          feedback.remove();
+        }, 500); // match CSS transition time
+      }, 5000); // visible for 5 seconds
+    }
+  });
+
+
 </script>
 
 </body>

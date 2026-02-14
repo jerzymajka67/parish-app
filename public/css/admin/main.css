@@ -21,6 +21,14 @@ h2 {
   padding: 12px 16px;
   border-radius: 6px;
   font-size: 14px;
+  transition: opacity 0.5s ease;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  white-space: pre-line;
+}
+.server-feedback.hide {
+  opacity: 0;
 }
 .server-feedback.success {
   background-color: #e6f6ec;
@@ -31,12 +39,6 @@ h2 {
   background-color: #fdeaea;
   color: #8a1f1f;
   border: 1px solid #f5b5b5;
-}
-.server-feedback {
-  transition: opacity 0.2s ease;
-}
-.server-feedback.hide {
-  opacity: 0;
 }
 #browser-container {
   margin-left: 4%;
