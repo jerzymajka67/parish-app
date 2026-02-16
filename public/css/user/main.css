@@ -35,7 +35,12 @@ body.zoom-active .modal-backdrop {
 /* =========================================
    GALLERY THUMBNAILS (DESKTOP DEFAULT)
 ========================================= */
-
+  /* Mobile gallery layout */
+.laptopGallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
 .laptopGallery img {
   width: 20%;
   height: 160px;
@@ -43,25 +48,15 @@ body.zoom-active .modal-backdrop {
   border-radius: 6px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  aspect-ratio: 3 / 4;   /* vertical */
+  object-fit: cover;     /* crop center */
+  border-radius: 6px;
 }
 
 .laptopGallery img:hover {
   transform: scale(1.03);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-}
-
-.mobileGallery {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.mobileGallery img {
-  width: 100%;
-  aspect-ratio: 3 / 4;   /* vertical shape */
-  object-fit: cover;     /* crop automatically */
-  object-position: center;
-  display: block;
 }
 
 /* =========================================
@@ -122,11 +117,6 @@ body.zoom-active .modal-backdrop {
 
 @media (max-width: 768px) {
 
-  /* 3 thumbnails per row */
-  #gallery img {
-    width: calc(33.333% - 7px);
-    height: 130px;
-  }
 
   /* Fullscreen modal */
   #imageModal .modal-dialog {
@@ -152,6 +142,28 @@ body.zoom-active .modal-backdrop {
   /* Hide navigation arrows on mobile */
   #imageModal .nav-arrow {
     display: none !important;
+  }
+    /* Mobile gallery layout */
+  .laptopGallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .laptopGallery img {
+    width: 100%;
+    aspect-ratio: 3 / 4;   /* vertical */
+    object-fit: cover;     /* crop center */
+    border-radius: 6px;
+  }
+    /* Remove folder indentation for gallery */
+  .collapse.laptopGallery {
+    padding-left: 0 !important;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
   }
 }
 

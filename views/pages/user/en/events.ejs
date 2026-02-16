@@ -97,39 +97,25 @@ folder.onclick = async function (e) {
   let targetContainerId;
 
   if (window.innerWidth < 768) {
-
-    // 📱 MOBILE
-
-    // Ensure collapse has id
     if (!collapse.id) {
       collapse.id = createCollapseId(collapse);
     }
 
     targetContainerId = collapse.id;
-
-    // 🔹 IMPORTANT: show collapse first
     bs.show();
 
   } else {
-
-    // 💻 DESKTOP
     targetContainerId = 'gallery';
-
   }
-
   const isGallery = await loadGallery(fullPath, targetContainerId);
-
   if (isGallery) {
     return; // don't toggle tree
   }
-
   if (!collapse.hasChildNodes()) {
     load(fullPath, collapse);
   }
-
   bs.toggle();
 };
-
   container.append(folder, collapse);
     }
   }
