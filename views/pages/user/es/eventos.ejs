@@ -1,9 +1,83 @@
 <body>
-  
-  <main>
-    <h1>bien venido a la pagina de nuestra parroquia Reina de los Angeles, la Joya</h1>
-    <p>Current page: <%= page %></p>
-    <p>Language: <%= lang %></p>
-  </main>
 
+<main>
+   <p>Language: <%= lang %></p>
+   <html lang="es"></html>
+<div class="container-fluid mt-4 events-page">
+  <div class="row">
+    <!-- LEFT: INTRO TEXT -->
+    <div class="col-md-7 p-5 intro-column">
+      <div id="gallery" class="laptopGallery g-3 mt-4"></div>
+        <h2 class="mb-4">Galería de Eventos Parroquiales</h2>
+
+        <p class="lead">
+          En esta página encontrará fotos de diversos eventos parroquiales
+          y lugares interesantes dentro de nuestra comunidad.
+        </p>
+
+        <p>
+          Esta página todavía está en construcción, por lo que por ahora le invitamos
+          a ver fotos de
+          <a href="#"
+            onclick="loadGallery('2026/01. January/Photos of our churches/OLQA', 'inTextGalleryChurches'); return false;">
+            nuestras iglesias parroquiales.
+          </a>
+        </p>
+
+        <div id="inTextGalleryChurches" class="laptopGallery g-3 mt-4"></div>
+
+        <p>
+          Así como fotos del
+          <a href="#"
+            onclick="loadGallery('2025/12. December/Schonstatt Movement in Our Parish', 'inTextGalleryShonstatt'); return false;">
+            Movimiento de Schoenstatt en nuestra parroquia
+          </a>.
+        </p>
+
+        <div id="inTextGalleryShonstatt" class="laptopGallery g-3 mt-4"></div>
+
+        <p>
+          Esperamos que, con su ayuda, esta galería pronto comience a llenarse
+          de fotos significativas y hermosas que reflejen la vida
+          y la fe de nuestra comunidad parroquial.
+        </p>
+
+        <p class="signature">
+          — Su Comunidad Parroquial
+        </p>
+
+    </div>
+    <!-- RIGHT: BROWSER -->
+    <div class="col-md-5 border-start p-4 browser-column">
+      <h5 class="mb-3">Galería de Fotos Parroquiales</h5>
+      <div id="browser-container">
+        <div id="browser" class="list-group"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="imageModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div id="modalContent" class="modal-content bg-dark">
+      <button type="button" class="btn-close btn-close-white"
+              data-bs-dismiss="modal"></button>
+
+      <div class="modal-body text-center position-relative p-0">
+<button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y fs-1 px-4 nav-arrow"
+        onclick="Viewer.prev()">‹</button>
+
+<img id="modalImage" class="img-fluid">
+
+<button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y fs-1 px-4 nav-arrow"
+        onclick="Viewer.next()">›</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+<script src="/js/gallery.js"></script>
+<script src="/js/browser.js"></script>
+<script src="/js/viewer.js"></script>
+<script src="/js/loadGallery.js"></script>
 </body>

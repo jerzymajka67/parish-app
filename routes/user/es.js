@@ -1,6 +1,16 @@
 const express = require('express');
 const router = express.Router();
-
+const fs = require('fs/promises');
+const path = require('path');
+const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
+const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
+const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
+const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
+function getNode(obj, pathStr) {
+  if (!pathStr) return obj;
+  return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
+}
+let tree = {};
 // Path to favicon
 const faviconPath = '/images/logo-olqa-mini.png';
 
@@ -93,7 +103,42 @@ router.get('/eventos', (req, res) => {
     favicon: faviconPath
   });
 });
-
+router.get('/events/ls',  async (req, res) => {
+   try {
+    const relativePath = req.query.path || '';
+    const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
+    storeDirInTree(tree, relativePath, content);
+    res.json(getNode(tree, relativePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get('/events/thumbs', async (req, res) => {
+  const relPath = req.query.path;
+  if (!relPath) {
+    return res.json({ isGallery: false, thumbs: [] });
+  }
+  const thumbsDir = path.join(
+    APP_ROOT,
+    'content',
+    'events',
+    relPath,
+    'thumbs'
+  );
+  try {
+    const files = await fs.readdir(thumbsDir);
+    const thumbs = files.filter(f =>
+      f.toLowerCase().endsWith('.webp')
+    );
+    res.json({
+      isGallery: thumbs.length > 0,
+      thumbs
+    });
+  } catch (err) {
+    // thumbs/ does not exist → NOT a gallery
+    res.json({ isGallery: false, thumbs: [] });
+  }
+});
 // CONTACT
 router.get('/contacto', (req, res) => {
   res.render('pages/user/es/contacto', { 
