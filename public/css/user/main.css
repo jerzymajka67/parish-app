@@ -36,7 +36,7 @@ body.zoom-active .modal-backdrop {
    GALLERY THUMBNAILS (DESKTOP DEFAULT)
 ========================================= */
 
-#gallery img {
+.laptopGallery img {
   width: 20%;
   height: 160px;
   object-fit: cover;
@@ -45,11 +45,24 @@ body.zoom-active .modal-backdrop {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#gallery img:hover {
+.laptopGallery img:hover {
   transform: scale(1.03);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
+.mobileGallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mobileGallery img {
+  width: 100%;
+  aspect-ratio: 3 / 4;   /* vertical shape */
+  object-fit: cover;     /* crop automatically */
+  object-position: center;
+  display: block;
+}
 
 /* =========================================
    MODAL – DESKTOP VERSION

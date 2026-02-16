@@ -1,169 +1,26 @@
-<body>
-   <main>
-<div class="container-fluid mt-4 events-page">
-  <div class="row">
-    <!-- LEFT: INTRO TEXT -->
-    <div class="col-md-7 p-5 intro-column">
-      <div id="gallery" class="laptopGallery g-3 mt-4"></div>
-      <h2 class="mb-4">Parish Events Gallery</h2>
-      <p class="lead">
-        On this page you will find photos from various parish events
-        and interesting places within our parish community.
-      </p>
-      <p>
-        This page is still under construction, so for now we invite you
-        to browse photos of
-        <a href="#"
-          onclick="loadGallery('2026/01. January/Photos of our churches/OLQA', 'inTextGalleryChurches'); return false;">
-          our parish churches.
-        </a>
-      </p>
-      <div id="inTextGalleryChurches" class="laptopGallery g-3 mt-4"></div>
-      <p>
-        As well as photos of the
-        <a href="#"
-          onclick="loadGallery('2025/12. December/Schonstatt Movement in Our Parish', 'inTextGalleryShonstatt'); return false;">
-          Schoenstatt Movement in our parish
-        </a>.
-      </p>
-      <div id="inTextGalleryShonstatt" class="laptopGallery g-3 mt-4"></div>
-      <p>
-        We hope that, with your help, this gallery will soon begin to fill
-        with meaningful and beautiful photos that reflect the life
-        and faith of our parish community.
-      </p>
-      <p class="signature">
-        — Your Parish Community
-      </p>
-    </div>
-    <!-- RIGHT: BROWSER -->
-    <div class="col-md-5 border-start p-4 browser-column">
-      <h5 class="mb-3">Parish Photo Gallery</h5>
-      <div id="browser-container">
-        <div id="browser" class="list-group"></div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal fade" id="imageModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div id="modalContent" class="modal-content bg-dark">
-      <button type="button" class="btn-close btn-close-white"
-              data-bs-dismiss="modal"></button>
-
-      <div class="modal-body text-center position-relative p-0">
-<button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y fs-1 px-4 nav-arrow"
-        onclick="Viewer.prev()">‹</button>
-
-<img id="modalImage" class="img-fluid">
-
-<button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y fs-1 px-4 nav-arrow"
-        onclick="Viewer.next()">›</button>
-
-      </div>
-    </div>
-  </div>
-</div>
-</main>
-
-<script>
-  let currentGallery = null;
-document.addEventListener('DOMContentLoaded', () => {
-  const browser = document.getElementById('browser');
-  function render(tree, basePath, container) {
-    for (const name in tree) {
-      if (name === 'files') continue;
-      if (name === 'thumbs') continue;
-      const fullPath = basePath
-        ? basePath + '/' + name
-        : name;
-      const folder = document.createElement('a');
-      folder.href = '#';
-      folder.className =
-        'list-group-item list-group-item-action fw-bold';
-      folder.textContent = '📁 ' + name;
-      const collapse = document.createElement('div');
-      collapse.className = 'collapse ps-3';
-      collapse.id = 'collapse-' + fullPath.replace(/[^\w]/g, '_');
-      const bs = new bootstrap.Collapse(
-        collapse,
-        { toggle: false }
-      );
-folder.onclick = async function (e) {
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  let targetContainerId;
-
-  if (window.innerWidth < 768) {
-
-    // 📱 MOBILE
-
-    // Ensure collapse has id
-    if (!collapse.id) {
-      collapse.id = createCollapseId(collapse);
-    }
-
-    targetContainerId = collapse.id;
-
-    // 🔹 IMPORTANT: show collapse first
-    bs.show();
-
-  } else {
-
-    // 💻 DESKTOP
-    targetContainerId = 'gallery';
-
-  }
-
-  const isGallery = await loadGallery(fullPath, targetContainerId);
-
-  if (isGallery) {
-    return; // don't toggle tree
-  }
-
-  if (!collapse.hasChildNodes()) {
-    load(fullPath, collapse);
-  }
-
-  bs.toggle();
-};
-
-  container.append(folder, collapse);
-    }
-  }
-  function load(path, container) {
-    fetch('/en/events/ls?path=' + encodeURIComponent(path))
-      .then(r => r.json())
-      .then(data => render(data, path, container))
-      .catch(err => console.error(err));
-  }
-
-  /* =========================
-     INITIAL LOAD
-  ========================== */
-  fetch('/en/events/ls')
-    .then(r => r.json())
-    .then(data => render(data, '', browser))
-    .catch(err => console.error(err));
 // viewer.js
 (function () {
+
   let gallery = [];
   let index = 0;
+
   let isMagnifierActive = false;
   let isDragging = false;
   let dragMoved = false;
+
   let startX = 0;
   let startY = 0;
   let translateX = 0;
   let translateY = 0;
+
   function getModal() {
     return document.getElementById("imageModal");
   }
+
   function getImage() {
     return document.getElementById("modalImage");
   }
+
   function getModalContent() {
     return document.getElementById("modalContent");
   }
@@ -210,29 +67,37 @@ folder.onclick = async function (e) {
     dragMoved = false;
     translateX = 0;
     translateY = 0;
+
     document.body.classList.remove("zoom-active");
     modalContent.classList.remove("zoom-mode");
     img.classList.remove("zoom-fullscreen");
+
     img.style.transform = "scale(1)";
   }
+
   window.Viewer = {
+
     setGallery(arr) {
       gallery = arr || [];
     },
+
     open(i = 0) {
       index = i;
       showImage();
       showModal();
     },
+
     close() {
       exitZoom();
       hideModal();
     },
+
     next() {
       if (!gallery.length) return;
       index = (index + 1) % gallery.length;
       showImage();
     },
+
     prev() {
       if (!gallery.length) return;
       index = (index - 1 + gallery.length) % gallery.length;
@@ -388,8 +253,3 @@ folder.onclick = async function (e) {
   });
 
 })();
-
-    
-});
-</script>
-</body>
