@@ -1,9 +1,118 @@
 <body>
-  
-  <main>
-    <h1>bien venido a la pagina de nuestra parroquia Reina de los Angeles, la Joya</h1>
-    <p>Current page: <%= page %></p>
-    <p>Language: <%= lang %></p>
-  </main>
+ <div class="container my-3">
+
+  <div class="text-center mb-4">
+    <h2 class="fw-bold mb-2">Contáctenos</h2>
+    <p class="text-muted">Estamos aquí para servirle.</p>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Información de Contacto -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+
+          <h5 class="text-primary mb-3">Oficina Parroquial</h5>
+
+          <p class="mb-3">
+            <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+            <strong>Dirección</strong><br>
+            916 S. Leo Ave.<br>
+            La Joya, TX 78560
+            <br>
+            <a href="https://www.google.com/maps/search/?api=1&query=916+S+Leo+Ave+La+Joya+TX+78560"
+               target="_blank"
+               class="text-decoration-none small">
+               <i class="bi bi-map"></i> Ver en Google Maps
+            </a>
+          </p>
+
+          <p class="mb-3">
+            <i class="bi bi-telephone-fill text-primary me-2"></i>
+            <strong>Teléfono</strong><br>
+            <a href="tel:9565855223" class="text-decoration-none">956-585-5223</a><br>
+            <a href="tel:9567667219" class="text-decoration-none">956-766-7219</a>
+          </p>
+
+          <p class="mb-3">
+            <i class="bi bi-envelope-fill text-primary me-2"></i>
+            <strong>Correo Electrónico</strong><br>
+            <a href="mailto:olqangels@cdob.org" class="text-decoration-none">
+              olqangels@cdob.org
+            </a>
+          </p>
+
+          <p class="mb-0">
+            <i class="bi bi-facebook text-primary me-2"></i>
+            <strong>Facebook</strong><br>
+            <a href="https://www.facebook.com/profile.php?id=61574892024341"
+               target="_blank"
+               class="text-decoration-none">
+              Visite nuestra página de Facebook
+            </a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de Contacto -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <h5 class="text-primary mb-3">Envíenos un Mensaje</h5>
+
+          <form action="/contacto" method="POST">
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Nombre Completo</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       required>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Correo Electrónico</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Teléfono (opcional)</label>
+              <input type="text"
+                     name="phone"
+                     class="form-control">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">Mensaje</label>
+              <textarea name="message"
+                        rows="4"
+                        class="form-control"
+                        required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-send-fill me-2"></i>
+              Enviar Mensaje
+            </button>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
 
 </body>
+

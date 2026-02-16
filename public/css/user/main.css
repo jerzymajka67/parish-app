@@ -168,13 +168,16 @@ body.zoom-active .modal-backdrop {
 }
 
 /*for about page */
-    .hero-section {
-      background: linear-gradient(rgba(0,51,102,0.7), rgba(0,51,102,0.7)),
-                  url('/images/church.jpg') center/cover no-repeat;
-      color: white;
-      padding: 80px 20px;
-      text-align: center;
-    }
+ .hero-section {
+  background:
+    linear-gradient(rgba(0, 51, 102, 0.45), rgba(0, 51, 102, 0.45)),
+    url('/images/church-desktop.webp') center/cover no-repeat;
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+/* Mobile version */
 
     .section-title {
       color: #003366;
@@ -188,3 +191,20 @@ body.zoom-active .modal-backdrop {
       padding: 15px;
       font-style: italic;
     }
+    .card-img-top {
+  height: 180px;
+  object-fit: cover;
+}
+.object-fit-cover {
+  object-fit: cover;
+}
+
+img.h-100 {
+  min-height: 100%;
+}
+.section-photo {
+  width: 100%;
+  max-height: 200px;   /* you choose the max height */
+  object-fit: contain;
+}
+

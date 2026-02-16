@@ -1,10 +1,119 @@
 <body>
  
-  <main>
-    <h1>Welcome to Our Lady, Queen of Angels, La Joya Parish</h1>
-    <p>Current page: <%= page %></p>
-    <p>Language: <%= lang %></p>
-  </main>
+ <div class="container my-3">
+
+  <div class="text-center mb-4">
+    <h2 class="fw-bold mb-2">Contact Us</h2>
+    <p class="text-muted">We are here to assist you.</p>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Contact Information -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+
+          <h5 class="text-primary mb-3">Parish Office</h5>
+
+          <p class="mb-3">
+            <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+            <strong>Address</strong><br>
+            916 S. Leo Ave.<br>
+            La Joya, TX 78560
+            <br>
+            <a href="https://www.google.com/maps/search/?api=1&query=916+S+Leo+Ave+La+Joya+TX+78560"
+               target="_blank"
+               class="text-decoration-none small">
+               <i class="bi bi-map"></i> View on Google Maps
+            </a>
+          </p>
+
+          <p class="mb-3">
+            <i class="bi bi-telephone-fill text-primary me-2"></i>
+            <strong>Phone</strong><br>
+            <a href="tel:9565855223" class="text-decoration-none">956-585-5223</a><br>
+            <a href="tel:9567667219" class="text-decoration-none">956-766-7219</a>
+          </p>
+
+          <p class="mb-3">
+            <i class="bi bi-envelope-fill text-primary me-2"></i>
+            <strong>Email</strong><br>
+            <a href="mailto:olqangels@cdob.org" class="text-decoration-none">
+              olqangels@cdob.org
+            </a>
+          </p>
+
+          <p class="mb-0">
+            <i class="bi bi-facebook text-primary me-2"></i>
+            <strong>Facebook</strong><br>
+            <a href="https://www.facebook.com/profile.php?id=61574892024341"
+               target="_blank"
+               class="text-decoration-none">
+              Visit our Facebook Page
+            </a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <h5 class="text-primary mb-3">Send Us a Message</h5>
+
+          <form action="/contact" method="POST">
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text"
+                       name="name"
+                       class="form-control"
+                       required>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email Address</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Phone (optional)</label>
+              <input type="text"
+                     name="phone"
+                     class="form-control">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">Message</label>
+              <textarea name="message"
+                        rows="4"
+                        class="form-control"
+                        required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-send-fill me-2"></i>
+              Send Message
+            </button>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
 
   
 </body>

@@ -14,6 +14,7 @@ let tree = {};
 // All routes for English pages
 router.get('/', (req, res) => {
   res.render('pages/user/en/home', { 
+    layout: 'layouts/user',
     title: 'Home - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'home',
@@ -22,6 +23,7 @@ router.get('/', (req, res) => {
 });
 router.get('/home', (req, res) => {
   res.render('pages/user/en/home', { 
+    layout: 'layouts/user',
     title: 'Home - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'home',
@@ -30,6 +32,7 @@ router.get('/home', (req, res) => {
 });
 router.get('/about', (req, res) => {
   res.render('pages/user/en/about', { 
+    layout: 'layouts/user',
     title: 'About - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'about',
@@ -38,6 +41,7 @@ router.get('/about', (req, res) => {
 });
 router.get('/masses', (req, res) => {
   res.render('pages/user/en/masses', { 
+    layout: 'layouts/user',
     title: 'Masses & Devotions - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'masses',
@@ -46,6 +50,7 @@ router.get('/masses', (req, res) => {
 });
 router.get('/office', (req, res) => {
   res.render('pages/user/en/office', { 
+    layout: 'layouts/user',
     title: 'Parish Office - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'office',
@@ -54,6 +59,7 @@ router.get('/office', (req, res) => {
 });
 router.get('/bulletin', (req, res) => {
   res.render('pages/user/en/bulletin', { 
+    layout: 'layouts/user',
     title: 'Bulletin - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'bulletin',
@@ -62,6 +68,7 @@ router.get('/bulletin', (req, res) => {
 });
 router.get('/groups', (req, res) => {
   res.render('pages/user/en/groups', { 
+    layout: 'layouts/user',
     title: 'Parish Groups - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'groups',
@@ -70,6 +77,7 @@ router.get('/groups', (req, res) => {
 });
 router.get('/communities', (req, res) => {
   res.render('pages/user/en/communities', { 
+    layout: 'layouts/user',
     title: 'Chapels & Communities - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'communities',
@@ -78,6 +86,7 @@ router.get('/communities', (req, res) => {
 });
 router.get('/homilies', (req, res) => {
   res.render('pages/user/en/homilies', { 
+    layout: 'layouts/user',
     title: 'Homilies - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'homilies',
@@ -87,6 +96,7 @@ router.get('/homilies', (req, res) => {
 router.get('/events', (req, res) => {
   tree = {};
   res.render('pages/user/en/events', { 
+    layout: 'layouts/user',
     title: 'Parish Events - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'events',
@@ -131,6 +141,7 @@ router.get('/events/thumbs', async (req, res) => {
 });
 router.get('/contact', (req, res) => {
   res.render('pages/user/en/contact', { 
+    layout: 'layouts/user',
     title: 'Contact Us - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'contact',

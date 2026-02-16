@@ -17,6 +17,7 @@ const faviconPath = '/images/logo-olqa-mini.png';
 // HOME
 router.get('/inicio', (req, res) => {
   res.render('pages/user/es/inicio', { 
+    layout: 'layouts/user',
     title: 'Inicio - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'home', 
@@ -27,6 +28,7 @@ router.get('/inicio', (req, res) => {
 // ABOUT
 router.get('/sobre', (req, res) => {
   res.render('pages/user/es/sobre', { 
+    layout: 'layouts/user',
     title: 'Sobre la Parroquia - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'about', 
@@ -37,6 +39,7 @@ router.get('/sobre', (req, res) => {
 // MASSES & DEVOTIONS
 router.get('/misas', (req, res) => {
   res.render('pages/user/es/misas', { 
+    layout: 'layouts/user',
     title: 'Misas y Devociones - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'masses', 
@@ -47,6 +50,7 @@ router.get('/misas', (req, res) => {
 // PARISH OFFICE
 router.get('/oficina', (req, res) => {
   res.render('pages/user/es/oficina', { 
+    layout: 'layouts/user',
     title: 'Oficina Parroquial - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'office', 
@@ -56,7 +60,8 @@ router.get('/oficina', (req, res) => {
 
 // BULLETIN
 router.get('/boletin', (req, res) => {
-  res.render('pages/user/es/boletin', { 
+  res.render('pages/user/es/boletin', {
+    layout: 'layouts/user', 
     title: 'Boletín Parroquial - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'bulletin', 
@@ -67,6 +72,7 @@ router.get('/boletin', (req, res) => {
 // PARISH GROUPS
 router.get('/grupos', (req, res) => {
   res.render('pages/user/es/grupos', { 
+    layout: 'layouts/user',
     title: 'Grupos Parroquiales - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'groups', 
@@ -77,6 +83,7 @@ router.get('/grupos', (req, res) => {
 // CHAPELS & COMMUNITIES
 router.get('/comunidades', (req, res) => {
   res.render('pages/user/es/comunidades', { 
+    layout: 'layouts/user',
     title: 'Capillas y Comunidades - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'communities', 
@@ -87,6 +94,7 @@ router.get('/comunidades', (req, res) => {
 // HOMILIES
 router.get('/homilias', (req, res) => {
   res.render('pages/user/es/homilias', { 
+    layout: 'layouts/user',
     title: 'Homilías - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'homilies', 
@@ -97,6 +105,7 @@ router.get('/homilias', (req, res) => {
 // EVENTS
 router.get('/eventos', (req, res) => {
   res.render('pages/user/es/eventos', { 
+    layout: 'layouts/user',
     title: 'Eventos Parroquiales - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'events', 
@@ -142,6 +151,7 @@ router.get('/events/thumbs', async (req, res) => {
 // CONTACT
 router.get('/contacto', (req, res) => {
   res.render('pages/user/es/contacto', { 
+    layout: 'layouts/user',
     title: 'Contacto - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'contact', 
