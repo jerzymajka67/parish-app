@@ -82,16 +82,7 @@ router.post('/create-html', requireLogin, async (req, res) => {
 
     // minimal HTML skeleton
     const htmlTemplate = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>${fileName.replace('.html', '')}</title>
-</head>
-<body>
-
-</body>
-</html>`;
-
+<body> </body>`;
    await fs.writeFile(filePath, htmlTemplate, 'utf8');
       const msg = `File ${fileName} created successfully`;
       const status = 'success';

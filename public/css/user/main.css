@@ -35,33 +35,26 @@ body.zoom-active .modal-backdrop {
 /* =========================================
    GALLERY THUMBNAILS (DESKTOP DEFAULT)
 ========================================= */
-  /* Mobile gallery layout */
-.laptopGallery {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
+ .laptopGallery {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 per row */
+  gap: 8px;
+}
+
 .laptopGallery img {
-  width: 20%;
-  height: 160px;
-  object-fit: cover;
+  width: 100%;
+  aspect-ratio: 3 / 4;      /* force vertical shape */
+  object-fit: cover;        /* crop if needed */
+  object-position: center;  /* crop from center */
   border-radius: 6px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  width: 100%;
-  aspect-ratio: 3 / 4;   /* vertical */
-  object-fit: cover;     /* crop center */
-  border-radius: 6px;
 }
 
 .laptopGallery img:hover {
   transform: scale(1.03);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
-
-/* =========================================
-   MODAL – DESKTOP VERSION
-========================================= */
 
 #imageModal .modal-dialog {
   margin: 0 auto;

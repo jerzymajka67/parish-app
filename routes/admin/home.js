@@ -35,6 +35,28 @@ router.get('/',  requireLogin, (req, res) => {
     status: req.query.status || null
   });
 });
+router.get('/view', requireLogin, async (req, res) => {
+   const fileName = req.query.fileName;
+  try {
+    const sourcePath = path.join(EVENTS_ROOT, fileName);
+    const targetPath = path.join(TargetDir, 'en/home_temp.ejs');
+    const html = await fs.readFile(sourcePath, 'utf8');
+    const bodyContent = extractBody(html);
+    await fs.writeFile(targetPath, bodyContent, 'utf8');
+    res.render('pages/user/en/home_temp', {
+      layout: 'layouts/user',
+      title: 'Home',
+      lang: 'en',
+      page: 'home',
+      favicon: '/images/logo-olqa-mini.png',
+      preview: true
+    });
+  }  catch (err) {
+      const msg = `Failed to publish HTML file ${fileName} in English version - ${err.message}`;
+      const status = 'error';
+      return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+  }
+});
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const entries = await fs.readdir(EVENTS_ROOT, { withFileTypes: true });
@@ -48,9 +70,8 @@ router.get('/ls', requireLogin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 router.post('/create-html', requireLogin, async (req, res) => {
-   const fileName = req.body.fileName;
+   let fileName = req.body.fileName;
     try {
       if (!fileName) {
       const msg = 'File name is required';
@@ -69,19 +90,9 @@ router.post('/create-html', requireLogin, async (req, res) => {
     } catch {
       // file does not exist → OK
     }
-
     // minimal HTML skeleton
     const htmlTemplate = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>${fileName.replace('.html', '')}</title>
-</head>
-<body>
-
-</body>
-</html>`;
-
+    <body> </body>`;
    await fs.writeFile(filePath, htmlTemplate, 'utf8');
       const msg = `File ${fileName} created successfully`;
       const status = 'success';
@@ -92,7 +103,6 @@ router.post('/create-html', requireLogin, async (req, res) => {
       return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-
 router.post('/upload-file', requireLogin, upload.single('html'), async (req, res) => {
   try {
      const targetDir =EVENTS_ROOT;
@@ -146,7 +156,6 @@ router.post('/publish-es', requireLogin, async (req, res) => {
       return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-
 router.post('/delete-file', requireLogin, async (req, res) => {
   const fileName = req.body.fileName;
   try {
@@ -172,16 +181,141 @@ router.post('/delete-file', requireLogin, async (req, res) => {
       return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-
-router.get('/file', requireLogin, async(req, res) => {
- const fileName = req.query.fileName;
-  const filePath = path.join(EVENTS_ROOT, fileName);
-  console.log('Resolved full path:', filePath);
-   try {
-      const content = await fs.readFile(filePath, 'utf8');
-      res.json({ path: fileName, content });
-    } catch (err) {
-      res.status(404).json({ error: 'File not found' });
+router.post('/delete-file', requireLogin, async (req, res) => {
+  const fileName = req.body.fileName;
+  try {
+    if (!fileName) {
+        const msg = ` File name is required for deletion`;
+        const status = 'error';
+        return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
-  });
+    const filePath = path.join(EVENTS_ROOT, fileName);
+    await fs.unlink(filePath);
+        const msg = ` HTML file ${fileName} - deleted successfully`;
+        const status = 'success';
+        return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      const msg = `File ${fileName} not found for deletion`;
+      const status = 'error';
+      return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    }
+      const msg = ` HTML file ${fileName} could not be deleted - ${err.message}`;
+      const status = 'error';
+      return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+  }
+});
+router.post('/rename', requireLogin, async (req, res) => {
+  let { fileName, newName } = req.body;
+  try {
+    if (!fileName || !newName) {
+      const msg = `Both old and new file names are required`;
+      const status = 'error';
+      return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    }
+    if (!newName.toLowerCase().endsWith('.html')) {
+      newName = `${newName}.html`;
+    }
+    const oldPath = path.join(EVENTS_ROOT, fileName);
+    const newPath = path.join(EVENTS_ROOT, newName);
+    try {
+      await fs.access(newPath);
+      const msg = `File ${newName} already exists`;
+      const status = 'error';
+      return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    } catch {
+      // good — new name does not exist
+    }
+    await fs.rename(oldPath, newPath);
+    const msg = `File ${fileName} renamed to ${newName} successfully`;
+    const status = 'success';
+    return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      const msg = `File ${fileName} not found`;
+      const status = 'error';
+      return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    }
+    const msg = `Failed to rename file ${fileName} - ${err.message}`;
+    const status = 'error';
+    return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+  }
+});
+router.get('/edit', requireLogin, async (req, res) => {
+  const originalFile = req.query.fileName;
+  const draftFile = stampFileName(originalFile);
+  console.log('Editing file:', originalFile, 'Draft file:', draftFile);
+  if (!originalFile) {
+    return res.redirect('/admin/home?msg=File+name+required&status=error');
+  }
+  const filePath = path.join(EVENTS_ROOT, originalFile);
+  const backupPath = path.join(EVENTS_ROOT, draftFile);
+  console.log('File path:', filePath);
+  console.log('Backup path:', backupPath);
+  try {
+    await fs.copyFile(filePath, backupPath);
+    const content = await fs.readFile(backupPath, 'utf8');
+    return res.json({
+      draftFile,
+      originalFile,
+      content
+    });
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/admin/home?msg=File+error&status=error');
+  }
+});
+router.post('/save', requireLogin, async (req, res) => {
+  console.log('Saving file:', req.body);
+  const { draftFile, content } = req.body;
+
+  if (!draftFile || content === undefined) {
+    return res.redirect('/admin/home?msg=Invalid+data&status=error');
+  }
+
+  try {
+    await fs.writeFile(
+      path.join(EVENTS_ROOT, draftFile),
+      content,
+      'utf8'
+    );
+
+    return res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/admin/home?msg=Save+failed&status=error');
+  }
+});
+router.post('/save-exit', requireLogin, async (req, res) => {
+  const { draftFile, originalFile, content } = req.body;
+
+  if (!draftFile || !originalFile || content === undefined) {
+    const msg = 'File name and content are required';
+    const status = 'error';
+    return res.redirect(
+      `/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  }
+
+  const filePath = path.join(EVENTS_ROOT, draftFile);
+
+  try {
+    await fs.writeFile(filePath, content, 'utf8');
+
+    const msg =
+      `New version of original file "${originalFile}" is now in "${draftFile}" and ready to be published. ` +
+      `Please review it and publish when ready.`;
+    const status = 'success';
+    return res.redirect(
+      `/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  } catch (err) {
+    console.error(err);
+    const msg = 'Failed to save file';
+    const status = 'error';
+    return res.redirect(
+      `/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  }
+});
 module.exports = router;
