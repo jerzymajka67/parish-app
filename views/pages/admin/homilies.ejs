@@ -1,133 +1,177 @@
 <body>
+<h2 class="mb-4"><%= title %></h2>
+<div class="container-fluid">
+  <div class="row">
+    <!-- LEFT COLUMN: ACTIONS -->
+    <div class="col-md-4 border-end p-3">
+      <!-- CREATE FOLDER -->
+      <form id="createFolderForm"
+            action="/admin/homilies/create-folder"
+            method="POST"
+            class="mb-3 d-flex flex-column gap-2">
 
+        <input type="hidden" name="currentPath">
+        <button type="submit" class="btn btn-primary">
+          Create Folder
+        </button>
+        <input id="root-folder"
+               type="text"
+               readonly
+               class="form-control">
 
-<h2 ><%= title %></h2>
+        <input type="text"
+               name="folderName"
+               placeholder="New folder name"
+               required
+               class="form-control">
+      </form>
+      <!-- CREATE HTML FILE -->
+      <form id="createHtmlForm"
+            action="/admin/homilies/create-html"
+            method="POST"
+            class="mb-3 d-flex flex-column gap-2">
 
-<!-- CREATE FOLDER -->
-<form id="createFolderForm"
-      action="/admin/homilies/create-folder"
-      method="POST"
-      class="mb-2 d-flex gap-2 align-items-center">
+        <input type="hidden" name="currentPath">
 
-  <input type="hidden" name="currentPath">
+        <button type="submit" class="btn btn-success">
+          Create HTML
+        </button>
 
-  <button type="submit" class="btn btn-primary">Create Folder</button>
+        <input id="root-html"
+               type="text"
+               readonly
+               class="form-control">
 
-  <input id="root-folder"
-         type="text"
-         readonly
-         class="form-control"
-         style="max-width:420px">
+        <input type="text"
+               name="fileName"
+               placeholder="New HTML file name"
+               required
+               class="form-control">
+      </form>
+      <!-- PUBLISH -->
+      <form id="publishHtmlForm"
+            action="/admin/homilies/publish"
+            method="POST"
+            class="mb-3 d-flex flex-column gap-2">
 
-  <input type="text"
-         name="folderName"
-         placeholder="New folder name"
-         required
-         class="form-control"
-         style="max-width:300px">
-</form>
-<!-- CREATE HTML FILE -->
-<form id="createHtmlForm"
-      action="/admin/homilies/create-html"
-      method="POST"
-      class="mb-2 d-flex gap-2 align-items-center">
+        <input type="hidden" name="currentPath">
 
-  <input type="hidden" name="currentPath">
+        <button type="submit"
+                class="btn btn-primary"
+                id="publishBtn"
+                disabled>
+          Publish HTML
+        </button>
 
-  <button type="submit" class="btn btn-success">Create HTML</button>
+        <input id="publish-path"
+               type="text"
+               readonly
+               class="form-control"
+               placeholder="No folder selected">
 
-  <input id="root-html"
-         type="text"
-         readonly
-         class="form-control"
-         style="max-width:420px">
+        <input id="publish-file"
+               type="text"
+               name="fileName"
+               readonly
+               class="form-control"
+               placeholder="No file selected">
+      </form>
+      <!-- UPLOAD -->
+      <form id="uploadHtmlForm"
+            action="/admin/homilies/upload-file"
+            method="POST"
+            enctype="multipart/form-data"
+            class="mb-3 d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <button type="submit"
+                class="btn btn-success"
+                id="uploadBtn"
+                disabled>
+          Upload HTML File
+        </button>
 
-  <input type="text"
-         name="fileName"
-         placeholder="New HTML file name"
-         required
-         class="form-control"
-         style="max-width:300px">
-</form>
+        <input type="file"
+               name="html"
+               accept=".html"
+               required
+               class="form-control">
+      </form>
+      <!-- DELETE -->
+      <form id="deleteSelectedForm"
+            class="d-flex flex-column gap-2">
 
-<!-- PUBLISH HTML FILE -->
-<form id="publishHtmlForm"
-      action="/admin/homilies/publish"
-      method="POST"
-      class="mb-2 d-flex gap-2 align-items-center">
+        <input type="hidden" name="currentPath">
 
-  <!-- path context (same idea as others) -->
-  <input type="hidden" name="currentPath">
-  <button type="submit"
-          class="btn btn-primary"
-          id="publishBtn"
-          disabled>
-    Publish HTML
-  </button>
+        <button type="submit"
+                class="btn btn-danger"
+                id="deleteBtn"
+                disabled>
+          Delete
+        </button>
 
-  <!-- WHERE (context / folder) -->
-  <input id="publish-path"
-         type="text"
-         readonly
-         class="form-control"
-         style="max-width:420px"
-         placeholder="No folder selected">
+        <input id="delete-folder-name"
+               type="text"
+               readonly
+               class="form-control"
+               placeholder="Nothing selected">
+      </form>
+    </div>
 
-  <!-- WHAT (file name) -->
-  <input id="publish-file"
-         type="text"
-         name="fileName"
-         readonly
-         class="form-control"
-         style="max-width:300px"
-         placeholder="No file selected">
-</form>
+    <!-- RIGHT COLUMN -->
+    <div class="col-md-8 p-4">
+      <h4>Folders & Homilies</h4>
+      <div class="row mt-3">
+        <!-- FILE BROWSER -->
+        <div class="col-md-7">
+          <div class="border p-3">
+            <div id="browser-container">
+              <div id="browser" class="list-group"></div>
+            </div>
+          </div>
+        </div>
 
-<!-- UPLOAD HTML FILE -->
-<form id="uploadHtmlForm"
-      action="/admin/homilies/upload-file"
-      method="POST"
-      enctype="multipart/form-data"
-      class="mb-3 d-flex gap-2 align-items-center">
+        <!-- MESSAGE + FEEDBACK PANEL -->
+        <div class="col-md-5">
 
-  <input type="hidden" name="currentPath">
+          <div class="border p-3 mb-3 bg-light">
 
-  <button type="submit"
-          class="btn btn-success"
-          id="uploadBtn"
-          disabled>
-    Upload HTML File
-  </button>
+            <% if (typeof msg !== 'undefined' && msg && status) { %>
+              <div id="server-feedback"
+                   class="server-feedback <%= status %> border p-3 mt-3">
+                <%= msg %>
+              </div>
+            <% } %>
 
-  <input type="file"
-         name="html"
-         accept=".html"
-         required
-         class="form-control"
-         style="max-width:420px">
-</form>
+            <h5>Welcome!</h5>
 
-<!-- DELETE (FILES OR FOLDER) -->
-<form id="deleteSelectedForm"
-      class="mb-3 d-flex gap-2 align-items-center">
+            <p>
+              This page allows you to manage the
+              <strong>Homilies</strong> section of our parish website.
+            </p>
 
-  <input type="hidden" name="currentPath">
+            <p class="small">
+              You may create folders (for example by year),
+              create new homily files, upload existing ones,
+              edit safely using the editor, and prepare them for publishing.
+            </p>
 
-  <button type="submit"
-          class="btn btn-danger"
-          id="deleteBtn"
-          disabled>
-    Delete
-  </button>
+            <ul class="small">
+              <li>Create folders to organize homilies.</li>
+              <li>Use clear and consistent file names.</li>
+              <li>Edit homilies carefully before publishing.</li>
+            </ul>
 
-  <input id="delete-folder-name"
-         type="text"
-         readonly
-         class="form-control"
-         style="max-width:420px"
-         placeholder="Nothing selected">
-</form>
+            <p class="small mb-0">
+              After review, homilies will be published on the website.
+            </p>
 
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 <!-- CONFIRM DELETE MODAL -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
@@ -137,22 +181,16 @@
         <h5 class="modal-title">Confirm delete</h5>
         <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body">
         Delete <strong id="modal-folder-name"></strong>?
       </div>
-
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
       </div>
-
     </div>
   </div>
 </div>
-<!-- ACTION BUTTONS -->
-
-
 <!-- TINYMCE EDITOR MODAL -->
 <div class="modal fade" id="editHtmlModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -171,12 +209,6 @@
     </div>
   </div>
 </div>
-
-<!-- BROWSER -->
-<div id="browser-container">
-  <div id="browser" class="list-group"></div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const editModalEl = document.getElementById('editHtmlModal');

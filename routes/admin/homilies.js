@@ -47,7 +47,6 @@ async function setHiddenFlag(filePath, hidden) {
    ROUTES
 ============================================================ */
 
-// Admin homilies page
 router.get('/', requireLogin, (req, res) => {
   tree = {};
   res.render('pages/admin/homilies', {
@@ -55,9 +54,12 @@ router.get('/', requireLogin, (req, res) => {
     title: 'Homilies - admin',
     lang: 'en',
     page: 'homilies',
-    favicon: '/images/logo-olqa-mini.png'
+    favicon: '/images/logo-olqa-mini.png',
+    msg: req.query.msg || null,
+    status: req.query.status || null
   });
 });
+
 
 // List directories (AJAX)
 router.get('/ls', requireLogin, async (req, res) => {

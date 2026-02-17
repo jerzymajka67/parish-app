@@ -2,25 +2,127 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Login</title>
+  <title>Parish Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .left-side {
+      position: relative;
+      background: #f8f9fa;
+      overflow: hidden;
+    }
+
+    .left-side img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 90%;
+      opacity: 0.75; /* watermark effect */
+    }
+
+    .right-side {
+      background: white;
+      padding: 60px 50px;
+      display: flex;
+      align-items: center;
+    }
+
+    @media (max-width: 992px) {
+      .left-side {
+        display: none;
+      }
+      .right-side {
+        padding: 40px 25px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
+<div class="container-fluid">
+  <div class="row min-vh-100">
 
-  <h1>Admin Login</h1>
-  <h2>Authorized users, please log in to manage the website.</h2>
+    <!-- LEFT IMAGE (8 columns) -->
+    <div class="col-lg-8 left-side d-none d-lg-block">
+      <img src="/images/missions/olqa.webp"
+           alt="Our Lady Queen of Angels">
+    </div>
 
-  <form action="/admin" method="POST">
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-  </form>
-  <h2>Not authorized? </h2>
-  <h2>Click the parish logo below to return to the homepage.</h2>
-  <div class="parish-logo-container">
-  <a href="/">
-    <img src="/images/logo-olqa.png" class="parish-logo" alt="Our Lady Queen of Angels">
-  </a>
+    <!-- RIGHT CONTENT (4 columns) -->
+    <div class="col-lg-4 right-side">
+
+      <div class="w-100">
+
+        <h2 class="fw-bold mb-4">Welcome</h2>
+
+        <p>
+          We are <strong>Samantha Hernandez</strong> and
+          <strong>Catalina Hernandez-Chavero</strong>,
+          and we are responsible for maintaining this parish website.
+        </p>
+
+        <p>
+          The website is still a work in progress and requires ongoing care.
+          If you would like to help us, we warmly invite you to collaborate.
+        </p>
+
+        <ul>
+          <li>Photos and information about parish life and communities</li>
+          <li>Updates about current events</li>
+          <li>Suggestions for improvements</li>
+          <li>Reports of any technical issues</li>
+        </ul>
+
+        <p>
+          You may contact us at:
+        </p>
+
+        <p class="fw-bold">
+          olqa8861@gmail.com
+        </p>
+
+        <p>
+          With gratitude,<br>
+          <strong>Samantha & Catalina</strong>
+        </p>
+
+        <hr class="my-4">
+
+        <h5 class="mb-3">Authorized Access</h5>
+
+        <form action="/admin" method="POST" class="d-flex gap-2 flex-wrap">
+          <input type="password"
+                 name="password"
+                 placeholder="Enter password"
+                 required
+                 class="form-control"
+                 style="max-width:250px;">
+
+          <button type="submit"
+                  class="btn btn-primary">
+            Login
+          </button>
+        </form>
+
+        <div class="mt-4">
+          <a href="/" class="btn btn-outline-secondary">
+            ← Return to Homepage
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
 </body>

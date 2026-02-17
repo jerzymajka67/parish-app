@@ -3,132 +3,113 @@
 
   <div class="container-fluid">
     <div class="row">
+<!-- LEFT COLUMN: ACTIONS -->
+<div class="col-md-4 border-end p-3">
 
-      <!-- LEFT COLUMN: ACTIONS -->
-      <div class="col-md-4 border-end p-3">
+  <!-- Upload -->
+  <form id="uploadHtmlForm"
+        action="/admin/homilies/upload-file"
+        method="POST"
+        enctype="multipart/form-data"
+        class="mb-3 d-flex flex-column gap-2">
+    <button type="submit" class="btn btn-success">
+      Upload HTML File
+    </button>
+    <input type="file"
+           name="html"
+           accept=".html"
+           required
+           class="form-control">
+  </form>
 
-        <!-- Upload -->
-        <form id="uploadHtmlForm"
-              action="/admin/home/upload-file"
-              method="POST"
-              enctype="multipart/form-data"
-              class="mb-3 d-flex flex-column gap-2">
-          <button type="submit" class="btn btn-success">
-            Upload HTML File
-          </button>
-          <input type="file"
-                 name="html"
-                 accept=".html"
-                 required
-                 class="form-control">
-        </form>
+  <!-- Create -->
+  <form id="createHtmlForm"
+        action="/admin/homilies/create-html"
+        method="POST"
+        class="mb-2 d-flex flex-column gap-2">
+    <button type="submit" class="btn btn-success">
+      Create HTML
+    </button>
+    <input type="text"
+           name="fileName"
+           placeholder="New HTML file name"
+           required
+           class="form-control">
+  </form>
 
-        <!-- Create -->
-        <form id="createHtmlForm"
-              action="/admin/home/create-html"
-              method="POST"
-              class="mb-2 d-flex flex-column gap-2">
-          <button type="submit" class="btn btn-success">
-            Create HTML
-          </button>
-          <input type="text"
-                 name="fileName"
-                 placeholder="New HTML file name"
-                 required
-                 class="form-control">
-        </form>
+  <!-- Rename -->
+  <form id="renameForm"
+        action="/admin/homilies/rename"
+        method="POST"
+        class="d-flex flex-column gap-2">
+    <input id="renameOldName" type="hidden" name="fileName">
+    <button type="submit" class="btn btn-amber">
+      Rename
+    </button>
+    <input id="renameNewName"
+           type="text"
+           name="newName"
+           placeholder="New file name"
+           required
+           class="form-control">
+  </form>
 
-        <!-- Rename -->
-        <form id="renameForm"
-              action="/admin/home/rename"
-              method="POST"
-              class="d-flex flex-column gap-2">
-          <input id="renameOldName" type="hidden" name="fileName">
-          <button type="submit" class="btn btn-amber">
-            Rename
-          </button>
-          <input id="renameNewName"
-                 type="text"
-                 name="newName"
-                 placeholder="New file name"
-                 required
-                 class="form-control">
-        </form>
+  <!-- Edit -->
+  <button id="editBtn"
+          type="button"
+          class="btn btn-secondary w-100 mt-3">
+    Edit
+  </button>
 
-        <!-- Edit -->
-        <button id="editBtn"
-                type="button"
-                class="btn btn-secondary w-100 mt-3">
-          Edit
-        </button>
+  <!-- View -->
+  <form id="viewForm"
+        action="/admin/homilies/view"
+        method="GET"
+        target="_blank"
+        class="d-grid gap-2 mt-3">
+    <input id="viewFileName"
+           type="hidden"
+           name="fileName">
+    <button type="submit"
+            class="btn btn-outline-secondary">
+      View
+    </button>
+  </form>
 
-        <!-- View -->
-        <form id="viewForm"
-              action="/admin/home/view"
-              method="GET"
-              target="_blank"
-              class="d-grid gap-2 mt-3">
-          <input id="viewFileName"
-                 type="hidden"
-                 name="fileName">
-          <button type="submit"
-                  class="btn btn-outline-secondary">
-            View
-          </button>
-        </form>
+  <!-- Publish (single version if you keep it) -->
+  <form id="publishForm"
+        action="/admin/homilies/publish"
+        method="POST"
+        class="mt-3 mb-2">
+    <input id="publishFile"
+           type="hidden"
+           name="fileName">
+    <button type="submit"
+            class="btn btn-primary w-100">
+      Publish
+    </button>
+  </form>
 
-        <!-- Publish -->
-        <div class="d-flex gap-2 mt-3 mb-2">
+  <!-- Delete -->
+  <form id="deleteForm"
+        method="POST"
+        action="/admin/homilies/delete-file"
+        class="mb-3 d-flex gap-2 align-items-center">
 
-          <form id="publishEnForm"
-                action="/admin/home/publish-en"
-                method="POST"
-                class="flex-fill">
-            <input id="publishEN"
-                   type="hidden"
-                   name="fileName">
-            <button type="submit"
-                    class="btn btn-primary w-100">
-              Publish EN
-            </button>
-          </form>
+    <button type="button"
+            class="btn btn-danger"
+            id="deleteBtn">
+      Delete
+    </button>
 
-          <form id="publishEsForm"
-                action="/admin/home/publish-es"
-                method="POST"
-                class="flex-fill">
-            <input id="publishES"
-                   type="hidden"
-                   name="fileName">
-            <button type="submit"
-                    class="btn btn-primary w-100">
-              Publish ES
-            </button>
-          </form>
+    <input id="deleteFileName"
+           type="hidden"
+           name="fileName">
+  </form>
 
-        </div>
+</div>
 
-        <!-- Delete -->
-        <form id="deleteForm"
-              method="POST"
-              action="/admin/home/delete-file"
-              class="mb-3 d-flex gap-2 align-items-center">
-
-          <button type="button"
-                  class="btn btn-danger"
-                  id="deleteBtn">
-            Delete
-          </button>
-
-          <input id="deleteFileName"
-                 type="hidden"
-                 name="fileName">
-        </form>
-
-      </div>
-
-
-      <!-- RIGHT COLUMN -->
+     <!-- RIGHT COLUMN -->
       <div class="col-md-8 p-4">
         <h4>Files</h4>
 

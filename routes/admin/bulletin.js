@@ -79,7 +79,9 @@ router.get('/', requireLogin, (req, res) => {
     title: 'Bulletin - admin',
     lang: 'en',
     page: 'bulletin',
-    favicon: '/images/logo-olqa-mini.png'
+    favicon: '/images/logo-olqa-mini.png',
+    msg: req.query.msg || null,
+    status: req.query.status || null
   });
 });
 
