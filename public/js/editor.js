@@ -25,8 +25,9 @@ function initEditButton() {
 }
 // ---------- OPEN EDITOR ----------
 async function openFileInEditor(fileName) {
+  console.log('Opening file in editor:', fileName);
   const res = await fetch(
-    '/admin/about/edit?fileName=' + encodeURIComponent(fileName)
+    '/admin/home/edit?fileName=' + encodeURIComponent(fileName)
   );
   if (res.redirected) {
     window.location.href = res.url;
@@ -65,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saveBtn) {
     saveBtn.onclick = async () => {
       const content = tinymce.get('editor').getContent();
-      const res = await fetch('/admin/about/save', {
+      const res = await fetch('/admin/home/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saveExitBtn) {
     saveExitBtn.onclick = async () => {
       const content = tinymce.get('editor').getContent();
-      const res = await fetch('/admin/about/save-exit', {
+      const res = await fetch('/admin/home/save-exit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
