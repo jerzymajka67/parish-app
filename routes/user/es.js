@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
+const CONTENT_ROOT = path.join(APP_ROOT, 'content');
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
@@ -93,13 +94,31 @@ router.get('/comunidades', (req, res) => {
 
 // HOMILIES
 router.get('/homilias', (req, res) => {
-  res.render('pages/user/es/homilias', { 
-    layout: 'layouts/user',
-    title: 'Homilías - Nuestra Señora Reyna de Los Ángeles', 
+  treeDoc = {};
+  console.log('Rendering homilies page for Spanish');
+  res.render('pages/user/es/documents-page', {
+    title: 'Homilies (Spanish)',
     lang: 'es', 
-    page: 'homilies', 
-    favicon: faviconPath
+    page: 'homilias',
+    description: 'Here you will find our Sunday homilies in Spanish.',
+    contentRoot: 'homilies/Homilias(ES)',
+    mode: 'html',
+    favicon: '/images/logo-olqa-mini.png'
   });
+});
+
+router.get('/homilias/ls',  async (req, res) => {
+    console.log('Received request for homilies list with query:', req.query);
+   try {
+    const relativePath = req.query.path || '';
+    console.log('Received request for homilies with path:', relativePath);
+    const content = transformDirList(await readDir(CONTENT_ROOT, relativePath));
+    storeDirInTree(treeDoc, relativePath, content);
+    console.log('Responding with homilies list for path:', relativePath, 'treeDoc node:', treeDoc  );  
+    res.json(getNode(treeDoc, relativePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // EVENTS

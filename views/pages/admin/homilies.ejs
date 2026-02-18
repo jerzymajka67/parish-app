@@ -407,6 +407,7 @@ function select(el, path) {
       .then(r => r.json())
       .then(data => render(data, path, container));
   }
+  
   fetch('/admin/homilies/ls')
     .then(r => r.json())
     .then(data => render(data, '', browser));

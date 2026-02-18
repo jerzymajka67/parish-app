@@ -201,3 +201,28 @@ img.h-100 {
   object-fit: contain;
 }
 
+.document-viewer {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  min-height: 300px;
+}
+
+.document-viewer h1,
+.document-viewer h2 {
+  margin-top: 1.5rem;
+}
+
+.document-viewer p {
+  line-height: 1.6;
+}
+.document-viewer {
+  background: white;
+  padding: 3rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  min-height: 300px;
+}
+body {
+  background-color: #f5f6f8;
+}

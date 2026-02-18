@@ -4,6 +4,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
+const CONTENT_ROOT = path.join(APP_ROOT, 'content')
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 function getNode(obj, pathStr) {
@@ -11,6 +12,7 @@ function getNode(obj, pathStr) {
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
 let tree = {};
+let treeDoc = {};
 // All routes for English pages
 router.get('/', (req, res) => {
   res.render('pages/user/en/home', { 
@@ -85,14 +87,33 @@ router.get('/communities', (req, res) => {
   });
 });
 router.get('/homilies', (req, res) => {
-  res.render('pages/user/en/homilies', { 
-    layout: 'layouts/user',
-    title: 'Homilies - Our Lady, Queen of Angels', 
+  treeDoc = {};
+  console.log('Rendering homilies page for English');
+  res.render('pages/user/en/documents-page', {
+    title: 'Homilies (English)',
     lang: 'en', 
     page: 'homilies',
+    description: 'Here you will find our Sunday homilies in English.',
+    contentRoot: 'homilies/Homilies(EN)',
+    mode: 'html',
     favicon: '/images/logo-olqa-mini.png'
   });
 });
+
+router.get('/homilies/ls',  async (req, res) => {
+    console.log('Received request for homilies list with query:', req.query);
+   try {
+    const relativePath = req.query.path || '';
+    console.log('Received request for homilies with path:', relativePath);
+    const content = transformDirList(await readDir(CONTENT_ROOT, relativePath));
+    storeDirInTree(treeDoc, relativePath, content);
+    console.log('Responding with homilies list for path:', relativePath, 'treeDoc node:', treeDoc  );  
+    res.json(getNode(treeDoc, relativePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/events', (req, res) => {
   tree = {};
   res.render('pages/user/en/events', { 
