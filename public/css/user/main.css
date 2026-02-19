@@ -226,3 +226,27 @@ img.h-100 {
 body {
   background-color: #f5f6f8;
 }
+/* NORMAL DOCUMENT VIEW */
+.document-viewer {
+  background: white;
+  padding: 3rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  min-height: 300px;
+}
+
+/* PDF MODE */
+.document-viewer.pdf-mode {
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  height: 150vh;
+}
+
+/* PDF iframe */
+.pdf-frame {
+  width: 100%;
+  height: 150vh;
+  border: none;
+}

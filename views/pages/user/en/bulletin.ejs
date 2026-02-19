@@ -1,10 +1,38 @@
 <body>
- 
-  <main>
-    <h1>Welcome to Our Lady, Queen of Angels, La Joya Parish</h1>
-    <p>Current page: <%= page %></p>
-    <p>Language: <%= lang %></p>
-  </main>
+   <html lang="en"></html>
+<main>
+<div class="container-fluid mt-4">
+  <div class="row">
 
-  
+    <!-- LEFT: INTRO + VIEWER -->
+    <div class="col-md-9 p-5 intro-column">
+      <p>Seleccione un documento de la lista a la derecha.</p>
+
+      <!-- DOCUMENT VIEWER -->
+      <div id="docControls" class="d-flex justify-content-between mb-3"></div>
+      <div id="documentViewerContainer" class="document-viewer mt-4"></div>
+    </div>
+
+    <!-- RIGHT: BROWSER -->
+    <div class="col-md-3 border-start p-4 browser-column">
+      <h5 class="mb-3">Documentos Disponibles</h5>
+      <div id="browser" class="list-group"></div>
+    </div>
+
+  </div>
+</div>
+</main>
+  <script src="/js/docBrowser.js"></script>
+  <script src="/js/docViewer.js"></script>
+  <script >
+    document.addEventListener('DOMContentLoaded', function () {
+      const browser = document.getElementById('browser');
+    //INITIAL LOAD 
+      fetch(`/en/homilies/ls?path=bulletins/Bulletins_EN`)
+        .then(r => r.json())
+        .then(data => render(data, '/en/homilies/ls', 'bulletins/Bulletins_EN', browser))
+        .catch(err => console.error(err));
+    });
+  </script> 
 </body>
+

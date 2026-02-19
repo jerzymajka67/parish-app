@@ -60,6 +60,7 @@ router.get('/office', (req, res) => {
   });
 });
 router.get('/bulletin', (req, res) => {
+  treeDoc = {};
   res.render('pages/user/en/bulletin', { 
     layout: 'layouts/user',
     title: 'Bulletin - Our Lady, Queen of Angels', 
@@ -88,26 +89,20 @@ router.get('/communities', (req, res) => {
 });
 router.get('/homilies', (req, res) => {
   treeDoc = {};
-  console.log('Rendering homilies page for English');
-  res.render('pages/user/en/documents-page', {
+  res.render('pages/user/en/homilies', {
+    layout: 'layouts/user',
     title: 'Homilies (English)',
     lang: 'en', 
     page: 'homilies',
-    description: 'Here you will find our Sunday homilies in English.',
-    contentRoot: 'homilies/Homilies(EN)',
-    mode: 'html',
     favicon: '/images/logo-olqa-mini.png'
   });
 });
 
 router.get('/homilies/ls',  async (req, res) => {
-    console.log('Received request for homilies list with query:', req.query);
-   try {
+  try {
     const relativePath = req.query.path || '';
-    console.log('Received request for homilies with path:', relativePath);
     const content = transformDirList(await readDir(CONTENT_ROOT, relativePath));
     storeDirInTree(treeDoc, relativePath, content);
-    console.log('Responding with homilies list for path:', relativePath, 'treeDoc node:', treeDoc  );  
     res.json(getNode(treeDoc, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
