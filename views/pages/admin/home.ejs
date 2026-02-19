@@ -5,10 +5,9 @@
     <div class="row">
 <!-- LEFT COLUMN: ACTIONS -->
 <div class="col-md-4 border-end p-3">
-
   <!-- Upload -->
   <form id="uploadHtmlForm"
-        action="/admin/homilies/upload-file"
+        action="/admin/<%= page %>/upload-file"
         method="POST"
         enctype="multipart/form-data"
         class="mb-3 d-flex flex-column gap-2">
@@ -21,10 +20,9 @@
            required
            class="form-control">
   </form>
-
   <!-- Create -->
   <form id="createHtmlForm"
-        action="/admin/homilies/create-html"
+        action="/admin/<%= page %>/create-html"
         method="POST"
         class="mb-2 d-flex flex-column gap-2">
     <button type="submit" class="btn btn-success">
@@ -36,10 +34,9 @@
            required
            class="form-control">
   </form>
-
   <!-- Rename -->
   <form id="renameForm"
-        action="/admin/homilies/rename"
+        action="/admin/<%= page %>/rename"
         method="POST"
         class="d-flex flex-column gap-2">
     <input id="renameOldName" type="hidden" name="fileName">
@@ -53,17 +50,15 @@
            required
            class="form-control">
   </form>
-
   <!-- Edit -->
   <button id="editBtn"
           type="button"
           class="btn btn-secondary w-100 mt-3">
     Edit
   </button>
-
   <!-- View -->
   <form id="viewForm"
-        action="/admin/homilies/view"
+        action="/admin/<%= page %>/view"
         method="GET"
         target="_blank"
         class="d-grid gap-2 mt-3">
@@ -75,47 +70,46 @@
       View
     </button>
   </form>
-
-  <!-- Publish (single version if you keep it) -->
-  <form id="publishForm"
-        action="/admin/homilies/publish"
-        method="POST"
-        class="mt-3 mb-2">
-    <input id="publishFile"
-           type="hidden"
-           name="fileName">
-    <button type="submit"
-            class="btn btn-primary w-100">
-      Publish
-    </button>
-  </form>
-
+      <div class="d-flex gap-2 mt-3 mb-2">
+        <form id="publishEnForm"
+                action="/admin/<%= page %>/publish-en"
+                method="POST"
+                class="flex-fill">
+          <input id="publishEN" type="hidden"  name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
+              Publish EN
+          </button>
+        </form>
+        <form id="publishEsForm"
+                action="/admin/<%= page %>/publish-es"
+                method="POST"
+                class="flex-fill">
+          <input id="publishES" type="hidden" name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
+              Publish ES
+          </button>
+        </form>
+      </div>
   <!-- Delete -->
   <form id="deleteForm"
         method="POST"
-        action="/admin/homilies/delete-file"
+        action="/admin/<%= page %>/delete-file"
         class="mb-3 d-flex gap-2 align-items-center">
-
     <button type="button"
             class="btn btn-danger"
             id="deleteBtn">
       Delete
     </button>
-
     <input id="deleteFileName"
            type="hidden"
            name="fileName">
   </form>
-
 </div>
-
-     <!-- RIGHT COLUMN -->
+<!-- RIGHT COLUMN -->
       <div class="col-md-8 p-4">
         <h4>Files</h4>
-
         <div class="row mt-3">
-
-          <!-- FILE BROWSER -->
+<!-- FILE BROWSER -->
           <div class="col-md-7">
             <div class="border p-3">
               <div id="browser-container">
@@ -125,26 +119,20 @@
               </div>
             </div>
           </div>
-
-          <!-- WELCOME PANEL -->
+<!-- WELCOME PANEL -->
           <div class="col-md-5">
-
             <div class="border p-3 mb-3 bg-light">
-
               <% if (msg && status) { %>
                 <div id="server-feedback"
                      class="server-feedback <%= status %> border p-3 mt-3">
                   <%= msg %>
                 </div>
               <% } %>
-
               <h5>Welcome, Samantha & Catalina!</h5>
-
               <p>
                 This page allows you to manage the
                 <strong>Home Page</strong> of our parish website.
               </p>
-
               <p class="small">
                 The Home Page is the first message visitors see.
                 It should be warm, welcoming, and spiritually meaningful.
@@ -181,8 +169,6 @@
       </div>
     </div>
   </div>
-
-
   <!-- CONFIRM DELETE MODAL -->
   <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -201,8 +187,6 @@
       </div>
     </div>
   </div>
-
-
   <!-- TINYMCE EDITOR MODAL -->
   <div class="modal fade" id="editHtmlModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -222,130 +206,17 @@
       </div>
     </div>
   </div>
-
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      window.selectedFile = null;
-      fetchFileList('/admin/home/ls');
-      initDeleteModal();
-
-      if (document.getElementById('editHtmlModal')) {
-        initEditor();
-        initEditButton();
-      }
-    });
-
-    (function () {
-      const feedback = document.getElementById('server-feedback');
-      if (!feedback) return;
-
-      setTimeout(() => {
-        feedback.remove();
-      }, 7000);
-    })();
-    // ---------- STATE ----------
-let selectedItem = null;
-let draftFile = null;
-let originalFile = null;
-let editModal = null;
-// ---------- INIT ----------
-function initEditor() {
-  const modalEl = document.getElementById('editHtmlModal');
-  if (!modalEl) return;
-    editModal = new bootstrap.Modal(modalEl, {
-    backdrop: 'static',
-    keyboard: false
-  });
-}
-function initEditButton() {
-  const editBtn = document.getElementById('editBtn');
-  if (!editBtn) return;
-  editBtn.addEventListener('click', () => {
-      if (!window.selectedFile) {
-      alert('No file selected');
-      return;
-    }
-    openFileInEditor(window.selectedFile);
-  });
-}
-// ---------- OPEN EDITOR ----------
-async function openFileInEditor(fileName) {
-  console.log('Opening file in editor:', fileName);
-  const res = await fetch(
-    '/admin/home/edit?fileName=' + encodeURIComponent(fileName)
-  );
-  if (res.redirected) {
-    window.location.href = res.url;
-    return;
-  }
-  const data = await res.json();
-  originalFile = data.originalFile;
-  draftFile = data.draftFile;
-  const titleEl = document.getElementById('editorTitle');
-if (titleEl) {
-  titleEl.textContent = `Editing: Your file ${originalFile} will be saved as ${draftFile}`;
-}
-  editModal.show();
-  setTimeout(() => {
-    tinymce.remove('#editor');
-    tinymce.init({
-      selector: '#editor',
-      height: 520,
-      //height: '100%',
-      plugins: 'link image code',
-      toolbar:
-        'undo redo | bold italic | alignleft aligncenter alignright | link image | code',
-      setup(editor) {
-        editor.on('init', () => {
-          editor.setContent(data.content, { format: 'raw' });
-        });
-      }
-    });
-  }, 150);
-}
-// ---------- EDITOR BUTTONS ----------
-document.addEventListener('DOMContentLoaded', () => {
-  initEditor();
-  const saveBtn = document.getElementById('saveOnlyBtn');
-  const saveExitBtn = document.getElementById('saveExitBtn');
-  if (saveBtn) {
-    saveBtn.onclick = async () => {
-      const content = tinymce.get('editor').getContent();
-      const res = await fetch('/admin/home/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          draftFile: draftFile,
-          originalFile: originalFile,
-          content
-        })
+<script> window.ADMIN_PAGE = "<%= page %>";
+</script>
+<script src="/js/tinymce/tinymce.min.js"></script>
+<script src="/js/editor.js"></script>
+<script src="/js/fetchFileList.js"></script>
+<script src="/js/initDeleteModal.js"></script>
+<script >
+        document.addEventListener('DOMContentLoaded', () => {
+        window.selectedFile = null;
+        fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
+        initDeleteModal();
       });
-
-      if (res.redirected) {
-        window.location.href = res.url;
-      }
-    };
-  }
-
-  if (saveExitBtn) {
-    saveExitBtn.onclick = async () => {
-      const content = tinymce.get('editor').getContent();
-      const res = await fetch('/admin/home/save-exit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          draftFile: draftFile,
-          originalFile: originalFile,
-          content
-        })
-      });
-
-      window.location.href = res.url;
-    };
-  }
-});
-
- </script>
-
+</script>
 </body>

@@ -262,7 +262,6 @@ router.post('/save', requireLogin, async (req, res) => {
   if (!draftFile || content === undefined) {
     return res.redirect('/admin/home?msg=Invalid+data&status=error');
   }
-
   try {
     await fs.writeFile(
       path.join(EVENTS_ROOT, draftFile),

@@ -154,31 +154,6 @@ router.post('/delete-file', requireLogin, async (req, res) => {
         const status = 'error';
         return res.redirect(`/admin/masses?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
-
-    const filePath = path.join(EVENTS_ROOT, fileName);
-    await fs.unlink(filePath);
-        const msg = ` HTML file ${fileName} - deleted successfully`;
-        const status = 'success';
-        return res.redirect(`/admin/masses?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      const msg = `File ${fileName} not found for deletion`;
-      const status = 'error';
-      return res.redirect(`/admin/masses?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-    }
-      const msg = ` HTML file ${fileName} could not be deleted - ${err.message}`;
-      const status = 'error';
-      return res.redirect(`/admin/masses?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-  }
-});
-router.post('/delete-file', requireLogin, async (req, res) => {
-  const fileName = req.body.fileName;
-  try {
-    if (!fileName) {
-        const msg = ` File name is required for deletion`;
-        const status = 'error';
-        return res.redirect(`/admin/masses?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-    }
     const filePath = path.join(EVENTS_ROOT, fileName);
     await fs.unlink(filePath);
         const msg = ` HTML file ${fileName} - deleted successfully`;
@@ -258,11 +233,9 @@ router.get('/edit', requireLogin, async (req, res) => {
 router.post('/save', requireLogin, async (req, res) => {
   console.log('Saving file:', req.body);
   const { draftFile, content } = req.body;
-
   if (!draftFile || content === undefined) {
     return res.redirect('/admin/masses?msg=Invalid+data&status=error');
   }
-
   try {
     await fs.writeFile(
       path.join(EVENTS_ROOT, draftFile),
