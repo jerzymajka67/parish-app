@@ -45,6 +45,7 @@ if (titleEl) {
     tinymce.remove('#editor');
     tinymce.init({
       selector: '#editor',
+      license_key: 'gpl', 
       height: 520,
       //height: '100%',
       plugins: 'link image code',
