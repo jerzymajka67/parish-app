@@ -217,6 +217,11 @@
         window.selectedFile = null;
         fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
         initDeleteModal();
+        const feedback = document.getElementById('server-feedback');
+          if (!feedback) return;
+          setTimeout(() => {
+            feedback.remove();
+          }, 6000);
       });
 </script>
 </body>

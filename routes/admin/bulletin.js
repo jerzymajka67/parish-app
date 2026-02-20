@@ -1,22 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
 const fs = require('fs/promises');
 const path = require('path');
 const multer = require('multer');
 const { PDFDocument } = require('pdf-lib');
-
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 const requireLogin = require(path.join(APP_ROOT,  'middleware', 'auth'));
-
-
-/* ============================================================
-   CONFIG
-============================================================ */
-
-const EVENTS_ROOT = path.join(APP_ROOT, 'content/bulletins');
+const BULLETINS_ROOT = path.join(APP_ROOT, 'content/bulletins');
 const MAX_PDF_SIZE = 300 * 1024; // 300 KB
 
 let tree = {};
@@ -90,16 +82,14 @@ router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
     const content = transformDirList(
-      await readDir(EVENTS_ROOT, relativePath)
+      await readDir(BULLETINS_ROOT, relativePath)
     );
-
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 // Create folder
 router.post('/create-folder', requireLogin, async (req, res) => {
   try {
@@ -111,7 +101,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     }
 
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
-    const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
+    const newFolderPath = path.join(BULLETINS_ROOT, currentPath, safeName);
 
     await fs.mkdir(newFolderPath, { recursive: true });
 

@@ -1,14 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs/promises');
-//const ejs = require('ejs');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
-//const cheerio = require('cheerio');
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
 const stampFileName = require(path.join(APP_ROOT, 'helpers', 'stampFileName'));
-//const sanitizeHtml = require(path.join(APP_ROOT, 'helpers', 'sanitizeHtml'));
 const { extractBody, extractAssets } = require(path.join(APP_ROOT, 'helpers', 'htmlUtils'));
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/about');
 const TargetDir = path.join(APP_ROOT, 'views/pages/user');

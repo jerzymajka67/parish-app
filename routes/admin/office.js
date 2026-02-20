@@ -1,14 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs/promises');
-//const ejs = require('ejs');
 const path = require('path');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
-//const cheerio = require('cheerio');
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
 const stampFileName = require(path.join(APP_ROOT, 'helpers', 'stampFileName'));
-//const sanitizeHtml = require(path.join(APP_ROOT, 'helpers', 'sanitizeHtml'));
 const { extractBody, extractAssets } = require(path.join(APP_ROOT, 'helpers', 'htmlUtils'));
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/office');
 const TargetDir = path.join(APP_ROOT, 'views/pages/user');
@@ -29,11 +26,11 @@ router.get('/view', requireLogin, async (req, res) => {
    const fileName = req.query.fileName;
   try {
     const sourcePath = path.join(EVENTS_ROOT, fileName);
-    const targetPath = path.join(TargetDir, 'en/office_temp.ejs');
+    const targetPath = path.join(TargetDir, 'en/temp_temp.ejs');
     const html = await fs.readFile(sourcePath, 'utf8');
     const bodyContent = extractBody(html);
     await fs.writeFile(targetPath, bodyContent, 'utf8');
-    res.render('pages/user/en/office_temp', {
+    res.render('pages/user/en/temp_temp', {
       layout: 'layouts/user',
       title: 'Office',
       lang: 'en',

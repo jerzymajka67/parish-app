@@ -60,15 +60,12 @@ router.get('/', requireLogin, (req, res) => {
   });
 });
 
-
-// List directories (AJAX)
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
     const content = transformDirList(
       await readDir(EVENTS_ROOT, relativePath)
     );
-
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
   } catch (err) {
