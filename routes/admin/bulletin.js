@@ -92,100 +92,84 @@ router.get('/ls', requireLogin, async (req, res) => {
 });
 // Create folder
 router.post('/create-folder', requireLogin, async (req, res) => {
+
   try {
+    let msg = 'Nothing selected';
+    let status = 'error';
     const currentPath = req.body.currentPath || '';
     const folderName = req.body.folderName;
-
     if (!folderName) {
-      return res.status(400).send('Folder name is required');
+        msg = 'Folder name is required';
+        status = 'error';
+        return res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
-
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
     const newFolderPath = path.join(BULLETINS_ROOT, currentPath, safeName);
-
     await fs.mkdir(newFolderPath, { recursive: true });
-
-    res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}`);
+    msg = `Folder "${folderName}" created successfully`;
+    status = 'success';
+    res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server error while creating folder');
+    msg = 'Server error while creating folder';
+    res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=error`);
   }
 });
-
-// Delete selected folder/file
-// Delete selected
 router.post('/delete-selected', requireLogin, async (req, res) => {
   try {
     const { files, folder } = req.body; // get files array and folder
-
-    // 1️⃣ MULTI FILE DELETE
     if (files && files.length) {
       const list = Array.isArray(files) ? files : [files];
-
       for (const relPath of list) {
-        const fullPath = path.join(EVENTS_ROOT, relPath);
-
-        if (!fullPath.startsWith(EVENTS_ROOT)) continue;
-
+        const fullPath = path.join(BULLETINS_ROOT, relPath);
+        if (!fullPath.startsWith(BULLETINS_ROOT)) continue;
         // Delete the file
         await fs.rm(fullPath, { force: true });
-
-        // Delete thumbnail if exists
-        const thumb = path.join(
-          path.dirname(fullPath),
-          'thumbs',
-          path.basename(fullPath)
-        );
-        await fs.rm(thumb, { force: true }).catch(() => {});
       }
     }
-
-    // 2️⃣ FOLDER DELETE
     if (folder) {
-      const fullFolder = path.join(EVENTS_ROOT, folder);
-
-      if (!fullFolder.startsWith(EVENTS_ROOT)) {
+      const fullFolder = path.join(BULLETINS_ROOT, folder);
+      if (!fullFolder.startsWith(BULLETINS_ROOT)) {
         return res.status(403).send('Access denied');
       }
-
       // Delete folder recursively
       await fs.rm(fullFolder, { recursive: true, force: true });
     }
-
-    // Respond JSON for the browser
-    res.json({ ok: true });
+      const msg = `PDF  was successfully deleted`;
+      const status = 'success';
+      res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+      //res.json({ ok: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Delete failed' });
   }
 });
-
-// 📄 Upload / load PDF
 router.post('/load-file', requireLogin, upload.single('pdf'), async (req, res) => {
   try {
     const currentPath = req.body.currentPath || '';
-    const targetDir = path.join(EVENTS_ROOT, currentPath);
-
-    // safety check
-    if (!targetDir.startsWith(EVENTS_ROOT)) {
+    const targetDir = path.join(BULLETINS_ROOT, currentPath);
+    if (!targetDir.startsWith(BULLETINS_ROOT)) {
       return res.status(403).send('Access denied');
     }
-
     if (!req.file) {
-      return res.status(400).send('No PDF uploaded');
+      const msg = 'No PDF uploaded';
+      const status = 'error';
+      return res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
 
+    // sanitize filename
+    const safeName = req.file.originalname.replace(/[/\\?%*:|"<>]/g, '-');
     const finalPdf = await validateAndCompressPdf(req.file.buffer);
-
     await fs.mkdir(targetDir, { recursive: true });
-    const originalName = req.file.originalname;
-    await fs.writeFile(path.join(targetDir, originalName), finalPdf);
-
-
-    res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}`);
+    await fs.writeFile(path.join(targetDir, safeName), finalPdf);
+    const msg = `PDF "${safeName}" uploaded successfully to "${targetDir || 'root'}"`;
+    const status = 'success';
+    res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   } catch (err) {
     console.error(err);
-    res.status(400).send(err.message);
+    const msg = err.message || 'Upload failed';
+    const status = 'error';
+    res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
 

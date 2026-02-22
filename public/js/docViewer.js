@@ -8,9 +8,7 @@ const DocViewer = {
     const controls = document.getElementById('docControls');
     if (!container) return;
     if (filePath.toLowerCase().endsWith('.pdf')) {
-
       container.classList.add('pdf-mode');
-
       container.innerHTML = `
         <iframe 
           src="/${filePath}#navpanes=0&view=FitH"

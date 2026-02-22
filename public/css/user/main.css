@@ -200,42 +200,45 @@ img.h-100 {
   max-height: 200px;   /* you choose the max height */
   object-fit: contain;
 }
-
 .document-viewer {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  min-height: 300px;
+  width: 100%;
+  max-width: 100%;
+  background: rgba(219, 216, 216, 0.116);
+  padding: 2rem;              /* Give breathing room */
+  min-height: 100px;
+  box-sizing: border-box;     /* Important */
 }
-
-.document-viewer h1,
-.document-viewer h2 {
+/* Main Title */
+.document-viewer h1 {
+  font-family: "Monotype Corsiva", "Brush Script MT", cursive;
+  color: #3a1d5d;              /* darker purple */
+  text-align: center;
   margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+  font-size: 1.8rem;
 }
 
+/* Section Titles */
+.document-viewer h2 {
+  font-family: "Monotype Corsiva", "Brush Script MT", cursive;
+  color: #5a2d82;              /* liturgical purple */
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+  font-size: 1.6rem;
+}
+
+/* Paragraph Text */
 .document-viewer p {
-  line-height: 1.6;
+  font-family: "Monotype Corsiva", "Brush Script MT", cursive;
+  color: #333;                 /* readable dark gray */
+  line-height: 1.7;
+  margin-bottom: 1.2rem;
+  font-size: 1.4rem;
 }
-.document-viewer {
-  background: white;
-  padding: 3rem;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-  min-height: 300px;
-}
-body {
-  background-color: #f5f6f8;
-}
-/* NORMAL DOCUMENT VIEW */
-.document-viewer {
-  background: white;
-  padding: 3rem;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-  min-height: 300px;
-}
-
-/* PDF MODE */
 .document-viewer.pdf-mode {
   padding: 0;
   border-radius: 0;
@@ -249,4 +252,24 @@ body {
   width: 100%;
   height: 150vh;
   border: none;
+}
+.lent-hero {
+  min-height: 100vh;
+  background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    url('/images/parish/cuaresma.webp') center/cover no-repeat;
+  padding: 2rem;
+}
+
+/* Artistic middle sentence */
+.lent-quote {
+  font-family: 'Great Vibes', cursive;
+  font-size: 3rem;
+  font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+
+/* Bottom informational text */
+.hero-info {
+  max-width: 800px;
+  margin: 0 auto;
 }

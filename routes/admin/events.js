@@ -85,19 +85,13 @@ router.post('/create-folder', requireLogin, async (req, res) => {
 router.post('/delete-selected', requireLogin, async (req, res) => {
   try {
     const { files, folder } = req.body; // get files array and folder
-
-    // 1️⃣ MULTI FILE DELETE
     if (files && files.length) {
       const list = Array.isArray(files) ? files : [files];
-
       for (const relPath of list) {
         const fullPath = path.join(EVENTS_ROOT, relPath);
-
         if (!fullPath.startsWith(EVENTS_ROOT)) continue;
-
         // Delete the file
         await fs.rm(fullPath, { force: true });
-
         // Delete thumbnail if exists
         const thumb = path.join(
           path.dirname(fullPath),
@@ -107,8 +101,6 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
         await fs.rm(thumb, { force: true }).catch(() => {});
       }
     }
-
-    // 2️⃣ FOLDER DELETE
     if (folder) {
       const fullFolder = path.join(EVENTS_ROOT, folder);
 
