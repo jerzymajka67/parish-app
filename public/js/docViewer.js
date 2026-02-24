@@ -1,5 +1,4 @@
-const DocViewer = {
-
+const docViewer = {
   files: [],
   currentIndex: -1,
   open(filePath) {
@@ -9,21 +8,22 @@ const DocViewer = {
     if (!container) return;
     if (filePath.toLowerCase().endsWith('.pdf')) {
       container.classList.add('pdf-mode');
-      container.innerHTML = `
-        <iframe 
-          src="/${filePath}#navpanes=0&view=FitH"
-          class="pdf-frame">
-        </iframe>
-      `;
-
+     container.innerHTML = `
+      <iframe 
+        src="/${filePath}#navpanes=0&view=FitH"
+        style="width:100%; height:190vh; border:none;">
+      </iframe>
+    `;
     } else {
-
       container.classList.remove('pdf-mode');
-
       fetch('/' + filePath)
         .then(r => r.text())
         .then(html => {
-          container.innerHTML = html;
+        container.innerHTML = `
+        <div style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
+          ${html}
+        </div>
+      `;
         }) .catch(err => {
               container.innerHTML = `<p class="text-danger">Error loading document.</p>`;
               console.error(err);

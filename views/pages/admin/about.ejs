@@ -90,7 +90,6 @@
                 id="deleteBtn">
           Delete
         </button>
-
         <input id="deleteFileName"
               type="hidden"
               name="fileName">
@@ -104,16 +103,16 @@
         <div class="border p-3">
           <div id="browser-container">
             <div id="browser" class="list-group">
-              <!-- dynamically inserted items -->
+<!-- dynamically inserted items -->
             </div>
           </div>
         </div>
       </div>
-      <!-- RIGHT: Welcome + Feedback -->
+<!-- RIGHT: Welcome + Feedback -->
       <div class="col-md-5">
-        <!-- WELCOME PANEL -->
+<!-- WELCOME PANEL -->
         <div class="border p-3 mb-3 bg-light">
-          <!-- SERVER FEEDBACK -->
+<!-- SERVER FEEDBACK -->
             <% if (msg && status) { %>
               <div id="server-feedback" class="server-feedback <%= status %> border p-3 mt-3">
                 <%= msg %>
@@ -140,8 +139,6 @@
             Thank you for your dedication and generosity in serving our parish community.
           </p>
         </div>
-
-
       </div>
     </div>
   </div>
@@ -150,6 +147,7 @@
 <script src="/js/editor.js"></script>
 <script src="/js/fetchFileList.js"></script>
 <script src="/js/initDeleteModal.js"></script>
+<script src="/js/feedback.js"></script>
 <script >
 document.addEventListener('DOMContentLoaded', () => {
   editorHTML();
@@ -159,11 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.selectedFile = null;
   fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
   initDeleteModal();
-  const feedback = document.getElementById('server-feedback');
-  if (!feedback) return;
-  setTimeout(() => {
-    feedback.remove();
-  }, 6000);
+  feedback();
 });
 </script>
 </body>

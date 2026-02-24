@@ -3,22 +3,13 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const multer = require('multer');
-
+const HOMILIES_ROOT = path.join(APP_ROOT, 'content/homilies');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
-
-/* ============================================================
-   CONFIG
-============================================================ */
-const EVENTS_ROOT = path.join(APP_ROOT, 'content/homilies');
-
 let tree = {};
 
-/* ============================================================
-   MULTER (HTML only, memory)
-============================================================ */
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter(req, file, cb) {
@@ -29,23 +20,10 @@ const upload = multer({
   }
 });
 
-/* ============================================================
-   HELPERS
-============================================================ */
 function getNode(obj, pathStr) {
   if (!pathStr) return obj;
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
-async function setHiddenFlag(filePath, hidden) {
-  const metaPath = filePath + '.meta.json';
-  const data = JSON.stringify({ hidden }, null, 2);
-
-  await fs.writeFile(metaPath, data, 'utf8');
-}
-
-/* ============================================================
-   ROUTES
-============================================================ */
 
 router.get('/', requireLogin, (req, res) => {
   tree = {};
@@ -59,12 +37,11 @@ router.get('/', requireLogin, (req, res) => {
     status: req.query.status || null
   });
 });
-
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
     const content = transformDirList(
-      await readDir(EVENTS_ROOT, relativePath)
+      await readDir(HOMILIES_ROOT, relativePath)
     );
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
@@ -72,16 +49,13 @@ router.get('/ls', requireLogin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Create folder
 router.post('/create-folder', requireLogin, async (req, res) => {
   try {
     const currentPath = req.body.currentPath || '';
     const folderName = req.body.folderName;
     if (!folderName) return res.status(400).send('Folder name is required');
-
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
-    const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
-
+    const newFolderPath = path.join(HOMILIES_ROOT, currentPath, safeName);
     await fs.mkdir(newFolderPath, { recursive: true });
     res.redirect(`/admin/homilies?path=${encodeURIComponent(currentPath)}`);
   } catch (err) {
@@ -90,146 +64,162 @@ router.post('/create-folder', requireLogin, async (req, res) => {
   }
 });
 router.post('/create-html', requireLogin, async (req, res) => {
-  try {
-    const currentPath = req.body.currentPath || '';
-    let fileName = req.body.fileName;
-
-    if (!fileName) {
-      return res.status(400).send('File name is required');
+   let fileName = req.body.fileName;
+   let currentPath = req.body.currentPath || '';
+   console.log('Creating HTML file:', fileName, 'in path:', currentPath);
+    try {
+      if (!fileName) {
+      const msg = 'File name is required';
+      const status = 'error';
+       return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
-
-    // sanitize
-    fileName = fileName.replace(/[/\\?%*:|"<>]/g, '-');
-
-    // enforce .html extension
     if (!fileName.endsWith('.html')) {
       fileName += '.html';
     }
-
-    const filePath = path.join(EVENTS_ROOT, currentPath, fileName);
-
-    // prevent overwrite
+    const filePath = path.join(HOMILIES_ROOT, currentPath, fileName);
     try {
       await fs.access(filePath);
-      return res.status(409).send('File already exists');
+      const msg = 'File already exists';
+      const status = 'error';
+      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     } catch {
       // file does not exist → OK
     }
 
-    // minimal HTML skeleton
     const htmlTemplate = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>${fileName.replace('.html', '')}</title>
-</head>
-<body>
-
-</body>
-</html>`;
-
-  const _draftPath = '_draft-'+filePath;
-   await fs.writeFile(_draftPath, htmlTemplate, 'utf8');
-  // mark as hidden (however you store it)
-    //await setHiddenFlag(filePath, true);
-    res.redirect(`/admin/homilies?path=${encodeURIComponent(currentPath)}`);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error while creating HTML file');
+<body> </body>`;
+   await fs.writeFile(filePath, htmlTemplate, 'utf8');
+      const msg = `File ${fileName} created successfully in ${currentPath || 'root'}`;
+      const status = 'success';
+      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    } catch (err) {
+      const msg = `Server error while creating HTML file ${fileName} - ${err.message}`;
+      const status = 'error';
+      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-
-// Delete folder/file
-// Delete selected
 router.post('/delete-selected', requireLogin, async (req, res) => {
+  let messageType = 'error';
+  let msg = '';
   try {
-    const { files, folder } = req.body; // get files array and folder
-
-    // 1️⃣ MULTI FILE DELETE
-    if (files && files.length) {
-      const list = Array.isArray(files) ? files : [files];
-
-      for (const relPath of list) {
-        const fullPath = path.join(EVENTS_ROOT, relPath);
-
-        if (!fullPath.startsWith(EVENTS_ROOT)) continue;
-
-        // Delete the file
-        await fs.rm(fullPath, { force: true });
-
-        // Delete thumbnail if exists
-        const thumb = path.join(
-          path.dirname(fullPath),
-          'thumbs',
-          path.basename(fullPath)
-        );
-        await fs.rm(thumb, { force: true }).catch(() => {});
-      }
-    }
-
-    // 2️⃣ FOLDER DELETE
-    if (folder) {
-      const fullFolder = path.join(EVENTS_ROOT, folder);
-
-      if (!fullFolder.startsWith(EVENTS_ROOT)) {
-        return res.status(403).send('Access denied');
-      }
-
-      // Delete folder recursively
-      await fs.rm(fullFolder, { recursive: true, force: true });
-    }
-
-    // Respond JSON for the browser
-    res.json({ ok: true });
+    const folder = req.body.folder;
+    const files = JSON.parse(req.body.files || '[]');
+  for (const file of files) {
+  const filePath = path.join(HOMILIES_ROOT, file);
+  await fs.rm(filePath, { force: true });
+   msg += `Deleted file: ${file}\n`;
+}
+if (folder) {
+  const folderPath = path.join(HOMILIES_ROOT, folder);
+  await fs.rm(folderPath, { recursive: true, force: true });
+  msg += `Deleted folder: ${folder}\n`;
+}
+    messageType = 'success';
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Delete failed' });
+    msg = err.message || 'Server error';
+    res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
   }
+  res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
 });
-
-
-// 📄 Upload / load HTML file
-router.post('/upload-file', requireLogin, upload.single('html'), async (req, res) => {
+router.post('/load-file', requireLogin, upload.single('html'), async (req, res) => {
   try {
     const currentPath = req.body.currentPath || '';
-    const targetDir = path.join(EVENTS_ROOT, currentPath);
-
-    if (!targetDir.startsWith(EVENTS_ROOT)) return res.status(403).send('Access denied');
-    if (!req.file) return res.status(400).send('No HTML uploaded');
-
+    const targetDir = path.join(HOMILIES_ROOT, currentPath);
+    if (!targetDir.startsWith(HOMILIES_ROOT)) {
+      return res.status(403).send('Access denied');
+    }
+    if (!req.file) {
+      const msg = 'No HTML uploaded';
+      const status = 'error';
+      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    }
+    const safeName = req.file.originalname.replace(/[/\\?%*:|"<>]/g, '-');
     await fs.mkdir(targetDir, { recursive: true });
-    const originalName = req.file.originalname;
-    await fs.writeFile(path.join(targetDir, originalName), req.file.buffer);
-
-    res.redirect(`/admin/homilies?path=${encodeURIComponent(currentPath)}`);
+    await fs.writeFile(path.join(targetDir, safeName), req.file.buffer);
+    const msg = `HTML "${safeName}" uploaded successfully to "${targetDir || 'root'}"`;
+    const status = 'success';
+    res.redirect(`/admin/homilies?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   } catch (err) {
-    console.error(err);
-    res.status(400).send(err.message);
+    const msg = err.message || 'Upload failed';
+    const status = 'error';
+    res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-// Express route
-router.get('/file', async (req, res) => {
-   const currentPath = req.query.path || '';
-   console.log('Requested file path:', currentPath);
-  //const filePath = req.query.path; // path relative to content/homilies
-  if (!currentPath) return res.status(400).json({ error: 'Missing path' });
-
-  const fullPath = path.resolve(EVENTS_ROOT, currentPath);
-  console.log('Resolved full path:', fullPath);
-  if (!fullPath.startsWith(EVENTS_ROOT)) {
-    return res.status(403).json({ error: 'Access denied' });
+router.get('/edit', requireLogin, async (req, res) => {
+  const originalFile = req.query.fileName;
+  const draftFile = stampFileName(originalFile);
+  console.log('Editing file:', originalFile, 'Draft file:', draftFile);
+  if (!originalFile) {
+    return res.redirect('/admin/homilies?msg=File+name+required&status=error');
+  }
+  const filePath = path.join(HOMILIES_ROOT, originalFile);
+  const backupPath = path.join(HOMILIES_ROOT, draftFile);
+  console.log('File path:', filePath);
+  console.log('Backup path:', backupPath);
+  try {
+    await fs.copyFile(filePath, backupPath);
+    const content = await fs.readFile(backupPath, 'utf8');
+    return res.json({
+      draftFile,
+      originalFile,
+      content
+    });
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/admin/homilies?msg=File+error&status=error');
+  }
+});
+router.post('/save', requireLogin, async (req, res) => {
+  console.log('Saving file:', req.body);
+  const { draftFile, content } = req.body;
+  if (!draftFile || content === undefined) {
+    return res.redirect('/admin/homilies?msg=Invalid+data&status=error');
   }
 
   try {
-    const content = await fs.readFile(fullPath, 'utf8');
-    res.json({ path: currentPath, content });
+    await fs.writeFile(
+      path.join(HOMILIES_ROOT, draftFile),
+      content,
+      'utf8'
+    );
+
+    return res.status(204).end();
   } catch (err) {
-    res.status(404).json({ error: 'File not found' });
+    console.error(err);
+    return res.redirect('/admin/homilies?msg=Save+failed&status=error');
   }
 });
+router.post('/save-exit', requireLogin, async (req, res) => {
+  const { draftFile, originalFile, content } = req.body;
 
-/* ============================================================
-   EXPORT
-============================================================ */
+  if (!draftFile || !originalFile || content === undefined) {
+    const msg = 'File name and content are required';
+    const status = 'error';
+    return res.redirect(
+      `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  }
+
+  const filePath = path.join(HOMILIES_ROOT, draftFile);
+
+  try {
+    await fs.writeFile(filePath, content, 'utf8');
+
+    const msg =
+      `New version of original file "${originalFile}" is now in "${draftFile}" and ready to be published. ` +
+      `Please review it and publish when ready.`;
+    const status = 'success';
+    return res.redirect(
+      `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  } catch (err) {
+    console.error(err);
+    const msg = 'Failed to save file';
+    const status = 'error';
+    return res.redirect(
+      `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+    );
+  }
+});
 module.exports = router;

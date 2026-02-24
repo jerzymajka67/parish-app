@@ -8,14 +8,10 @@ const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 const requireLogin = require(path.join(APP_ROOT,  'middleware', 'auth'));
-const BULLETINS_ROOT = path.join(APP_ROOT, 'content/bulletins');
+const BULLETINS_ROOT = path.join(APP_ROOT, 'content/bulletin');
 const MAX_PDF_SIZE = 300 * 1024; // 300 KB
 
 let tree = {};
-
-/* ============================================================
-   INTERNAL HELPERS (kept in this file)
-============================================================ */
 
 function getNode(obj, pathStr) {
   if (!pathStr) return obj;
@@ -44,11 +40,6 @@ async function validateAndCompressPdf(buffer) {
 
   return output;
 }
-
-/* ============================================================
-   MULTER (PDF only, memory)
-============================================================ */
-
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter(req, file, cb) {
@@ -58,12 +49,6 @@ const upload = multer({
     cb(null, true);
   }
 });
-
-/* ============================================================
-   ROUTES
-============================================================ */
-
-// Admin about page
 router.get('/', requireLogin, (req, res) => {
   tree = {};
   res.render('pages/admin/bulletin', {
@@ -76,8 +61,6 @@ router.get('/', requireLogin, (req, res) => {
     status: req.query.status || null
   });
 });
-
-// List directories (AJAX)
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
@@ -90,9 +73,7 @@ router.get('/ls', requireLogin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Create folder
 router.post('/create-folder', requireLogin, async (req, res) => {
-
   try {
     let msg = 'Nothing selected';
     let status = 'error';
@@ -106,7 +87,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
     const newFolderPath = path.join(BULLETINS_ROOT, currentPath, safeName);
     await fs.mkdir(newFolderPath, { recursive: true });
-    msg = `Folder "${folderName}" created successfully`;
+    msg = `Folder "${folderName}" created successfully in "${currentPath || 'root'}"`;
     status = 'success';
     res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   } catch (err) {
@@ -116,33 +97,28 @@ router.post('/create-folder', requireLogin, async (req, res) => {
   }
 });
 router.post('/delete-selected', requireLogin, async (req, res) => {
+  let messageType = 'error';
+  let msg = '';
   try {
-    const { files, folder } = req.body; // get files array and folder
-    if (files && files.length) {
-      const list = Array.isArray(files) ? files : [files];
-      for (const relPath of list) {
-        const fullPath = path.join(BULLETINS_ROOT, relPath);
-        if (!fullPath.startsWith(BULLETINS_ROOT)) continue;
-        // Delete the file
-        await fs.rm(fullPath, { force: true });
-      }
-    }
-    if (folder) {
-      const fullFolder = path.join(BULLETINS_ROOT, folder);
-      if (!fullFolder.startsWith(BULLETINS_ROOT)) {
-        return res.status(403).send('Access denied');
-      }
-      // Delete folder recursively
-      await fs.rm(fullFolder, { recursive: true, force: true });
-    }
-      const msg = `PDF  was successfully deleted`;
-      const status = 'success';
-      res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-      //res.json({ ok: true });
+    const folder = req.body.folder;
+    const files = JSON.parse(req.body.files || '[]');
+  for (const file of files) {
+  const filePath = path.join(BULLETINS_ROOT, file);
+  await fs.rm(filePath, { force: true });
+   msg += `Deleted file: ${file}\n`;
+}
+if (folder) {
+  const folderPath = path.join(BULLETINS_ROOT, folder);
+  await fs.rm(folderPath, { recursive: true, force: true });
+  msg += `Deleted folder: ${folder}\n`;
+}
+    messageType = 'success';
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Delete failed' });
+    msg = err.message || 'Server error';
+    res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
   }
+  res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
 });
 router.post('/load-file', requireLogin, upload.single('pdf'), async (req, res) => {
   try {
@@ -156,8 +132,6 @@ router.post('/load-file', requireLogin, upload.single('pdf'), async (req, res) =
       const status = 'error';
       return res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
-
-    // sanitize filename
     const safeName = req.file.originalname.replace(/[/\\?%*:|"<>]/g, '-');
     const finalPdf = await validateAndCompressPdf(req.file.buffer);
     await fs.mkdir(targetDir, { recursive: true });
@@ -166,15 +140,9 @@ router.post('/load-file', requireLogin, upload.single('pdf'), async (req, res) =
     const status = 'success';
     res.redirect(`/admin/bulletin?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   } catch (err) {
-    console.error(err);
     const msg = err.message || 'Upload failed';
     const status = 'error';
     res.redirect(`/admin/bulletin?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-
-/* ============================================================
-   EXPORT
-============================================================ */
-
 module.exports = router;

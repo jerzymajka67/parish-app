@@ -1,5 +1,6 @@
 function deleteModalHTML() {
   if (document.getElementById('confirmDeleteModal')) return;
+
   const modalHtml = `
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
@@ -22,31 +23,39 @@ function deleteModalHTML() {
 
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
-function initDeleteModal() {
+
+function initSelectedModal() {
   deleteModalHTML();
-  const deleteForm = document.getElementById('deleteForm');
+  const form = document.getElementById('deleteSelectedForm');
   const deleteBtn = document.getElementById('deleteBtn');
-  const deleteInput = document.getElementById('deleteFileName');
   const modalEl = document.getElementById('confirmDeleteModal');
   const confirmBtn = document.getElementById('confirmDeleteBtn');
   const modalName = document.getElementById('modal-folder-name');
-  if (!deleteForm || !deleteBtn || !modalEl) return;
+
+  if (!form || !deleteBtn || !modalEl) return;
+
   const modal = new bootstrap.Modal(modalEl);
-  let fileToDelete = null;
   deleteBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    if (!window.selectedFile) {
+    const files = [...document.querySelectorAll('input[name="files[]"]:checked')]
+      .map(cb => cb.value);
+    let folder = null;
+
+    if (!files.length && window.selectedItem && window.selectedItem.tagName === 'A') {
+      folder = document.querySelector('#deleteSelectedForm input[name="currentPath"]').value;
+    }
+    if (!files.length && !folder) {
       alert('No file selected');
       return;
     }
-    fileToDelete = window.selectedFile;
-    modalName.textContent = fileToDelete;
-    deleteInput.value = fileToDelete;
+    modalName.textContent =
+      files.length
+        ? `${files.length} file(s)`
+        : folder.split('/').pop();
     modal.show();
   });
+
   confirmBtn.addEventListener('click', () => {
-    if (!fileToDelete) return;
-    deleteForm.submit();   
+    form.requestSubmit();   // Only this
   });
 }
-
