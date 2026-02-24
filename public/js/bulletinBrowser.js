@@ -14,9 +14,10 @@ function initFileBrowser(page) {
   if (!browser) return;
 
   // Only global needed by delete system
-  //window.selectedItem = null;
+  window.selectedItem = null;
 
   function setCurrent(path) {
+    window.selectedFile = path;
     if (createPath) createPath.value = path;
     if (uploadPath) uploadPath.value = path;
     if (deletePath) deletePath.value = path;
@@ -28,8 +29,8 @@ function initFileBrowser(page) {
   }
 
   function select(el, path) {
-    window.selectedFile?.classList.remove('active');
-    window.selectedFile = el;
+    window.selectedItem?.classList.remove('active');
+    window.selectedItem = el;
     el.classList.add('active');
     setCurrent(path);
   }

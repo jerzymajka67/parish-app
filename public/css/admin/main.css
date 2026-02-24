@@ -129,3 +129,16 @@ h2 {
   position: relative;
   z-index: 1;
 }
+#editHtmlModal .modal-content {
+  height: 100vh;
+}
+
+#editHtmlModal .modal-body {
+  height: calc(100vh - 120px); /* subtract header + footer */
+  overflow: hidden;
+  padding: 0;
+}
+
+#editor {
+  height: 100%;
+}

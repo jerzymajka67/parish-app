@@ -148,7 +148,7 @@ router.post('/load-file', requireLogin, upload.single('html'), async (req, res) 
 });
 router.get('/edit', requireLogin, async (req, res) => {
   const originalFile = req.query.fileName;
-  const draftFile = stampFileName(originalFile);
+  const draftFile = 'temp.html';
   console.log('Editing file:', originalFile, 'Draft file:', draftFile);
   if (!originalFile) {
     return res.redirect('/admin/homilies?msg=File+name+required&status=error');
@@ -200,15 +200,11 @@ router.post('/save-exit', requireLogin, async (req, res) => {
       `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   }
-
-  const filePath = path.join(HOMILIES_ROOT, draftFile);
-
+  const filePath = path.join(HOMILIES_ROOT, originalFile);
   try {
     await fs.writeFile(filePath, content, 'utf8');
-
     const msg =
-      `New version of original file "${originalFile}" is now in "${draftFile}" and ready to be published. ` +
-      `Please review it and publish when ready.`;
+      `New version of original file "${originalFile}" saved successfully.`;
     const status = 'success';
     return res.redirect(
       `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
