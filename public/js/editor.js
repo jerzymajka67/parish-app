@@ -42,10 +42,15 @@ function initEditor() {
   console.log('Initializing editor for page:', window.ADMIN_PAGE);
   const modalEl = document.getElementById('editHtmlModal');
   if (!modalEl) return;
-
   editModal = new bootstrap.Modal(modalEl, {
     backdrop: 'static',
-    keyboard: false
+    keyboard: false,
+    focus: false,
+    file_picker_types: 'image',
+    file_picker_callback: function (callback, value, meta) {
+    if (meta.filetype !== 'image') return;
+      openEventsPickerForEditor(callback);
+    },
   });
 }
 
@@ -87,11 +92,14 @@ async function openFileInEditor(fileName) {
     tinymce.init({
       selector: '#editor',
       license_key: 'gpl',
-
-      height: '100%',
-      menubar: 'edit insert view format tools',
+      toolbar: 'image',
+      promotion: false,
       branding: false,
-
+      height: '100%',
+      relative_urls: false,
+      remove_script_host: false,
+      convert_urls: false,
+      menubar: 'edit insert view format tools',
       plugins: [
         'link',
         'image',
@@ -101,14 +109,13 @@ async function openFileInEditor(fileName) {
         'table',
         'preview'
       ],
-
       toolbar: `
-        undo redo |
+        undo redo | customImage |
         bold italic underline |
         alignleft aligncenter alignright |
-        bullist numlist |
-        link image table |
-        code fullscreen preview
+        bullist numlist table |
+        link image code |
+        fullscreen preview
       `,
 
       /* -------------------------
@@ -155,6 +162,13 @@ async function openFileInEditor(fileName) {
       setup(editor) {
         editor.on('init', () => {
           editor.setContent(data.content, { format: 'raw' });
+         });
+        editor.ui.registry.addButton('customImage', {
+          icon: 'image',
+          tooltip: 'Insert Event Image',
+           onAction: function () {
+            openEventsPickerForEditor(editor); 
+          }
         });
       }
     });
