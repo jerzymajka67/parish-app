@@ -11,7 +11,15 @@ function editorHTML() {
           <div class="modal-header">
             <h5 id="editorTitle" class="modal-title"></h5>
           </div>
-          <div id="editor" class="modal-body"></div>
+          <div class="modal-body p-0 d-flex" style="height:100%;">
+          <div id="eventsPickerPanel" style="display:none;">
+            <div id="browserForEditor"></div>
+            <div id="galleryForEditor"></div>
+          </div>
+            <div style="flex:1;">
+              <textarea id="editor"></textarea>
+            </div>
+          </div>
           <div class="modal-footer">
             <button id="saveOnlyBtn" type="button" class="btn btn-success">
               Save
@@ -102,7 +110,6 @@ async function openFileInEditor(fileName) {
       menubar: 'edit insert view format tools',
       plugins: [
         'link',
-        'image',
         'code',
         'fullscreen',
         'lists',
@@ -110,13 +117,13 @@ async function openFileInEditor(fileName) {
         'preview'
       ],
       toolbar: `
-        undo redo | customImage |
-        bold italic underline |
-        alignleft aligncenter alignright |
-        bullist numlist table |
-        link image code |
-        fullscreen preview
-      `,
+      undo redo | eventImage |
+      bold italic underline |
+      alignleft aligncenter alignright |
+      bullist numlist table |
+      link code |
+      fullscreen preview
+    `,
 
       /* -------------------------
         LINK CONFIGURATION
@@ -163,18 +170,20 @@ async function openFileInEditor(fileName) {
         editor.on('init', () => {
           editor.setContent(data.content, { format: 'raw' });
          });
-        editor.ui.registry.addButton('customImage', {
-          icon: 'image',
-          tooltip: 'Insert Event Image',
-           onAction: function () {
-            openEventsPickerForEditor(editor); 
-          }
+        editor.ui.registry.addButton('eventImage', {
+            icon: 'image',
+            tooltip: 'Insert Event Image',
+            onAction: function () {
+              const panel =
+              document.getElementById('eventsPickerPanel');
+              panel.style.display = 'block';
+              initBrowserForEditor(); 
+            }
         });
       }
     });
   }, 150);
 }
-
 // ---------- SAVE BUTTONS ----------
 function initSaveButtons() {
   const saveBtn = document.getElementById('saveOnlyBtn');

@@ -142,6 +142,4 @@ h2 {
 #editor {
   height: 100%;
 }
-.tox-dialog {
-  z-index: 200000 !important;
-}
+
