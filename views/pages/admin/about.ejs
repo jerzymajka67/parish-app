@@ -102,7 +102,7 @@
       <div class="col-md-7">
         <div class="border p-3">
           <div id="browser-container">
-            <div id="mainBrowser" class="list-group">
+            <div id="browser" class="list-group">
 <!-- dynamically inserted items -->
             </div>
           </div>
@@ -142,20 +142,33 @@
       </div>
     </div>
   </div>
+
+<div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image</span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
+    </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
+  </div>
+</div>
+
 <script> window.ADMIN_PAGE = "<%= page %>";</script>
+
 <script src="/js/tinymce/tinymce.min.js"></script>
 <script src="/js/editor.js"></script>
+
 <script src="/js/fetchFileList.js"></script>
 <script src="/js/initDeleteModal.js"></script>
 <script src="/js/feedback.js"></script>
-<script src="/js/gallery.js"></script>
+<script src="/js/editorMediaModal.js"></script>
 <script src="/js/browserForEditor.js"></script>
-<script src="/js/loadGallery.js"></script>
+<script src="/js/galleryForEditor.js"></script>
 
 <script >
 document.addEventListener('DOMContentLoaded', () => {
   editorHTML();
-  initEditor();
+  initEditorModal()
   initEditButton();
   initSaveButtons();
   window.selectedFile = null;

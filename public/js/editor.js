@@ -1,29 +1,40 @@
-// ---------- STATE ----------
+/* =========================================================
+   STATE
+========================================================= */
+
 let draftFile = null;
 let originalFile = null;
 let editModal = null;
+
+
+/* =========================================================
+   CREATE EDITOR MODAL HTML (ONLY ONCE)
+========================================================= */
+
 function editorHTML() {
+
   if (document.getElementById('editHtmlModal')) return;
+
   const modalHtml = `
     <div class="modal fade" id="editHtmlModal" tabindex="-1">
       <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
+
           <div class="modal-header">
             <h5 id="editorTitle" class="modal-title"></h5>
           </div>
+
           <div class="modal-body p-0 d-flex" style="height:100%;">
-          <div id="eventsPickerPanel" style="display:none;">
-            <div id="browserForEditor"></div>
-            <div id="galleryForEditor"></div>
-          </div>
             <div style="flex:1;">
               <textarea id="editor"></textarea>
             </div>
           </div>
+
           <div class="modal-footer">
             <button id="saveOnlyBtn" type="button" class="btn btn-success">
               Save
             </button>
+
             <button id="saveExitBtn"
                     type="button"
                     class="btn btn-secondary"
@@ -31,6 +42,7 @@ function editorHTML() {
               Save & Exit
             </button>
           </div>
+
         </div>
       </div>
     </div>
@@ -38,54 +50,80 @@ function editorHTML() {
 
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
-// ---------- INIT ----------
+
+
+/* =========================================================
+   INIT ON DOM READY
+========================================================= */
+
 document.addEventListener('DOMContentLoaded', () => {
-  initEditor();
-  initEditButton();
-  initSaveButtons();
+
+  editorHTML();          // Ensure modal HTML exists
+  initEditorModal();     // Bootstrap modal
+  initEditButton();      // "Edit" button
+  initSaveButtons();     // Save buttons
+
 });
 
-// ---------- MODAL ----------
-function initEditor() {
-  console.log('Initializing editor for page:', window.ADMIN_PAGE);
+
+/* =========================================================
+   INITIALIZE BOOTSTRAP MODAL (ONLY ONCE)
+========================================================= */
+
+function initEditorModal() {
+  console.log('eitor init');
   const modalEl = document.getElementById('editHtmlModal');
   if (!modalEl) return;
-  editModal = new bootstrap.Modal(modalEl, {
-    backdrop: 'static',
-    keyboard: false,
-    focus: false,
-    file_picker_types: 'image',
-    file_picker_callback: function (callback, value, meta) {
-    if (meta.filetype !== 'image') return;
-      openEventsPickerForEditor(callback);
-    },
-  });
+
+  if (!editModal) {
+    editModal = new bootstrap.Modal(modalEl, {
+      backdrop: 'static',
+      keyboard: false,
+      focus: false
+    });
+  }
 }
 
-// ---------- EDIT BUTTON ----------
+
+/* =========================================================
+   EDIT BUTTON
+========================================================= */
+
 function initEditButton() {
+
   const editBtn = document.getElementById('editBtn');
   if (!editBtn) return;
 
   editBtn.addEventListener('click', () => {
+
     if (!window.selectedFile) {
       alert('No file selected');
       return;
     }
+
     openFileInEditor(window.selectedFile);
   });
 }
 
-// ---------- OPEN EDITOR ----------
+
+/* =========================================================
+   OPEN FILE IN EDITOR
+========================================================= */
+
 async function openFileInEditor(fileName) {
+
   const res = await fetch(
-    '/admin/' + window.ADMIN_PAGE + '/edit?fileName=' + encodeURIComponent(fileName)
+    '/admin/' + window.ADMIN_PAGE + '/edit?fileName=' +
+    encodeURIComponent(fileName)
   );
+
   if (res.redirected) {
     window.location.href = res.url;
     return;
   }
+
   const data = await res.json();
+
   originalFile = data.originalFile;
   draftFile = data.draftFile;
 
@@ -94,20 +132,29 @@ async function openFileInEditor(fileName) {
     titleEl.textContent =
       `Editing: Your file ${originalFile} will be saved as ${draftFile}`;
   }
+
   editModal.show();
+
   setTimeout(() => {
-    tinymce.remove();
+
+    /* Prevent double Tiny initialization */
+    if (tinymce.get('editor')) {
+      tinymce.get('editor').remove();
+    }
+
     tinymce.init({
       selector: '#editor',
       license_key: 'gpl',
-      toolbar: 'image',
       promotion: false,
       branding: false,
       height: '100%',
+
       relative_urls: false,
       remove_script_host: false,
       convert_urls: false,
-      menubar: 'edit insert view format tools',
+
+      menubar: 'edit insert view format',
+
       plugins: [
         'link',
         'code',
@@ -116,35 +163,29 @@ async function openFileInEditor(fileName) {
         'table',
         'preview'
       ],
-      toolbar: `
-      undo redo | eventImage |
-      bold italic underline |
-      alignleft aligncenter alignright |
-      bullist numlist table |
-      link code |
-      fullscreen preview
-    `,
 
-      /* -------------------------
-        LINK CONFIGURATION
-      -------------------------- */
+      toolbar: `
+        undo redo |
+        bold italic underline |
+        alignleft aligncenter alignright |
+        bullist numlist table |
+        eventImage link code |
+        fullscreen preview
+      `,
+
+      /* Link configuration */
       link_default_target: '_self',
       link_context_toolbar: true,
       link_assume_external_targets: true,
 
-      /* -------------------------
-        IMAGE UPLOAD CONFIG
-      -------------------------- */
+      /* Image upload configuration */
       automatic_uploads: true,
-      images_upload_url: '/admin/' + window.ADMIN_PAGE + '/upload-image',
+      images_upload_url:
+        '/admin/' + window.ADMIN_PAGE + '/upload-image',
       images_reuse_filename: true,
-      file_picker_types: 'image',
-
       image_title: true,
 
-      /* -------------------------
-        CONTENT STYLE (editor view)
-      -------------------------- */
+      /* Editor content styling */
       content_style: `
         body {
           font-family: Arial, Helvetica, sans-serif;
@@ -163,41 +204,55 @@ async function openFileInEditor(fileName) {
         }
       `,
 
-      /* -------------------------
-        INITIAL CONTENT
-      -------------------------- */
       setup(editor) {
+
         editor.on('init', () => {
           editor.setContent(data.content, { format: 'raw' });
-         });
-        editor.ui.registry.addButton('eventImage', {
-            icon: 'image',
-            tooltip: 'Insert Event Image',
-            onAction: function () {
-              const panel =
-              document.getElementById('eventsPickerPanel');
-              panel.style.display = 'block';
-              initBrowserForEditor(); 
-            }
         });
+
+        /* Custom image button */
+        editor.ui.registry.addButton('eventImage', {
+          icon: 'image',
+          tooltip: 'Insert Event Image',
+          onAction: function () {
+            openEditorMedia();  // Your new modal system
+          }
+        });
+
       }
     });
+
   }, 150);
 }
-// ---------- SAVE BUTTONS ----------
+
+
+/* =========================================================
+   SAVE BUTTONS
+========================================================= */
+
 function initSaveButtons() {
+
   const saveBtn = document.getElementById('saveOnlyBtn');
   const saveExitBtn = document.getElementById('saveExitBtn');
 
   if (saveBtn) {
-    saveBtn.onclick = () => saveFile('/admin/' + window.ADMIN_PAGE + '/save');
+    saveBtn.onclick = () =>
+      saveFile('/admin/' + window.ADMIN_PAGE + '/save');
   }
 
   if (saveExitBtn) {
-    saveExitBtn.onclick = () => saveExitFile('/admin/' + window.ADMIN_PAGE + '/save-exit');
+    saveExitBtn.onclick = () =>
+      saveExitFile('/admin/' + window.ADMIN_PAGE + '/save-exit');
   }
 }
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
 async function saveFile(url) {
+
   const content = tinymce.get('editor').getContent();
 
   const res = await fetch(url, {
@@ -211,6 +266,7 @@ async function saveFile(url) {
   });
 
   if (res.ok) {
+
     const title = document.getElementById('editorTitle');
     if (!title) return;
 
@@ -226,7 +282,14 @@ async function saveFile(url) {
     alert("Save failed");
   }
 }
+
+
+/* =========================================================
+   SAVE & EXIT
+========================================================= */
+
 async function saveExitFile(url) {
+
   const content = tinymce.get('editor').getContent();
 
   const res = await fetch(url, {
@@ -240,7 +303,6 @@ async function saveExitFile(url) {
   });
 
   if (res.redirected) {
-    // Server performed res.redirect(...)
     window.location.href = res.url;
     return;
   }
@@ -250,5 +312,3 @@ async function saveExitFile(url) {
     alert("Save & Exit failed");
   }
 }
-
-

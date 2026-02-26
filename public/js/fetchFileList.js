@@ -3,7 +3,7 @@ async function fetchFileList(route) {
     const response = await fetch(route);
     const files = await response.json();
 
-    const browser = document.getElementById('mainBrowser');
+    const browser = document.getElementById('browser');
     browser.innerHTML = '';
     files.forEach(function (file) {
       const item = document.createElement('a');
