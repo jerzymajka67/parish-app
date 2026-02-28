@@ -22,7 +22,7 @@ function renderGallery(folderPath, thumbs, containerId ) {
     gallery.appendChild(img);
   });
 }
-async function loadGallery(folderPath, containerId) {
+window.loadGallery = async function (folderPath, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return false;
   if (currentGallery && currentGallery !== containerId) {
@@ -38,17 +38,22 @@ async function loadGallery(folderPath, containerId) {
     encodeURIComponent(folderPath)
   );
   const data = await res.json();
+
   if (!data.isGallery) {
     container.innerHTML = '';
     return false;
   }
+
   if (!container.classList.contains('laptopGallery')) {
     container.classList.add('laptopGallery');
   }
-  container.classList.remove('d-none');
-  currentGallery = containerId;
-  renderGallery(folderPath, data.thumbs, containerId);
-  return true;
-}
 
+  container.classList.remove('d-none');
+
+  currentGallery = containerId;
+
+  renderGallery(folderPath, data.thumbs, containerId);
+
+  return true;
+};
   

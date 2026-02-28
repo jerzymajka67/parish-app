@@ -130,7 +130,9 @@ router.get('/events/ls',  async (req, res) => {
   }
 });
 router.get('/events/thumbs', async (req, res) => {
+  console.log('kciuk')
   const relPath = req.query.path;
+  console.log('path: ', relPath)
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
   }
@@ -141,6 +143,7 @@ router.get('/events/thumbs', async (req, res) => {
     relPath,
     'thumbs'
   );
+  console.log(thumbsDir);
   try {
     const files = await fs.readdir(thumbsDir);
     const thumbs = files.filter(f =>

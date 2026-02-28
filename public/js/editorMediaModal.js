@@ -1,11 +1,8 @@
-function openEditorMedia() {
-
+function openEditorMedia(root) {
   const overlay =
     document.getElementById('editorMediaOverlay');
-
-  overlay.classList.remove('d-none');
-
-  openEditorFolder('');   // ← start from root
+    overlay.classList.remove('d-none');
+    openEditorFolder(root);   // ← start from root
 }
 function closeEditorMedia() {
   const overlay = document.getElementById('editorMediaOverlay');

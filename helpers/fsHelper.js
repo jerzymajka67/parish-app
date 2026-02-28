@@ -3,12 +3,9 @@ const path = require('path');
 
 // Absolute path to the content folder
 const CONTENT_DIR = path.join(global.APP_ROOT, 'content');
-
 // --------------- Safety -----------------
 function resolveSafePath(relativePath = '') {
   const fullPath = path.join(CONTENT_DIR, relativePath);
-  console.log('Resolving path:', relativePath, '->', fullPath);
-
  if (fullPath === CONTENT_DIR || fullPath.startsWith(CONTENT_DIR + path.sep)) {
   // allowed, do nothing
 } else {
@@ -16,13 +13,10 @@ function resolveSafePath(relativePath = '') {
 }
   return fullPath;
 }
-
 // --------------- Directory operations -----------------
 async function listDir(relativePath = '') {
-  console.log('root - ', APP_ROOT )
   const dirPath = resolveSafePath(relativePath);
   const items = await fs.readdir(dirPath, { withFileTypes: true });
-
   return items
     .filter(item => item.name !== 'tmp') // hide tmp folder
     .map(item => ({

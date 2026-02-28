@@ -22,6 +22,7 @@ const communitiesRoutes = require('./communities');
 const homiliesRoutes = require('./homilies');
 const eventsRoutes = require('./events');
 const contactRoutes = require('./contact');
+const contentRoutes = require('./conten');
 const adminRoutes = require('./admin'); 
 const logoutRoutes = require('./logout'); 
 
@@ -36,6 +37,7 @@ router.use('/communities', communitiesRoutes);// /admin/communities
 router.use('/homilies', homiliesRoutes);// /admin/homilies
 router.use('/events', eventsRoutes);    // /admin/events
 router.use('/contact', contactRoutes);  // /admin/contact
+router.use('/conten', contentRoutes);
 router.use('/', adminRoutes);       // /admin
 router.use('/logout', logoutRoutes); // /admin/logout
 

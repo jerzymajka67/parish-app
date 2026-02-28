@@ -1,0 +1,87 @@
+<button id="testContentRoute" class="btn btn-primary">
+  Test /content/ls
+</button>
+
+<pre id="contentResult" style="margin-top:15px;"></pre>
+
+<button id="testContentRoute2" class="btn btn-primary">
+  Test 2
+</button>
+
+<button id="testContentRoute3" class="btn btn-primary">
+  Test 3
+</button>
+<pre id="contentResult" style="margin-top:15px;"></pre>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+  const btn = document.getElementById('testContentRoute');
+  const btn2 = document.getElementById('testContentRoute2');
+    const btn3 = document.getElementById('testContentRoute3');
+  const resultBox = document.getElementById('contentResult');
+
+  if (!btn) return;
+
+  btn.addEventListener('click', async function () {
+    try {
+      const response = await fetch('/admin/conten/ls');
+
+      if (!response.ok) {
+        throw new Error('Server error: ' + response.status);
+      }
+      const data = await response.json();
+
+      console.log('Content route response:', data);
+      resultBox.textContent = JSON.stringify(data, null, 2);
+
+    } catch (err) {
+      console.error('Fetch error:', err);
+      resultBox.textContent = 'Error: ' + err.message;
+    }
+  });
+    btn2.addEventListener('click', async function () {
+    try {
+      const response = await fetch('/admin/conten/ls?path=events');
+
+      if (!response.ok) {
+        throw new Error('Server error: ' + response.status);
+      }
+
+      const data = await response.json();
+
+      console.log('Content route response:', data);
+      resultBox.textContent = JSON.stringify(data, null, 2);
+
+    } catch (err) {
+      console.error('Fetch error:', err);
+      resultBox.textContent = 'Error: ' + err.message;
+    }
+  });
+
+   btn3.addEventListener('click', async function () {
+    try {
+      const response = await fetch('/admin/conten/ls?path=events/2025');
+
+      if (!response.ok) {
+        throw new Error('Server error: ' + response.status);
+      }
+
+      const data = await response.json();
+
+      console.log('Content route response:', data);
+      resultBox.textContent = JSON.stringify(data, null, 2);
+
+    } catch (err) {
+      console.error('Fetch error:', err);
+      resultBox.textContent = 'Error: ' + err.message;
+    }
+  });
+
+
+});
+
+
+
+</script>

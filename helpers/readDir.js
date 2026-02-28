@@ -18,6 +18,7 @@ async function readDir(baseRoot, relativePath) {
       result.push({ name: d.name, type: 'file' });
     }
   }
+  console.log('results from readDir ', result);
   return result;
 }
 
