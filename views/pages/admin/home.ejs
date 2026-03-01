@@ -169,59 +169,26 @@
       </div>
     </div>
   </div>
-  <!-- CONFIRM DELETE MODAL -->
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Confirm delete</h5>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          Delete <strong id="modal-folder-name"></strong>?
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-        </div>
-      </div>
+ <div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image. In gallery mode: click any image to select the gallery. </span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
     </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
   </div>
-  <!-- TINYMCE EDITOR MODAL -->
-  <div class="modal fade" id="editHtmlModal" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 id="editorTitle" class="modal-title"></h5>
-        </div>
-        <div id="editor" class="modal-body"></div>
-        <div class="modal-footer">
-          <button id="saveOnlyBtn" class="btn btn-success">Save</button>
-          <button id="saveExitBtn"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal">
-            Save & Exit
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-<script> window.ADMIN_PAGE = "<%= page %>";
-</script>
-<script src="/js/tinymce/tinymce.min.js"></script>
-<script src="/js/editor.js"></script>
-<script src="/js/fetchFileList.js"></script>
-<script src="/js/initDeleteModal.js"></script>
+</div>
+<script> window.ADMIN_PAGE = "<%= page %>";</script>
 <script >
-        document.addEventListener('DOMContentLoaded', () => {
-        window.selectedFile = null;
-        fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
-        initDeleteModal();
-        const feedback = document.getElementById('server-feedback');
-          if (!feedback) return;
-          setTimeout(() => {
-            feedback.remove();
-          }, 6000);
-      });
+document.addEventListener('DOMContentLoaded', () => {
+  editorHTML();
+  initEditorModal()
+  initEditButton();
+  initSaveButtons();
+  window.selectedFile = null;
+  fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
+  initDeleteModal();
+  feedback();
+});
 </script>
 </body>

@@ -125,22 +125,20 @@
 </div>
 
 <script>window.ADMIN_PAGE = "<%= page %>";</script>
-<script src="/js/tinymce/tinymce.min.js"></script>
-<script src="/js/editor.js"></script>
+
 <script src="/js/bulletinBrowser.js"></script>
 <script src="/js/deleteSelected.js"></script>
 <script src="/js/initSelectedModal.js"></script>
-<script src="/js/feedback.js"></script>
 <script src="/js/docViewer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   editorHTML();
-  initEditor();
   initEditButton();
   initSaveButtons();
   initFileBrowser(window.ADMIN_PAGE);
   window.selectedFile = null;
   initSelectedModal();
+  initDeleteModal();
   feedback();
 });
 </script>

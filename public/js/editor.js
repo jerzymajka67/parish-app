@@ -9,14 +9,20 @@ const insertGallery = function (text, folderPath) {
     .replace(/\s+/g, '_')
     .replace(/[^\w]/g, '_');
   const html = `
-    <div class="gallery-block">
+    <div class="gallery-block my-4">
       <p>
         <a href="#"
            onclick="loadGallery('${folderPath}', '${galleryId}'); return false;">
            ${text}
         </a>
       </p>
-      <div id="${galleryId}" class="laptopGallery g-3 mt-4"></div>
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12 col-lg-7">
+            <div id="${galleryId}" class="laptopGallery g-3 mt-4"></div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
   editor.insertContent(html);
@@ -149,8 +155,7 @@ async function openFileInEditor(fileName) {
         file_picker_types: 'file',
         file_picker_callback: function (callback, value, meta) {
           if (meta.filetype === 'file') {
-            console.log('openinig link browser')
-              openLinkBrowser();
+             openLinkBrowser();
           }
         },
         /* ---------------- EDITOR STYLING ---------------- */
@@ -220,7 +225,6 @@ async function openFileInEditor(fileName) {
                   } },
                 onSubmit: function (api) {
                   const data = api.getData();
-                  console.log(data.linkText, data.folderPath);
                   insertGallery(data.linkText, data.folderPath)
                   api.close();
                 }

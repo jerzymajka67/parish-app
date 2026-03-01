@@ -1,7 +1,6 @@
 window.openEditorFolder = function (path, parentContainer = null) {
   console.log('paht from editorFolder ', path);
   const container = parentContainer || document.getElementById('editorMediaContainer');
-  
   if(path=='conten'){
     fetch(`/admin/conten/ls`)
       .then(r => r.json())
@@ -11,7 +10,6 @@ window.openEditorFolder = function (path, parentContainer = null) {
       .then(r => r.json())
       .then(tree => renderTree(tree, '', container));
   }
-
 };
 const openEventFolder = function(path, parentContainer){
   const container = parentContainer || document.getElementById('editorMediaContainer');
