@@ -52,11 +52,11 @@
                 class="form-control">
         </form>
         <div class="mb-3 d-flex flex-column gap-2">
-            <button id="editBtn"
-                type="button"
-                class="btn btn-secondary w-100 mt-3">
-                Edit
-            </button>
+          <button id="editBtn"
+            type="button"
+            class="btn btn-secondary w-100 mt-3">
+            Edit
+          </button>
         </div>    
       <form id="deleteSelectedForm"
             method="POST"
@@ -133,6 +133,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   editorHTML();
+  initEditorModal()
   initEditButton();
   initSaveButtons();
   initFileBrowser(window.ADMIN_PAGE);

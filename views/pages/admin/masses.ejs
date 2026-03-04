@@ -163,25 +163,27 @@
       </div>
     </div>
   </div>
+<div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image. In gallery mode: click any image to select the gallery. </span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
+    </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
+  </div>
+</div>
 <script> window.ADMIN_PAGE = "<%= page %>";</script>
-<script src="/js/tinymce/tinymce.min.js"></script>
-<script src="/js/editor.js"></script>
-<script src="/js/fetchFileList.js"></script>
-<script src="/js/initDeleteModal.js"></script>
 <script >
 document.addEventListener('DOMContentLoaded', () => {
   editorHTML();
-  initEditor();
+  initEditorModal()
   initEditButton();
   initSaveButtons();
   window.selectedFile = null;
   fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
   initDeleteModal();
-  const feedback = document.getElementById('server-feedback');
-  if (!feedback) return;
-  setTimeout(() => {
-    feedback.remove();
-  }, 6000);
+  feedback();
 });
+</script>
 </script>
 </body>
