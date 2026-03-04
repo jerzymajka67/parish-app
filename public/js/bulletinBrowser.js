@@ -1,5 +1,5 @@
-function initFileBrowser(page) {
-  const baseUrl = '/admin/' + page;
+function initFileBrowser(lang, page) {
+  const baseUrl = '/' + lang + '/' + page;
 
   const browser = document.getElementById('browser');
   const createPath = document.querySelector('#createFolderForm input[name="currentPath"]');

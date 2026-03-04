@@ -22,17 +22,8 @@
   </div>
 </div>
 </main>
-  <script src="/js/docBrowser.js"></script>
-  <script src="/js/docViewer.js"></script>
-  <script >
-    document.addEventListener('DOMContentLoaded', function () {
-      const browser = document.getElementById('browser');
-    //INITIAL LOAD 
-      fetch(`/en/homilies/ls?path=bulletins/Bulletins_EN`)
-        .then(r => r.json())
-        .then(data => render(data, '/en/homilies/ls', 'bulletins/Bulletins_EN', browser))
-        .catch(err => console.error(err));
-    });
-  </script> 
+ <script> window.USER_PAGE = "<%= page %>";</script>
+ <script src="/js/browserUser.js"></script>
+ <script src="/js/docViewer.js"></script>
 </body>
 

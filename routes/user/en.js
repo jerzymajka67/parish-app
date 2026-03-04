@@ -5,6 +5,7 @@ const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
 const CONTENT_ROOT = path.join(APP_ROOT, 'content')
+const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/en')
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 function getNode(obj, pathStr) {
@@ -68,6 +69,17 @@ router.get('/bulletin', (req, res) => {
     page: 'bulletin',
     favicon: '/images/logo-olqa-mini.png'
   });
+});
+router.get('/bulletin/ls',  async (req, res) => {
+   try {
+    const relativePath = req.query.path || '';
+    console.log('from bulletin relativePaht ', relativePath)
+    const content = transformDirList(await readDir(BULLETIN_ROOT, relativePath));
+    storeDirInTree(tree, relativePath, content);
+    res.json(getNode(tree, relativePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 router.get('/groups', (req, res) => {
   res.render('pages/user/en/groups', { 

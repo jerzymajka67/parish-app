@@ -2,6 +2,7 @@ const docViewer = {
   files: [],
   currentIndex: -1,
   open(filePath) {
+    console.log(filePath, ' to jest path from docViewer');
     this.currentIndex = this.files.indexOf(filePath);
     const container = document.getElementById('documentViewerContainer');
     const controls = document.getElementById('docControls');
