@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function load(path, container) {
     const lang =
       document.documentElement.lang || 'en';
-    fetch(`/${lang}/events/ls?path=` +
+    fetch(`/${lang}/photos/ls?path=` +
       encodeURIComponent(path))
       .then(r => r.json())
       .then(data => render(data, path, container))
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* INITIAL LOAD */
   const lang =
     document.documentElement.lang || 'en';
-  fetch(`/${lang}/events/ls`)
+  fetch(`/${lang}/photos/ls`)
     .then(r => r.json())
     .then(data => render(data, '', browser))
     .catch(err => console.error(err));

@@ -29,7 +29,7 @@ const insertGallery = function (text, folderPath) {
 };
 const openImageBrowser = function () {
   browserMode = 'image';
-  openEditorMedia('events');
+  openEditorMedia('photos');
 }
 const openLinkBrowser = function() {
   browserMode = 'link';
@@ -37,7 +37,7 @@ const openLinkBrowser = function() {
 }
 const openGalleryBrowser = function() {
   browserMode = 'gallery';
-  openEditorMedia('events');
+  openEditorMedia('photos');
 }
 function editorHTML() {
   if (document.getElementById('editHtmlModal')) return;

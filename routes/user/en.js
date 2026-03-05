@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
-const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
+const PHOTOS_ROOT = path.join(APP_ROOT, 'content/photos');
 const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/en');
 const HOMILIIES_ROOT = path.join(APP_ROOT, 'content/homilies/en');
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
@@ -118,26 +118,35 @@ router.get('/homilies/ls',  async (req, res) => {
   }
 });
 router.get('/events', (req, res) => {
-  tree = {};
   res.render('pages/user/en/events', { 
     layout: 'layouts/user',
-    title: 'Parish Events - Our Lady, Queen of Angels', 
+    title: 'Events - Our Lady, Queen of Angels', 
     lang: 'en', 
     page: 'events',
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-router.get('/events/ls',  async (req, res) => {
+router.get('/photos', (req, res) => {
+  tree = {};
+  res.render('pages/user/en/photos', { 
+    layout: 'layouts/user',
+    title: 'Parish Photos - Our Lady, Queen of Angels', 
+    lang: 'en', 
+    page: 'photos',
+    favicon: '/images/logo-olqa-mini.png'
+  });
+});
+router.get('/photos/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
+    const content = transformDirList(await readDir(PHOTOS_ROOT, relativePath));
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-router.get('/events/thumbs', async (req, res) => {
+router.get('/photos/thumbs', async (req, res) => {
   const relPath = req.query.path;
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
@@ -145,7 +154,7 @@ router.get('/events/thumbs', async (req, res) => {
   const thumbsDir = path.join(
     APP_ROOT,
     'content',
-    'events',
+    'photos',
     relPath,
     'thumbs'
   );

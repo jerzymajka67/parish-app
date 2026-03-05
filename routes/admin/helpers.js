@@ -3,8 +3,8 @@ const fs = require('fs');
 const multer = require('multer');
 
 // Base folder for events content (relative to project root)
-const EVENTS_ROOT = path.join(__dirname, '..', '..', 'content', 'events');
-const tmpFolder = path.join(EVENTS_ROOT, 'tmp');
+const PHOTOS_ROOT = path.join(__dirname, '..', '..', 'content', 'photos');
+const tmpFolder = path.join(PHOTOS_ROOT, 'tmp');
 if (!fs.existsSync(tmpFolder)) {
   fs.mkdirSync(tmpFolder, { recursive: true });
 }
@@ -12,7 +12,7 @@ if (!fs.existsSync(tmpFolder)) {
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const currentPath = req.body.currentPath || '';
-    const folderPath = path.join(EVENTS_ROOT, currentPath);
+    const folderPath = path.join(PHOTOS_ROOT, currentPath);
 
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -46,7 +46,7 @@ function buildBreadcrumbs(currentPath) {
 }
 
 function listDirectory(currentPath) {
-  const fullPath = path.join(EVENTS_ROOT, currentPath);
+  const fullPath = path.join(PHOTOS_ROOT, currentPath);
   const items = [];
 
   if (!fs.existsSync(fullPath)) return items;
@@ -65,7 +65,7 @@ function listDirectory(currentPath) {
 }
 
 module.exports = {
-  EVENTS_ROOT,
+  PHOTOS_ROOT,
   tmpFolder,
   upload,
   buildBreadcrumbs,

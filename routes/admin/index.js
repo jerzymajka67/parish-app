@@ -25,7 +25,7 @@ const contactRoutes = require('./contact');
 const contentRoutes = require('./conten');
 const adminRoutes = require('./admin'); 
 const logoutRoutes = require('./logout'); 
-
+const photosRoutes = require('./photos');
 // Mount routes
 router.use('/home', homeRoutes);            // /admin/home
 router.use('/about', aboutRoutes);      // /admin/about
@@ -38,6 +38,7 @@ router.use('/homilies', homiliesRoutes);// /admin/homilies
 router.use('/events', eventsRoutes);    // /admin/events
 router.use('/contact', contactRoutes);  // /admin/contact
 router.use('/conten', contentRoutes);
+router.use('/photos', photosRoutes);
 router.use('/', adminRoutes);       // /admin
 router.use('/logout', logoutRoutes); // /admin/logout
 

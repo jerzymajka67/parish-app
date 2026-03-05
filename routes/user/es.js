@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
-const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
+const PHOTOS_ROOT = path.join(APP_ROOT, 'content/photos');
 const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/es')
 const HOMILIIES_ROOT = path.join(APP_ROOT, 'content/homilies/es');
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
@@ -111,23 +111,32 @@ router.get('/homilies/ls',  async (req, res) => {
 router.get('/eventos', (req, res) => {
   res.render('pages/user/es/eventos', { 
     layout: 'layouts/user',
-    title: 'Eventos Parroquiales - Nuestra Señora Reyna de Los Ángeles', 
+    title: 'Eventos de la Parroquia - Nuestra Señora Reyna de Los Ángeles', 
     lang: 'es', 
     page: 'events', 
     favicon: faviconPath
   });
 });
-router.get('/events/ls',  async (req, res) => {
+router.get('/fotos', (req, res) => {
+  res.render('pages/user/es/fotos', { 
+    layout: 'layouts/user',
+    title: 'Eventos Parroquiales - Nuestra Señora Reyna de Los Ángeles', 
+    lang: 'es', 
+    page: 'photos', 
+    favicon: faviconPath
+  });
+});
+router.get('/photos/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
+    const content = transformDirList(await readDir(PHOTOS_ROOT, relativePath));
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-router.get('/events/thumbs', async (req, res) => {
+router.get('/photos/thumbs', async (req, res) => {
   const relPath = req.query.path;
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
@@ -135,7 +144,7 @@ router.get('/events/thumbs', async (req, res) => {
   const thumbsDir = path.join(
     APP_ROOT,
     'content',
-    'events',
+    'photos',
     relPath,
     'thumbs'
   );

@@ -8,7 +8,7 @@ const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
-const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
+const PHOTOS_ROOT = path.join(APP_ROOT, 'content/photos');
 let tree = {};
 
 
@@ -42,7 +42,7 @@ router.get('/', requireLogin, (req, res) => {
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
+    const content = transformDirList(await readDir(PHOTOS_ROOT, relativePath));
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
   } catch (err) {
@@ -62,7 +62,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     }
 
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
-    const newFolderPath = path.join(EVENTS_ROOT, currentPath, safeName);
+    const newFolderPath = path.join(PHOTOS_ROOT, currentPath, safeName);
 
     await fs.mkdir(newFolderPath, { recursive: true });
       const folderDisplay = currentPath ? `/${currentPath}` : '/';
@@ -88,8 +88,8 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
     if (files && files.length) {
       const list = Array.isArray(files) ? files : [files];
       for (const relPath of list) {
-        const fullPath = path.join(EVENTS_ROOT, relPath);
-        if (!fullPath.startsWith(EVENTS_ROOT)) continue;
+        const fullPath = path.join(PHOTOS_ROOT, relPath);
+        if (!fullPath.startsWith(PHOTOS_ROOT)) continue;
         // Delete the file
         await fs.rm(fullPath, { force: true });
         // Delete thumbnail if exists
@@ -102,9 +102,9 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
       }
     }
     if (folder) {
-      const fullFolder = path.join(EVENTS_ROOT, folder);
+      const fullFolder = path.join(PHOTOS_ROOT, folder);
 
-      if (!fullFolder.startsWith(EVENTS_ROOT)) {
+      if (!fullFolder.startsWith(PHOTOS_ROOT)) {
         return res.status(403).send('Access denied');
       }
 
@@ -142,9 +142,9 @@ router.post('/upload-image', requireLogin, (req, res) => {
 
     try {
       const currentPath = req.body.currentPath || '';
-      const targetFolder = path.join(EVENTS_ROOT, currentPath);
+      const targetFolder = path.join(PHOTOS_ROOT, currentPath);
 
-      if (!targetFolder.startsWith(EVENTS_ROOT)) {
+      if (!targetFolder.startsWith(PHOTOS_ROOT)) {
         return res.redirect(`/admin/events?msg=Access denied&status=error`);
       }
 
@@ -218,7 +218,7 @@ router.post('/rotation', requireLogin, async (req, res) => {
       });
     }
 
-    const originalPath = path.join(EVENTS_ROOT, file);
+    const originalPath = path.join(PHOTOS_ROOT, file);
     const thumbPath = path.join(
       path.dirname(originalPath),
       'thumbs',
@@ -281,7 +281,7 @@ router.post('/rotation-thumbs', requireLogin, async (req, res) => {
     if (!file || typeof angle !== 'number') {
       return res.status(400).json({ error: 'Invalid parameters' });
     }
-    const originalPath = path.join(EVENTS_ROOT, file);
+    const originalPath = path.join(PHOTOS_ROOT, file);
     const thumbPath = path.join(path.dirname(originalPath),'thumbs',
       path.basename(originalPath)
     );

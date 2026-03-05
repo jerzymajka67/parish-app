@@ -7,7 +7,7 @@ const upload = multer({ dest: 'uploads/' });
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
 const stampFileName = require(path.join(APP_ROOT, 'helpers', 'stampFileName'));
 const { extractBody, extractAssets } = require(path.join(APP_ROOT, 'helpers', 'htmlUtils'));
-const EVENTS_ROOT = path.join(APP_ROOT, 'content/home');
+const HOME_ROOT = path.join(APP_ROOT, 'content/home');
 const TargetDir = path.join(APP_ROOT, 'views/pages/user');
 
 // All admin routes (kept existing behavior; add buildTreeHTML to /events render)
@@ -25,7 +25,7 @@ router.get('/',  requireLogin, (req, res) => {
 router.get('/view', requireLogin, async (req, res) => {
    const fileName = req.query.fileName;
   try {
-    const sourcePath = path.join(EVENTS_ROOT, fileName);
+    const sourcePath = path.join(HOME_ROOT, fileName);
     const targetPath = path.join(TargetDir, 'en/temp_temp.ejs');
     const html = await fs.readFile(sourcePath, 'utf8');
     const bodyContent = extractBody(html);
@@ -46,7 +46,7 @@ router.get('/view', requireLogin, async (req, res) => {
 });
 router.get('/ls', requireLogin, async (req, res) => {
   try {
-    const entries = await fs.readdir(EVENTS_ROOT, { withFileTypes: true });
+    const entries = await fs.readdir(HOME_ROOT, { withFileTypes: true });
 
     const files = entries
       .filter(e => e.isFile())
@@ -68,7 +68,7 @@ router.post('/create-html', requireLogin, async (req, res) => {
     if (!fileName.endsWith('.html')) {
       fileName += '.html';
     }
-    const filePath = path.join(EVENTS_ROOT,  fileName);
+    const filePath = path.join(HOME_ROOT,  fileName);
     try {
       await fs.access(filePath);
       const msg = 'File already exists';
@@ -92,7 +92,7 @@ router.post('/create-html', requireLogin, async (req, res) => {
 });
 router.post('/upload-file', requireLogin, upload.single('html'), async (req, res) => {
   try {
-     const targetDir =EVENTS_ROOT;
+     const targetDir =HOME_ROOT;
      if (!req.file) {
         const msg = ` HTML file could not be uploaded - no file received`;
         const status = 'error';
@@ -112,7 +112,7 @@ router.post('/upload-file', requireLogin, upload.single('html'), async (req, res
 router.post('/publish-en', requireLogin, async (req, res) => {
   const fileName = req.body.fileName;
   try {
-    const sourcePath = path.join(EVENTS_ROOT, fileName);
+    const sourcePath = path.join(HOME_ROOT, fileName);
     const targetPath = path.join(TargetDir, 'en/home.ejs');
     const html = await fs.readFile(sourcePath, 'utf8');
     const bodyContent = extractBody(html);
@@ -129,7 +129,7 @@ router.post('/publish-en', requireLogin, async (req, res) => {
 router.post('/publish-es', requireLogin, async (req, res) => {
   const fileName = req.body.fileName;
   try {
-    const sourcePath = path.join(EVENTS_ROOT, fileName);
+    const sourcePath = path.join(HOME_ROOT, fileName);
     const targetPath = path.join(TargetDir, 'es/inicio.ejs');
     const html = await fs.readFile(sourcePath, 'utf8');
     const bodyContent = extractBody(html);
@@ -152,7 +152,7 @@ router.post('/delete-file', requireLogin, async (req, res) => {
         return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
 
-    const filePath = path.join(EVENTS_ROOT, fileName);
+    const filePath = path.join(HOME_ROOT, fileName);
     await fs.unlink(filePath);
         const msg = ` HTML file ${fileName} - deleted successfully`;
         const status = 'success';
@@ -176,7 +176,7 @@ router.post('/delete-file', requireLogin, async (req, res) => {
         const status = 'error';
         return res.redirect(`/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
-    const filePath = path.join(EVENTS_ROOT, fileName);
+    const filePath = path.join(HOME_ROOT, fileName);
     await fs.unlink(filePath);
         const msg = ` HTML file ${fileName} - deleted successfully`;
         const status = 'success';
@@ -203,8 +203,8 @@ router.post('/rename', requireLogin, async (req, res) => {
     if (!newName.toLowerCase().endsWith('.html')) {
       newName = `${newName}.html`;
     }
-    const oldPath = path.join(EVENTS_ROOT, fileName);
-    const newPath = path.join(EVENTS_ROOT, newName);
+    const oldPath = path.join(HOME_ROOT, fileName);
+    const newPath = path.join(HOME_ROOT, newName);
     try {
       await fs.access(newPath);
       const msg = `File ${newName} already exists`;
@@ -234,8 +234,8 @@ router.get('/edit', requireLogin, async (req, res) => {
   if (!originalFile) {
     return res.redirect('/admin/home?msg=File+name+required&status=error');
   }
-  const filePath = path.join(EVENTS_ROOT, originalFile);
-  const backupPath = path.join(EVENTS_ROOT, draftFile);
+  const filePath = path.join(HOME_ROOT, originalFile);
+  const backupPath = path.join(HOME_ROOT, draftFile);
   try {
     await fs.copyFile(filePath, backupPath);
     const content = await fs.readFile(backupPath, 'utf8');
@@ -256,7 +256,7 @@ router.post('/save', requireLogin, async (req, res) => {
   }
   try {
     await fs.writeFile(
-      path.join(EVENTS_ROOT, draftFile),
+      path.join(HOME_ROOT, draftFile),
       content,
       'utf8'
     );
@@ -275,7 +275,7 @@ router.post('/save-exit', requireLogin, async (req, res) => {
       `/admin/home?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   }
-  const filePath = path.join(EVENTS_ROOT, draftFile);
+  const filePath = path.join(HOME_ROOT, draftFile);
   try {
     await fs.writeFile(filePath, content, 'utf8');
     const msg =

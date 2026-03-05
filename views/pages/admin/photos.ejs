@@ -1,0 +1,316 @@
+<body>
+<h2><%= title %></h2>
+<div class="container-fluid">
+  <div class="row">
+    <!-- LEFT COLUMN: ACTIONS -->
+    <div class="col-md-4 border-end p-3">
+      <form id="createFolderForm"
+            action="/admin/photos/create-folder"
+            method="POST"
+            class="mb-3 d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <button type="submit" class="btn btn-primary">Create Folder</button>
+        <input id="root-folder"
+               type="text"
+               readonly
+               class="form-control"
+               placeholder="Current folder">
+        <input type="text"
+               name="folderName"
+               placeholder="New folder name"
+               required
+               class="form-control">
+      </form>
+      <form id="uploadImageForm"
+            action="/admin/photos/upload-image"
+            method="POST"
+            enctype="multipart/form-data"
+            class="mb-3 d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <button type="submit" class="btn btn-success" id="uploadBtn" disabled>Upload Images</button>
+        <input type="file"
+               name="images"
+               accept="image/*"
+               multiple
+               required
+               class="form-control">
+      </form>
+      <form id="deleteSelectedForm"
+            class="d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <button id="deleteBtn" type="submit"class="btn btn-danger" disabled>Delete</button>
+        <input id="delete-folder-name"
+               type="text"
+               readonly
+               class="form-control"
+               placeholder="Nothing selected">
+      </form>
+    </div>
+    <!-- RIGHT COLUMN -->
+    <div class="col-md-8 p-4">
+      <h4>Folders & Images</h4>
+      <div class="row mt-3">
+        <!-- LEFT: Browser -->
+        <div class="col-md-7">
+          <div class="border p-3">
+            <div id="browser-container">
+              <div id="browser" class="list-group">
+                <!-- dynamically inserted -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- RIGHT: Feedback -->
+        <div class="col-md-5">
+          <% if (msg && status) { %>
+            <div id="server-feedback"
+                 class="server-feedback <%= status %> border p-3 rounded">
+              <%= msg %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm delete</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Delete <strong id="modal-folder-name"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- BROWSER -->
+<div id="browser-container">
+  <div id="browser" class="list-group"></div>
+</div>
+<div id="photoViewer" class="modal hidden">
+  <div class="viewer-body">
+    <img id="viewerImage" />
+    <div class="viewer-controls">
+      <button onclick="rotatePreview(-90)">⟲</button>
+      <button onclick="rotatePreview(90)">⟳</button>
+      <button onclick="saveRotation()">💾 Save</button>
+      <button onclick="closeViewer()">✖</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentFile = null;
+let currentRotation = 0;
+function openAdminViewer(filePath) {
+  currentFile = filePath;
+  currentRotation = 0;
+  const img = document.getElementById('viewerImage');
+  img.style.transform = 'rotate(0deg)';
+ const encodedPath = filePath
+  .split('/')
+  .map(encodeURIComponent)
+  .join('/');
+img.src = '/content/photos/' + encodedPath;
+  document.getElementById('photoViewer').classList.remove('hidden');
+}
+function rotatePreview(delta) {
+  currentRotation = (currentRotation + delta) % 360;
+  if (currentRotation < 0) currentRotation += 360;
+
+  document.getElementById('viewerImage').style.transform =
+    `rotate(${currentRotation}deg)`;
+}
+function showViewerMessage(text, type = 'success') {
+    const msg = document.createElement('div');
+    msg.textContent = text;
+    msg.className = `viewer-message ${type}`;
+    const controls = document.querySelector('.viewer-controls');
+    controls.parentNode.insertBefore(msg, controls);
+    setTimeout(() => msg.remove(), 3000);
+  }
+async function saveRotation() {
+  if (!currentFile || currentRotation === 0) {
+    return; // nothing to do
+  }    
+    try {
+      const response = await fetch('/admin/photos/rotation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: currentFile,
+              angle: currentRotation
+            })
+          });
+      const data = await response.json();
+          if (!response.ok || !data.ok) {
+            showViewerMessage(data.msg || 'Rotation failed', 'error');
+            return;
+          }
+          const viewerImage = document.getElementById('viewerImage');
+          const timestamp = new Date().getTime();
+          viewerImage.src = viewerImage.src.split('?')[0] + '?t=' + timestamp;
+          currentRotation = 0;
+          viewerImage.style.transform = 'rotate(0deg)';
+          showViewerMessage(data.msg || 'Rotation saved', 'success');
+        } catch (err) {
+          showViewerMessage('Network error. Please try again.', 'error');
+        }
+  }
+function closeViewer() {
+  const img = document.getElementById('viewerImage');
+  img.style.transform = 'rotate(0deg)';
+  currentFile = null;
+  currentRotation = 0;
+  document.getElementById('photoViewer').classList.add('hidden');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const browser = document.getElementById('browser');
+  const createPath = document.querySelector('#createFolderForm input[name="currentPath"]');
+  const uploadPath = document.querySelector('#uploadImageForm input[name="currentPath"]');
+  const deletePath = document.querySelector('#deleteSelectedForm input[name="currentPath"]');
+  const rootInfo  = document.getElementById('root-folder');
+  const deleteName = document.getElementById('delete-folder-name');
+  const deleteBtn  = document.getElementById('deleteBtn');
+  const uploadBtn  = document.getElementById('uploadBtn');
+  const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+  const modalName = document.getElementById('modal-folder-name');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  let selectedItem = null;
+
+  function getSelectedFiles() {
+    return [...document.querySelectorAll('input[name="files[]"]:checked')]
+      .map(cb => cb.value);
+  }
+
+  function setCurrent(path) {
+    createPath.value = uploadPath.value = deletePath.value = path;
+    rootInfo.value = 'In: ' + (path || '/');
+    deleteName.value = path.split('/').pop() || '';
+    deleteBtn.disabled = uploadBtn.disabled = !path;
+  }
+
+  function select(el, path) {
+    selectedItem?.classList.remove('active');
+    selectedItem = el;
+    el.classList.add('active');
+    setCurrent(path);
+  }
+
+  function render(tree, basePath, container) {
+
+    for (const name in tree) {
+      if (name === 'files') continue;
+
+      const fullPath = basePath ? basePath + '/' + name : name;
+
+      const folder = document.createElement('a');
+      folder.href = '#';
+      folder.className = 'list-group-item list-group-item-action';
+      folder.textContent = name;
+
+      const collapse = document.createElement('div');
+      collapse.className = 'collapse ps-3';
+
+      const bs = new bootstrap.Collapse(collapse, { toggle:false });
+
+      folder.onclick = e => {
+        e.preventDefault();
+        e.stopPropagation();
+        select(folder, fullPath);
+        if (!collapse.hasChildNodes()) load(fullPath, collapse);
+        bs.toggle();
+      };
+
+      container.append(folder, collapse);
+    }
+
+   (tree.files || []).forEach(file => {
+        const filePath = basePath ? basePath + '/' + file : file;
+        const item = document.createElement('div');
+        item.className = 'list-group-item d-flex align-items-center gap-2';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.name = 'files[]';
+        cb.value = filePath;
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = file;
+        link.onclick = e => {
+          e.preventDefault();
+          e.stopPropagation();
+          openAdminViewer(filePath);
+        };
+        item.append(cb, link);
+        item.onclick = () => select(item, filePath);
+        container.appendChild(item);
+      });
+
+  }
+
+  function load(path, container) {
+    fetch('/admin/photos/ls?path=' + encodeURIComponent(path))
+      .then(r => r.json())
+      .then(data => render(data, path, container));
+  }
+
+  fetch('/admin/photos/ls')
+    .then(r => r.json())
+    .then(data => render(data, '', browser));
+
+  // DELETE FORM
+document.getElementById('deleteSelectedForm').onsubmit = e => {
+  e.preventDefault();
+  const files = getSelectedFiles();
+  let folder = null;
+  if (!files.length && selectedItem && selectedItem.tagName === 'A') {
+    folder = deletePath.value; // the folder path from hidden input
+  }
+  if (!files.length && !folder) {
+    alert('No file or folder selected');
+    return;
+  }
+  modalName.textContent =
+    files.length
+      ? `${files.length} file(s)`
+      : folder;
+  modal.show();
+  confirmDeleteBtn.onclick = () => {
+    modal.hide();
+    fetch('/admin/photos/delete-selected', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files, folder })
+    })
+    .then(res => res.json())
+    .then(() => location.reload())
+    .catch(err => console.error(err));
+  };
+};
+});
+ document.addEventListener("DOMContentLoaded", function () {
+    const feedback = document.getElementById("server-feedback");
+
+    if (feedback) {
+      setTimeout(() => {
+        feedback.classList.add("hide");
+
+        setTimeout(() => {
+          feedback.remove();
+        }, 500); // match CSS transition time
+      }, 5000); // visible for 5 seconds
+    }
+  });
+
+
+</script>
+
+</body>

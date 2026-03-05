@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const requireLogin = require(path.join(APP_ROOT, 'middleware', 'auth'));
-const EVENTS_ROOT = path.join(APP_ROOT, 'content');
+const CONTENT_ROOT = path.join(APP_ROOT, 'content');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const  storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 
@@ -28,7 +28,7 @@ router.get('/', requireLogin, (req, res) => {
 router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
+    const content = transformDirList(await readDir(CONTENT_ROOT, relativePath));
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
   } catch (err) {

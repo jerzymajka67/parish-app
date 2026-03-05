@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const EVENTS_ROOT = path.join(__dirname, '../content/events');
+const PHOTOS_ROOT = path.join(__dirname, '../content/photos');
 
 function buildTreeHTML(relPath = '') {
-  const absPath = path.join(EVENTS_ROOT, relPath);
+  const absPath = path.join(PHOTOS_ROOT, relPath);
   if (!fs.existsSync(absPath)) return '';
   // Read folder contents, hide 'tmp', show only directories + .webp files
   const items = fs.readdirSync(absPath, { withFileTypes: true })
@@ -31,7 +31,7 @@ function buildTreeHTML(relPath = '') {
       html += `<div class="children hidden">${buildTreeHTML(itemPath)}</div>`;
     } else {
       // Only show .webp files
-      html += `<a class="file-link" href="/content/events/${itemPath}" target="_blank">🖼 ${item.name}</a>`;
+      html += `<a class="file-link" href="/content/PHOTOS/${itemPath}" target="_blank">🖼 ${item.name}</a>`;
     }
 
     html += '</li>';
