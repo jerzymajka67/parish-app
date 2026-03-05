@@ -19,9 +19,9 @@ app.use(expressLayouts);
 // Default layout (optional)
 app.set('layout', 'layouts/user');
 app.use((req, res, next) => {
+  console.log('----------------------');
   console.log('METHOD:', req.method);
   console.log('PATH:', req.path);
-  console.log('ORIGINAL URL:', req.originalUrl);
   console.log('----------------------');
   next();
 });

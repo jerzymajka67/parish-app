@@ -66,7 +66,6 @@ router.post('/create-folder', requireLogin, async (req, res) => {
 router.post('/create-html', requireLogin, async (req, res) => {
    let fileName = req.body.fileName;
    let currentPath = req.body.currentPath || '';
-   console.log('Creating HTML file:', fileName, 'in path:', currentPath);
     try {
       if (!fileName) {
       const msg = 'File name is required';
@@ -149,14 +148,11 @@ router.post('/load-file', requireLogin, upload.single('html'), async (req, res) 
 router.get('/edit', requireLogin, async (req, res) => {
   const originalFile = req.query.fileName;
   const draftFile = 'temp.html';
-  console.log('Editing file:', originalFile, 'Draft file:', draftFile);
   if (!originalFile) {
     return res.redirect('/admin/homilies?msg=File+name+required&status=error');
   }
   const filePath = path.join(HOMILIES_ROOT, originalFile);
   const backupPath = path.join(HOMILIES_ROOT, draftFile);
-  console.log('File path:', filePath);
-  console.log('Backup path:', backupPath);
   try {
     await fs.copyFile(filePath, backupPath);
     const content = await fs.readFile(backupPath, 'utf8');
@@ -171,19 +167,16 @@ router.get('/edit', requireLogin, async (req, res) => {
   }
 });
 router.post('/save', requireLogin, async (req, res) => {
-  console.log('Saving file:', req.body);
   const { draftFile, content } = req.body;
   if (!draftFile || content === undefined) {
     return res.redirect('/admin/homilies?msg=Invalid+data&status=error');
   }
-
   try {
     await fs.writeFile(
       path.join(HOMILIES_ROOT, draftFile),
       content,
       'utf8'
     );
-
     return res.status(204).end();
   } catch (err) {
     console.error(err);

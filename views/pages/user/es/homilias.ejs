@@ -30,16 +30,7 @@
   </div>
 </div>
 </main>
-  <script src="/js/docBrowser.js"></script>
+  <script> window.USER_PAGE = "<%= page %>";</script>
+  <script src="/js/browserUser.js"></script>
   <script src="/js/docViewer.js"></script>
-  <script >
-    document.addEventListener('DOMContentLoaded', function () {
-      const browser = document.getElementById('browser');
-    //INITIAL LOAD 
-      fetch(`/es/homilias/ls?path=homilies/Homilias_ES`)
-        .then(r => r.json())
-        .then(data => render(data, '/es/homilias/ls', 'homilies/Homilias_ES', browser))
-        .catch(err => console.error(err));
-    });
-  </script> 
 </body>

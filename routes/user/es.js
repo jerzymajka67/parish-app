@@ -3,8 +3,9 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
-const CONTENT_ROOT = path.join(APP_ROOT, 'content');
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
+const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/es')
+const HOMILIIES_ROOT = path.join(APP_ROOT, 'content/homilies/es');
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 function getNode(obj, pathStr) {
@@ -12,10 +13,7 @@ function getNode(obj, pathStr) {
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
 let tree = {};
-// Path to favicon
 const faviconPath = '/images/logo-olqa-mini.png';
-
-// HOME
 router.get('/inicio', (req, res) => {
   res.render('pages/user/es/inicio', { 
     layout: 'layouts/user',
@@ -25,8 +23,6 @@ router.get('/inicio', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// ABOUT
 router.get('/sobre', (req, res) => {
   res.render('pages/user/es/sobre', { 
     layout: 'layouts/user',
@@ -36,8 +32,6 @@ router.get('/sobre', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// MASSES & DEVOTIONS
 router.get('/misas', (req, res) => {
   res.render('pages/user/es/misas', { 
     layout: 'layouts/user',
@@ -47,8 +41,6 @@ router.get('/misas', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// PARISH OFFICE
 router.get('/oficina', (req, res) => {
   res.render('pages/user/es/oficina', { 
     layout: 'layouts/user',
@@ -58,10 +50,8 @@ router.get('/oficina', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// BULLETIN
 router.get('/boletin', (req, res) => {
-  treeDoc = {};
+  tree = {};
   res.render('pages/user/es/boletin', {
     layout: 'layouts/user', 
     title: 'Boletín Parroquial - Nuestra Señora Reyna de Los Ángeles', 
@@ -70,8 +60,16 @@ router.get('/boletin', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// PARISH GROUPS
+router.get('/bulletin/ls',  async (req, res) => {
+   try {
+    const relativePath = req.query.path || '';
+    const content = transformDirList(await readDir(BULLETIN_ROOT, relativePath));
+    storeDirInTree(tree, relativePath, content);
+    res.json(getNode(tree, relativePath));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 router.get('/grupos', (req, res) => {
   res.render('pages/user/es/grupos', { 
     layout: 'layouts/user',
@@ -81,8 +79,6 @@ router.get('/grupos', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// CHAPELS & COMMUNITIES
 router.get('/comunidades', (req, res) => {
   res.render('pages/user/es/comunidades', { 
     layout: 'layouts/user',
@@ -92,10 +88,8 @@ router.get('/comunidades', (req, res) => {
     favicon: faviconPath
   });
 });
-
-// HOMILIES
 router.get('/homilias', (req, res) => {
-  treeDoc = {};
+  tree = {};
   res.render('pages/user/es/homilias', {
     layout: 'layouts/user',
     title: 'Homilies (Spanish)',
@@ -104,19 +98,16 @@ router.get('/homilias', (req, res) => {
     favicon: faviconPath    
   });
 });
-
-router.get('/homilias/ls',  async (req, res) => {
-  try {
+router.get('/homilies/ls',  async (req, res) => {
+   try {
     const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(CONTENT_ROOT, relativePath));
-    storeDirInTree(treeDoc, relativePath, content);
-    res.json(getNode(treeDoc, relativePath));
+    const content = transformDirList(await readDir(HOMILIIES_ROOT, relativePath));
+    storeDirInTree(tree, relativePath, content);
+    res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
-// EVENTS
 router.get('/eventos', (req, res) => {
   res.render('pages/user/es/eventos', { 
     layout: 'layouts/user',
@@ -162,7 +153,6 @@ router.get('/events/thumbs', async (req, res) => {
     res.json({ isGallery: false, thumbs: [] });
   }
 });
-// CONTACT
 router.get('/contacto', (req, res) => {
   res.render('pages/user/es/contacto', { 
     layout: 'layouts/user',

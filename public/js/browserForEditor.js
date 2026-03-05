@@ -1,6 +1,5 @@
 window.openEditorFolder = function (path, parentContainer = null) {
-  console.log('paht from editorFolder ', path);
-  const container = parentContainer || document.getElementById('editorMediaContainer');
+ const container = parentContainer || document.getElementById('editorMediaContainer');
   if(path=='conten'){
     fetch(`/admin/conten/ls`)
       .then(r => r.json())
@@ -65,12 +64,9 @@ function renderTree(tree, basePath, container) {
   }
 }
 function renderContentTree(tree, basePath, container) {
-  console.log('render content tree ',  tree,'basePaht: ' , basePath )
   for (const name in tree) {
     if(name == 'thumbs'){
-      console.log('thumbs path: ', basePath);
       const pathForGallery = basePath.substring('events/'.length);
-      console.log('path for gallery: ', pathForGallery);
       fetch(`/en/events/thumbs?path=` + encodeURIComponent(pathForGallery))
         .then(r => r.json())
         .then(data => {
@@ -89,11 +85,9 @@ if (tree.files && Array.isArray(tree.files)) {
     fileItem.textContent = '📄 ' + file;
     fileItem.style.cursor = 'pointer';
     fileItem.onclick = function () {
-      console.log('html link: ', filePath);
       if (browserMode === 'link') {
         const linkInput = document.querySelector('.tox-dialog input.tox-textfield');
         if (linkInput) { 
-          console.log('from link input');
           linkInput.value = '/content/' + filePath;
           linkInput.dispatchEvent(new Event('input', { bubbles: true }));
           closeEditorMedia();

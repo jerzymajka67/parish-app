@@ -32,16 +32,7 @@
   </div>
 </div>
 </main>
+  <script> window.USER_PAGE = "<%= page %>";</script>
+  <script src="/js/browserUser.js"></script>
   <script src="/js/docViewer.js"></script>
-  <script >
-    document.addEventListener('DOMContentLoaded', function () {
-      const browser = document.getElementById('browser');
-    //INITIAL LOAD 
-      fetch(`/en/homilies/ls?path=homilies/Homilies_EN`)
-        .then(r => r.json())
-        .then(data => render(data, '/en/homilies/ls', 'homilies/Homilies_EN', browser))
-        .catch(err => console.error(err));
-    });
-  </script> 
-
 </body>

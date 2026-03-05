@@ -4,8 +4,8 @@ const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const EVENTS_ROOT = path.join(APP_ROOT, 'content/events');
-const CONTENT_ROOT = path.join(APP_ROOT, 'content')
-const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/en')
+const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/en');
+const HOMILIIES_ROOT = path.join(APP_ROOT, 'content/homilies/en');
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 function getNode(obj, pathStr) {
@@ -13,7 +13,6 @@ function getNode(obj, pathStr) {
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
 let tree = {};
-let treeDoc = {};
 // All routes for English pages
 router.get('/', (req, res) => {
   res.render('pages/user/en/home', { 
@@ -61,7 +60,7 @@ router.get('/office', (req, res) => {
   });
 });
 router.get('/bulletin', (req, res) => {
-  treeDoc = {};
+  tree = {};
   res.render('pages/user/en/bulletin', { 
     layout: 'layouts/user',
     title: 'Bulletin - Our Lady, Queen of Angels', 
@@ -73,7 +72,6 @@ router.get('/bulletin', (req, res) => {
 router.get('/bulletin/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';
-    console.log('from bulletin relativePaht ', relativePath)
     const content = transformDirList(await readDir(BULLETIN_ROOT, relativePath));
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
@@ -100,7 +98,7 @@ router.get('/communities', (req, res) => {
   });
 });
 router.get('/homilies', (req, res) => {
-  treeDoc = {};
+  tree = {};
   res.render('pages/user/en/homilies', {
     layout: 'layouts/user',
     title: 'Homilies (English)',
@@ -109,18 +107,16 @@ router.get('/homilies', (req, res) => {
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-
 router.get('/homilies/ls',  async (req, res) => {
-  try {
+   try {
     const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(CONTENT_ROOT, relativePath));
-    storeDirInTree(treeDoc, relativePath, content);
-    res.json(getNode(treeDoc, relativePath));
+    const content = transformDirList(await readDir(HOMILIIES_ROOT, relativePath));
+    storeDirInTree(tree, relativePath, content);
+    res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 router.get('/events', (req, res) => {
   tree = {};
   res.render('pages/user/en/events', { 
@@ -142,9 +138,7 @@ router.get('/events/ls',  async (req, res) => {
   }
 });
 router.get('/events/thumbs', async (req, res) => {
-  console.log('kciuk')
   const relPath = req.query.path;
-  console.log('path: ', relPath)
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
   }
@@ -155,7 +149,6 @@ router.get('/events/thumbs', async (req, res) => {
     relPath,
     'thumbs'
   );
-  console.log(thumbsDir);
   try {
     const files = await fs.readdir(thumbsDir);
     const thumbs = files.filter(f =>

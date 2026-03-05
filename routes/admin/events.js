@@ -276,7 +276,6 @@ router.post('/rotation', requireLogin, async (req, res) => {
 });
 
 router.post('/rotation-thumbs', requireLogin, async (req, res) => {
-  console.log('Rotation-thumbs request:', req.body);
   try {
     const { file, angle } = req.body;
     if (!file || typeof angle !== 'number') {

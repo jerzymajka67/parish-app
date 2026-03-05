@@ -4,9 +4,6 @@
   if (!form) return;
 
   form.addEventListener('submit', function (e) {
-
-    console.log("SUBMIT HANDLER RUNNING");
-
     const files = [...document.querySelectorAll('input[name="files[]"]:checked')]
       .map(cb => cb.value);
 

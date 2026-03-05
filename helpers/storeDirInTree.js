@@ -29,7 +29,6 @@ function storeDirInTree(tree, dirPath, content) {
   } else {
     node = tree;
  }
-  console.log('tree ', tree);
   mergeDirContent(node, content);
 }
 module.exports = storeDirInTree;

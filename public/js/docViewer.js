@@ -1,34 +1,37 @@
 const docViewer = {
   files: [],
   currentIndex: -1,
-  open(filePath) {
-    console.log(filePath, ' to jest path from docViewer');
-    this.currentIndex = this.files.indexOf(filePath);
+  open(filePath, files = null) {
     const container = document.getElementById('documentViewerContainer');
     const controls = document.getElementById('docControls');
     if (!container) return;
-    if (filePath.toLowerCase().endsWith('.pdf')) {
+    if (Array.isArray(files)) {
+      this.files = files;
+    }
+  this.currentIndex = this.files.indexOf(filePath);
+    const ext = filePath.toLowerCase();
+    if (ext.endsWith('.pdf')) {
       container.classList.add('pdf-mode');
-     container.innerHTML = `
-      <iframe 
-        src="/${filePath}#navpanes=0&view=FitH"
-        style="width:100%; height:190vh; border:none;">
-      </iframe>
-    `;
+      container.innerHTML = `
+        <iframe 
+          src="/${filePath}#navpanes=0&view=FitH"
+          style="width:100%; height:1000px; border:none; display:block;">
+        </iframe>
+      `;
     } else {
       container.classList.remove('pdf-mode');
-      fetch('/' + filePath)
-        .then(r => r.text())
-        .then(html => {
-        container.innerHTML = `
-        <div style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
-          ${html}
-        </div>
+      container.innerHTML = `
+        <iframe 
+          id="docFrame"
+          src="/${filePath}"
+          style="width:100%; border:none;">
+        </iframe>
       `;
-        }) .catch(err => {
-              container.innerHTML = `<p class="text-danger">Error loading document.</p>`;
-              console.error(err);
-          });
+      const frame = document.getElementById('docFrame');
+      frame.onload = function () {
+        const doc = frame.contentWindow.document;
+        frame.style.height = doc.body.scrollHeight + 'px';
+      };
     }
     this.renderControls(controls);
   },
@@ -36,13 +39,12 @@ const docViewer = {
     if (!container) return;
     container.innerHTML = `
       <button class="btn btn-outline-secondary"
-              onclick="DocViewer.prev()"
+              onclick="docViewer.prev()"
               ${this.currentIndex <= 0 ? 'disabled' : ''}>
         ← Prev
-      </button> 
-
+      </button>
       <button class="btn btn-outline-secondary"
-              onclick="DocViewer.next()"
+              onclick="docViewer.next()"
               ${this.currentIndex >= this.files.length - 1 ? 'disabled' : ''}>
         Next →
       </button>

@@ -26,7 +26,7 @@ async function loadEditorGallery(folderPath, containerId) {
   return true;
 }
 function renderGalleryForEditor(folderPath, thumbs, container) {
-  console.log('gallery for editor: ', folderPath);
+ 
   container.innerHTML = '';
   container.style.display = '';
   container.classList.add('editorGalleryGrid');
@@ -38,14 +38,12 @@ function renderGalleryForEditor(folderPath, thumbs, container) {
     img.onclick = function () {
       const fullImage = `/content/events/${folderPath}/${name}`;
       if(browserMode === 'link'){
-          console.log("browserMode = 'link' "+folderPath);
           const linkInput = document.querySelector('input.tox-textfield[type="url"]');
           if (linkInput) {
             linkInput.value = fullImage;
             linkInput.dispatchEvent(new Event('input', { bubbles: true }));
           }
       } else if(browserMode === 'gallery'){
-          console.log("browserMode = 'gallery'"+ folderPath);
           if (galleryDialog) {
             galleryDialog.setData({
                 folderPath: folderPath

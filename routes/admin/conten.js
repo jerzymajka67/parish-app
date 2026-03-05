@@ -13,7 +13,7 @@ function getNode(obj, pathStr) {
   if (!pathStr) return obj;
   return pathStr.split('/').reduce((cur, key) => cur?.[key], obj);
 }
-router.get('/', (req, res) => {
+router.get('/', requireLogin, (req, res) => {
     res.render('pages/admin/conten', { 
     layout: 'layouts/admin',
     title: 'Conten - admin', 
@@ -25,13 +25,11 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/ls', async (req, res) => {
-  console.log('tree 1 from content: ', tree);
+router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
     const content = transformDirList(await readDir(EVENTS_ROOT, relativePath));
     storeDirInTree(tree, relativePath, content);
-    console.log('tree 2 from content: ', tree);
     res.json(getNode(tree, relativePath));
   } catch (err) {
     res.status(500).json({ error: err.message });

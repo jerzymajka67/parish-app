@@ -209,14 +209,11 @@ router.post('/rename', requireLogin, async (req, res) => {
 router.get('/edit', requireLogin, async (req, res) => {
   const originalFile = req.query.fileName;
   const draftFile = stampFileName(originalFile);
-  console.log('Editing file:', originalFile, 'Draft file:', draftFile);
   if (!originalFile) {
     return res.redirect('/admin/masses?msg=File+name+required&status=error');
   }
   const filePath = path.join(EVENTS_ROOT, originalFile);
   const backupPath = path.join(EVENTS_ROOT, draftFile);
-  console.log('File path:', filePath);
-  console.log('Backup path:', backupPath);
   try {
     await fs.copyFile(filePath, backupPath);
     const content = await fs.readFile(backupPath, 'utf8');
@@ -231,7 +228,6 @@ router.get('/edit', requireLogin, async (req, res) => {
   }
 });
 router.post('/save', requireLogin, async (req, res) => {
-  console.log('Saving file:', req.body);
   const { draftFile, content } = req.body;
   if (!draftFile || content === undefined) {
     return res.redirect('/admin/masses?msg=Invalid+data&status=error');
@@ -242,7 +238,6 @@ router.post('/save', requireLogin, async (req, res) => {
       content,
       'utf8'
     );
-
     return res.status(204).end();
   } catch (err) {
     console.error(err);
