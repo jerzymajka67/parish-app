@@ -1,324 +1,168 @@
 <body>
-<h2><%= title %></h2>
+ <h2 ><%= title %></h2>
 <div class="container-fluid">
-  <div class="row">
-    <!-- LEFT COLUMN: ACTIONS -->
+  <div class="row" >
+<!-- LEFT COLUMN: ACTIONS -->
     <div class="col-md-4 border-end p-3">
-      <form id="createFolderForm"
-            action="/admin/events/create-folder"
-            method="POST"
-            class="mb-3 d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <button type="submit" class="btn btn-primary">Create Folder</button>
-        <input id="root-folder"
-               type="text"
-               readonly
-               class="form-control"
-               placeholder="Current folder">
-        <input type="text"
-               name="folderName"
-               placeholder="New folder name"
-               required
-               class="form-control">
+      <form id="uploadHtmlForm"
+              action="/admin/<%= page %>/upload-file"
+              method="POST"
+              enctype="multipart/form-data"
+              class="mb-3 d-flex flex-column gap-2">
+          <button type="submit"
+                  class="btn btn-success"
+                  id="uploadBtn">
+            Upload HTML File
+          </button>
+          <input type="file"
+                name="html"
+                accept=".html"
+                required
+                class="form-control">
       </form>
-      <form id="uploadImageForm"
-            action="/admin/events/upload-image"
-            method="POST"
-            enctype="multipart/form-data"
-            class="mb-3 d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <button type="submit" class="btn btn-success" id="uploadBtn" disabled>Upload Images</button>
-        <input type="file"
-               name="images"
-               accept="image/*"
-               multiple
-               required
-               class="form-control">
+      <form id="createHtmlForm"
+              action="/admin/<%= page %>/create-html"
+              method="POST"
+              class="mb-2 d-flex flex-column gap-2">
+          <button type="submit" class="btn btn-success">
+            Create HTML
+          </button>
+          <input type="text"
+                name="fileName"
+                placeholder="New HTML file name"
+                required
+                class="form-control">
       </form>
-      <form id="deleteSelectedForm"
-            class="d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <button id="deleteBtn" type="submit"class="btn btn-danger" disabled>Delete</button>
-        <input id="delete-folder-name"
-               type="text"
-               readonly
-               class="form-control"
-               placeholder="Nothing selected">
+      <form id="renameForm" action="/admin/<%= page %>/rename"
+          method="POST"
+          class="d-flex flex-column gap-2">
+        <input id="renameOldName" type="hidden" name="fileName">
+        <button type="submit"
+            class="btn btn-amber">
+            Rename
+        </button> 
+        <input id="renameNewName" type="text"
+            name="newName"
+            placeholder="New file name"
+            required
+            class="form-control">
+      </form>
+      <button id="editBtn"
+              type="button"
+              class="btn btn-secondary w-100 mt-3">
+        Edit
+      </button>
+      <form id="viewForm" action="/admin/<%= page %>/view"
+              method="GET"
+              target="_blank"
+              class="d-grid gap-2 mt-3">
+        <input id="viewFileName" type="hidden"
+              name="fileName">
+          <button type="submit" class="btn btn-outline-secondary">
+             View
+          </button>
+      </form>
+      <div class="d-flex gap-2 mt-3 mb-2">
+        <form id="publishEnForm"
+                action="/admin/<%= page %>/publish-en"
+                method="POST"
+                class="flex-fill">
+          <input id="publishEN" type="hidden"  name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
+              Publish EN
+          </button>
+        </form>
+        <form id="publishEsForm"
+                action="/admin/<%= page %>/publish-es"
+                method="POST"
+                class="flex-fill">
+          <input id="publishES" type="hidden" name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
+              Publish ES
+          </button>
+        </form>
+      </div>
+      <form id="deleteForm" method="POST"
+            action="/admin/<%= page %>/delete-file"
+            class="mb-3 d-flex gap-2 align-items-center">
+        <button type="button"
+                class="btn btn-danger"
+                id="deleteBtn">
+          Delete
+        </button>
+        <input id="deleteFileName"
+              type="hidden"
+              name="fileName">
       </form>
     </div>
-    <!-- RIGHT COLUMN -->
-    <div class="col-md-8 p-4">
-      <h4>Folders & Images</h4>
-      <div class="row mt-3">
-        <!-- LEFT: Browser -->
-        <div class="col-md-7">
-          <div class="border p-3">
-            <div id="browser-container">
-              <div id="browser" class="list-group">
-                <!-- dynamically inserted -->
-              </div>
+  <div class="col-md-8 p-4">
+    <h4>Files</h4>
+    <div class="row mt-3">
+      <!-- LEFT: Browser -->
+      <div class="col-md-7">
+        <div class="border p-3">
+          <div id="browser-container">
+            <div id="browser" class="list-group">
+<!-- dynamically inserted items -->
             </div>
           </div>
         </div>
-        <!-- RIGHT: Feedback -->
-        <div class="col-md-5">
-          <% if (msg && status) { %>
-            <div id="server-feedback"
-                 class="server-feedback <%= status %> border p-3 rounded">
-              <%= msg %>
-            </div>
-          <% } %>
+      </div>
+<!-- RIGHT: Welcome + Feedback -->
+      <div class="col-md-5">
+<!-- WELCOME PANEL -->
+        <div class="border p-3 mb-3 bg-light">
+<!-- SERVER FEEDBACK -->
+            <% if (msg && status) { %>
+              <div id="server-feedback" class="server-feedback <%= status %> border p-3 mt-3">
+                <%= msg %>
+              </div>
+            <% } %>
+          <h5>Welcome, Catalina & Samantha!</h5>
+          <p>
+            This page allows you to manage the <strong>About</strong> section of our parish website.
+          </p>
+          <p class="small">
+            The About page should present who we are as a parish: our history, mission,
+            leadership, and the spirit of our community. It should be clear, welcoming,
+            and reflect our bilingual and multicultural identity.
+          </p>
+
+          <ul class="small">
+            <li>You may <strong>upload existing HTML files</strong> or create new ones.</li>
+            <li>You can <strong>edit files safely</strong> using the editor.</li>
+            <li>The original file is never modified.</li>
+            <li>When you edit a file, the system creates a new version with the same name plus the <strong>date and time of editing</strong>.</li>
+            <li>After reviewing your changes, you may publish the page in <strong>English (EN)</strong> or <strong>Spanish (ES)</strong>.</li>
+          </ul>
+          <p class="small mb-0">
+            Thank you for your dedication and generosity in serving our parish community.
+          </p>
         </div>
       </div>
     </div>
   </div>
-</div>
-<!-- CONFIRM DELETE MODAL -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirm delete</h5>
-        <button class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        Delete <strong id="modal-folder-name"></strong>?
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-      </div>
+
+<div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image. In gallery mode: click any image to select the gallery. </span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
     </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
   </div>
 </div>
-<!-- BROWSER -->
-<div id="browser-container">
-  <div id="browser" class="list-group"></div>
-</div>
-<div id="photoViewer" class="modal hidden">
-  <div class="viewer-body">
-    <img id="viewerImage" />
-    <div class="viewer-controls">
-      <button onclick="rotatePreview(-90)">⟲</button>
-      <button onclick="rotatePreview(90)">⟳</button>
-      <button onclick="saveRotation()">💾 Save</button>
-      <button onclick="closeViewer()">✖</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let currentFile = null;
-let currentRotation = 0;
-function openAdminViewer(filePath) {
-  currentFile = filePath;
-  currentRotation = 0;
-  const img = document.getElementById('viewerImage');
-  img.style.transform = 'rotate(0deg)';
- const encodedPath = filePath
-  .split('/')
-  .map(encodeURIComponent)
-  .join('/');
-img.src = '/content/events/' + encodedPath;
-  document.getElementById('photoViewer').classList.remove('hidden');
-}
-function rotatePreview(delta) {
-  currentRotation = (currentRotation + delta) % 360;
-  if (currentRotation < 0) currentRotation += 360;
-
-  document.getElementById('viewerImage').style.transform =
-    `rotate(${currentRotation}deg)`;
-}
-function showViewerMessage(text, type = 'success') {
-    const msg = document.createElement('div');
-    msg.textContent = text;
-    msg.className = `viewer-message ${type}`;
-    const controls = document.querySelector('.viewer-controls');
-    controls.parentNode.insertBefore(msg, controls);
-    setTimeout(() => msg.remove(), 3000);
-  }
-async function saveRotation() {
-  if (!currentFile || currentRotation === 0) {
-    return; // nothing to do
-  }    
-    try {
-      const response = await fetch('/admin/events/rotation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              file: currentFile,
-              angle: currentRotation
-            })
-          });
-      /*const resThumb = await fetch('/admin/events/rotation-thumbs', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                file: currentFile,   // relative to content/events
-                angle: currentRotation
-              })
-            });*/
-      const data = await response.json();
-          if (!response.ok || !data.ok) {
-            showViewerMessage(data.msg || 'Rotation failed', 'error');
-            return;
-          }
-          const viewerImage = document.getElementById('viewerImage');
-          const timestamp = new Date().getTime();
-          viewerImage.src = viewerImage.src.split('?')[0] + '?t=' + timestamp;
-          currentRotation = 0;
-          viewerImage.style.transform = 'rotate(0deg)';
-          showViewerMessage(data.msg || 'Rotation saved', 'success');
-        } catch (err) {
-          showViewerMessage('Network error. Please try again.', 'error');
-        }
-  }
-function closeViewer() {
-  const img = document.getElementById('viewerImage');
-  img.style.transform = 'rotate(0deg)';
-  currentFile = null;
-  currentRotation = 0;
-  document.getElementById('photoViewer').classList.add('hidden');
-}
+<script> window.ADMIN_PAGE = "<%= page %>";</script>
+<script >
 document.addEventListener('DOMContentLoaded', () => {
-  const browser = document.getElementById('browser');
-  const createPath = document.querySelector('#createFolderForm input[name="currentPath"]');
-  const uploadPath = document.querySelector('#uploadImageForm input[name="currentPath"]');
-  const deletePath = document.querySelector('#deleteSelectedForm input[name="currentPath"]');
-  const rootInfo  = document.getElementById('root-folder');
-  const deleteName = document.getElementById('delete-folder-name');
-  const deleteBtn  = document.getElementById('deleteBtn');
-  const uploadBtn  = document.getElementById('uploadBtn');
-  const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-  const modalName = document.getElementById('modal-folder-name');
-  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-  let selectedItem = null;
-
-  function getSelectedFiles() {
-    return [...document.querySelectorAll('input[name="files[]"]:checked')]
-      .map(cb => cb.value);
-  }
-
-  function setCurrent(path) {
-    createPath.value = uploadPath.value = deletePath.value = path;
-    rootInfo.value = 'In: ' + (path || '/');
-    deleteName.value = path.split('/').pop() || '';
-    deleteBtn.disabled = uploadBtn.disabled = !path;
-  }
-
-  function select(el, path) {
-    selectedItem?.classList.remove('active');
-    selectedItem = el;
-    el.classList.add('active');
-    setCurrent(path);
-  }
-
-  function render(tree, basePath, container) {
-
-    for (const name in tree) {
-      if (name === 'files') continue;
-
-      const fullPath = basePath ? basePath + '/' + name : name;
-
-      const folder = document.createElement('a');
-      folder.href = '#';
-      folder.className = 'list-group-item list-group-item-action';
-      folder.textContent = name;
-
-      const collapse = document.createElement('div');
-      collapse.className = 'collapse ps-3';
-
-      const bs = new bootstrap.Collapse(collapse, { toggle:false });
-
-      folder.onclick = e => {
-        e.preventDefault();
-        e.stopPropagation();
-        select(folder, fullPath);
-        if (!collapse.hasChildNodes()) load(fullPath, collapse);
-        bs.toggle();
-      };
-
-      container.append(folder, collapse);
-    }
-
-   (tree.files || []).forEach(file => {
-        const filePath = basePath ? basePath + '/' + file : file;
-        const item = document.createElement('div');
-        item.className = 'list-group-item d-flex align-items-center gap-2';
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.name = 'files[]';
-        cb.value = filePath;
-        const link = document.createElement('a');
-        link.href = '#';
-        link.textContent = file;
-        link.onclick = e => {
-          e.preventDefault();
-          e.stopPropagation();
-          openAdminViewer(filePath);
-        };
-        item.append(cb, link);
-        item.onclick = () => select(item, filePath);
-        container.appendChild(item);
-      });
-
-  }
-
-  function load(path, container) {
-    fetch('/admin/events/ls?path=' + encodeURIComponent(path))
-      .then(r => r.json())
-      .then(data => render(data, path, container));
-  }
-
-  fetch('/admin/events/ls')
-    .then(r => r.json())
-    .then(data => render(data, '', browser));
-
-  // DELETE FORM
-document.getElementById('deleteSelectedForm').onsubmit = e => {
-  e.preventDefault();
-  const files = getSelectedFiles();
-  let folder = null;
-  if (!files.length && selectedItem && selectedItem.tagName === 'A') {
-    folder = deletePath.value; // the folder path from hidden input
-  }
-  if (!files.length && !folder) {
-    alert('No file or folder selected');
-    return;
-  }
-  modalName.textContent =
-    files.length
-      ? `${files.length} file(s)`
-      : folder;
-  modal.show();
-  confirmDeleteBtn.onclick = () => {
-    modal.hide();
-    fetch('/admin/events/delete-selected', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ files, folder })
-    })
-    .then(res => res.json())
-    .then(() => location.reload())
-    .catch(err => console.error(err));
-  };
-};
+  editorHTML();
+  initEditorModal()
+  initEditButton();
+  initSaveButtons();
+  window.selectedFile = null;
+  fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
+  initDeleteModal();
+  feedback();
 });
- document.addEventListener("DOMContentLoaded", function () {
-    const feedback = document.getElementById("server-feedback");
-
-    if (feedback) {
-      setTimeout(() => {
-        feedback.classList.add("hide");
-
-        setTimeout(() => {
-          feedback.remove();
-        }, 500); // match CSS transition time
-      }, 5000); // visible for 5 seconds
-    }
-  });
-
-
 </script>
-
 </body>

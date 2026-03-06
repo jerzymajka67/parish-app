@@ -3,9 +3,9 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
-const PHOTOS_ROOT = path.join(APP_ROOT, 'content/photos');
-const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin/es')
-const HOMILIIES_ROOT = path.join(APP_ROOT, 'content/homilies/es');
+const PHOTOS_ROOT = path.join(APP_ROOT, 'content/photos_files');
+const BULLETIN_ROOT = path.join(APP_ROOT, 'content/bulletin_files/es')
+const HOMILIIES_ROOT = path.join(APP_ROOT, 'content/homilies_files/es');
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
 function getNode(obj, pathStr) {

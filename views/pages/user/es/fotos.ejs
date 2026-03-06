@@ -1,29 +1,72 @@
 <body>
-   <html lang="es"></html>
-<main>
-<div class="container-fluid mt-4">
+  <html lang="es"></html>
+ <main>
+<div class="container-fluid mt-4 events-page">
   <div class="row">
-
-    <!-- LEFT: INTRO + VIEWER -->
-    <div class="col-md-9 p-5 intro-column">
-      <p>Seleccione un documento de la lista a la derecha.</p>
-
-      <!-- DOCUMENT VIEWER -->
-      <div id="docControls" class="d-flex justify-content-between mb-3"></div>
-      <div id="documentViewerContainer" class="document-viewer mt-4"></div>
+    <!-- LEFT: INTRO TEXT -->
+    <div class="col-md-7 p-5 intro-column">
+      <div id="gallery" class="laptopGallery g-3 mt-4"></div>
+     <h2 class="mb-4">Galería de Fotos de la Parroquia</h2>
+    <p class="lead">
+      En esta página podrá encontrar fotos de diversos eventos parroquiales
+      y de lugares importantes dentro de nuestra comunidad parroquial.
+    </p>
+    <p>
+      Esta página todavía está en construcción, por lo que por ahora le invitamos
+      a ver las fotos de
+      <a href="#"
+        onclick="loadGallery('2026/01. January/Photos of our churches/OLQA', 'inTextGalleryChurches'); return false;">
+        nuestras iglesias parroquiales.
+      </a>
+    </p>
+    <div id="inTextGalleryChurches" class="laptopGallery g-3 mt-4"></div>
+    <p>
+      También puede ver fotos del
+      <a href="#"
+        onclick="loadGallery('2025/12. December/Schonstatt Movement in Our Parish', 'inTextGalleryShonstatt'); return false;">
+        Movimiento de Schoenstatt en nuestra parroquia
+      </a>.
+    </p>
+    <div id="inTextGalleryShonstatt" class="laptopGallery g-3 mt-4"></div>
+    <p>
+      Esperamos que, con su ayuda, esta galería pronto comience a llenarse
+      de fotos hermosas y significativas que reflejen la vida
+      y la fe de nuestra comunidad parroquial.
+    </p>
+    <p class="signature">
+      — Su comunidad parroquial
+    </p>
     </div>
-
     <!-- RIGHT: BROWSER -->
-    <div class="col-md-3 border-start p-4 browser-column">
-      <h5 class="mb-3">Boletines</h5>
-      <div id="browser" class="list-group"></div>
+    <div class="col-md-5 border-start p-4 browser-column">
+      <h5 class="mb-3">Galería de Fotos</h5>
+      <div id="browser-container">
+        <div id="browser" class="list-group"></div>
+      </div>
     </div>
+  </div>
+</div>
+<div class="modal fade" id="imageModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div id="modalContent" class="modal-content bg-dark">
+      <button type="button" class="btn-close btn-close-white"
+              data-bs-dismiss="modal"></button>
 
+      <div class="modal-body text-center position-relative p-0">
+<button class="btn btn-dark position-absolute top-50 start-0 translate-middle-y fs-1 px-4 nav-arrow"
+        onclick="Viewer.prev()">‹</button>
+
+<img id="modalImage" class="img-fluid">
+
+<button class="btn btn-dark position-absolute top-50 end-0 translate-middle-y fs-1 px-4 nav-arrow"
+        onclick="Viewer.next()">›</button>
+
+      </div>
+    </div>
   </div>
 </div>
 </main>
-  <script> window.USER_PAGE = "<%= page %>";</script>
-  <script src="/js/browserUser.js"></script>
-  <script src="/js/docViewer.js"></script>
+  <script src="/js/browser.js"></script>
+  <script src="/js/viewer.js"></script>
+  <script src="/js/loadGallery.js"></script>
 </body>
-

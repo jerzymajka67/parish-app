@@ -11,8 +11,6 @@ const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'))
 const PHOTOS_ROOT = path.join(APP_ROOT, 'content/photos');
 let tree = {};
 
-
-
 const upload = multer({
   dest: path.join(APP_ROOT, 'tmp'),
   fileFilter(req, file, cb) {
