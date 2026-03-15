@@ -11,13 +11,13 @@ function renderGallery(folderPath, thumbs, containerId ) {
   //gallery.appendChild(heading);
   // 🔹 Prepare full image paths for Viewer
   const galleryPaths = thumbs.map(file =>
-    `/content/photos/${folderPath}/${file}`
+    `/content/photos_files/${folderPath}/${file}`
   );
   Viewer.setGallery(galleryPaths);
   // 🔹 Render thumbnails
   thumbs.forEach((file, index) => {
     const img = document.createElement('img');
-    img.src = `/content/photos/${folderPath}/thumbs/${file}`;
+    img.src = `/content/photos_files/${folderPath}/thumbs/${file}`;
     img.onclick = () => Viewer.open(index);
     gallery.appendChild(img);
   });
@@ -34,7 +34,7 @@ window.loadGallery = async function (folderPath, containerId) {
   }
   const lang = document.documentElement.lang || 'en';
   const res = await fetch(
-    `/${lang}/photos/thumbs?path=` +
+    `/${lang}/photos_files/thumbs?path=` +
     encodeURIComponent(folderPath)
   );
   const data = await res.json();

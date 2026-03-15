@@ -5,7 +5,7 @@
     <!-- LEFT COLUMN: ACTIONS -->
     <div class="col-md-4 border-end p-3">
       <form id="createFolderForm"
-            action="/admin/photos/create-folder"
+            action="/admin/photos_files/create-folder"
             method="POST"
             class="mb-3 d-flex flex-column gap-2">
         <input type="hidden" name="currentPath">
@@ -22,7 +22,7 @@
                class="form-control">
       </form>
       <form id="uploadImageForm"
-            action="/admin/photos/upload-image"
+            action="/admin/photos_files/upload-image"
             method="POST"
             enctype="multipart/form-data"
             class="mb-3 d-flex flex-column gap-2">
@@ -119,7 +119,7 @@ function openAdminViewer(filePath) {
   .split('/')
   .map(encodeURIComponent)
   .join('/');
-img.src = '/content/photos/' + encodedPath;
+img.src = '/content/photos_files/' + encodedPath;
   document.getElementById('photoViewer').classList.remove('hidden');
 }
 function rotatePreview(delta) {
@@ -142,7 +142,7 @@ async function saveRotation() {
     return; // nothing to do
   }    
     try {
-      const response = await fetch('/admin/photos/rotation', {
+      const response = await fetch('/admin/photos_files/rotation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -257,12 +257,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function load(path, container) {
-    fetch('/admin/photos/ls?path=' + encodeURIComponent(path))
+    fetch('/admin/photos_files/ls?path=' + encodeURIComponent(path))
       .then(r => r.json())
       .then(data => render(data, path, container));
   }
 
-  fetch('/admin/photos/ls')
+  fetch('/admin/photos_files/ls')
     .then(r => r.json())
     .then(data => render(data, '', browser));
 
@@ -285,7 +285,7 @@ document.getElementById('deleteSelectedForm').onsubmit = e => {
   modal.show();
   confirmDeleteBtn.onclick = () => {
     modal.hide();
-    fetch('/admin/photos/delete-selected', {
+    fetch('/admin/photos_files/delete-selected', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ files, folder })

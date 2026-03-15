@@ -27,11 +27,11 @@ function getNode(obj, pathStr) {
 }
 router.get('/', requireLogin, (req, res) => {
   tree = {};
-  res.render('pages/admin/photos', {
+  res.render('pages/admin/photos_files', {
     layout: 'layouts/admin',
     title: 'Photos - admin',
     lang: 'en',
-    page: 'photos',
+    page: 'photos_files',
     favicon: '/images/logo-olqa-mini.png',
     msg: req.query.msg || null,
     status: req.query.status || null
@@ -55,7 +55,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
       const msg = 'Folder name is required';
       const status = 'error';
       return res.redirect(
-        `/admin/photos?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+        `/admin/photos_files?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
       );
     }
 
@@ -67,7 +67,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
       const msg = encodeURIComponent(`Folder created successfully in ${folderDisplay}`);
       const status = 'success';
         res.redirect(
-          `/admin/photos?path=${encodeURIComponent(currentPath)}&msg=${msg}&status=${status}`
+          `/admin/photos_files?path=${encodeURIComponent(currentPath)}&msg=${msg}&status=${status}`
         );
   } catch (err) {
     console.error(err);
@@ -76,7 +76,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     const status = 'error';
 
     res.redirect(
-      `/admin/photos?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+      `/admin/photos_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   }
 });
@@ -135,7 +135,7 @@ router.post('/upload-image', requireLogin, (req, res) => {
         msg = err.message;
       }
 
-      return res.redirect(`/admin/photos?msg=${encodeURIComponent(msg)}&status=${status}`);
+      return res.redirect(`/admin/photos_files?msg=${encodeURIComponent(msg)}&status=${status}`);
     }
 
     try {
@@ -143,11 +143,11 @@ router.post('/upload-image', requireLogin, (req, res) => {
       const targetFolder = path.join(PHOTOS_ROOT, currentPath);
 
       if (!targetFolder.startsWith(PHOTOS_ROOT)) {
-        return res.redirect(`/admin/photos?msg=Access denied&status=error`);
+        return res.redirect(`/admin/photos_files?msg=Access denied&status=error`);
       }
 
       if (!req.files || req.files.length === 0) {
-        return res.redirect(`/admin/photos?path=${encodeURIComponent(currentPath)}&msg=No images selected&status=error`);
+        return res.redirect(`/admin/photos_files?path=${encodeURIComponent(currentPath)}&msg=No images selected&status=error`);
       }
 
       const thumbsFolder = path.join(targetFolder, 'thumbs');
@@ -193,12 +193,12 @@ router.post('/upload-image', requireLogin, (req, res) => {
       const folderDisplay = currentPath ? `/${currentPath}` : '/';
 
       res.redirect(
-        `/admin/photos?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(`Images uploaded successfully to ${folderDisplay}`)}&status=success`
+        `/admin/photos_files?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(`Images uploaded successfully to ${folderDisplay}`)}&status=success`
       );
 
     } catch (error) {
       console.error(error);
-      res.redirect(`/admin/photos?msg=Error processing images&status=error`);
+      res.redirect(`/admin/photos_files?msg=Error processing images&status=error`);
     }
 
   });

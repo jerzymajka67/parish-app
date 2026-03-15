@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const multer = require('multer');
-const GROUPS_ROOT = path.join(APP_ROOT, 'content/groups_files');
+const HOMILIES_ROOT = path.join(APP_ROOT, 'content/groups_files');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
@@ -29,7 +29,7 @@ router.get('/', requireLogin, (req, res) => {
   tree = {};
   res.render('pages/admin/groups_files', {
     layout: 'layouts/admin',
-    title: 'groups_files - admin',
+    title: 'Groups_files - admin',
     lang: 'en',
     page: 'groups_files',
     favicon: '/images/logo-olqa-mini.png',
@@ -41,7 +41,7 @@ router.get('/ls', requireLogin, async (req, res) => {
   try {
     const relativePath = req.query.path || '';
     const content = transformDirList(
-      await readDir(GROUPS_ROOT, relativePath)
+      await readDir(HOMILIES_ROOT, relativePath)
     );
     storeDirInTree(tree, relativePath, content);
     res.json(getNode(tree, relativePath));
@@ -55,7 +55,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     const folderName = req.body.folderName;
     if (!folderName) return res.status(400).send('Folder name is required');
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
-    const newFolderPath = path.join(GROUPS_ROOT, currentPath, safeName);
+    const newFolderPath = path.join(HOMILIES_ROOT, currentPath, safeName);
     await fs.mkdir(newFolderPath, { recursive: true });
     res.redirect(`/admin/groups_files?path=${encodeURIComponent(currentPath)}`);
   } catch (err) {
@@ -75,7 +75,7 @@ router.post('/create-html', requireLogin, async (req, res) => {
     if (!fileName.endsWith('.html')) {
       fileName += '.html';
     }
-    const filePath = path.join(GROUPS_ROOT, currentPath, fileName);
+    const filePath = path.join(HOMILIES_ROOT, currentPath, fileName);
     try {
       await fs.access(filePath);
       const msg = 'File already exists';
@@ -104,12 +104,12 @@ router.post('/delete-selected', requireLogin, async (req, res) => {
     const folder = req.body.folder;
     const files = JSON.parse(req.body.files || '[]');
   for (const file of files) {
-  const filePath = path.join(GROUPS_ROOT, file);
+  const filePath = path.join(HOMILIES_ROOT, file);
   await fs.rm(filePath, { force: true });
    msg += `Deleted file: ${file}\n`;
 }
 if (folder) {
-  const folderPath = path.join(GROUPS_ROOT, folder);
+  const folderPath = path.join(HOMILIES_ROOT, folder);
   await fs.rm(folderPath, { recursive: true, force: true });
   msg += `Deleted folder: ${folder}\n`;
 }
@@ -124,8 +124,8 @@ if (folder) {
 router.post('/load-file', requireLogin, upload.single('html'), async (req, res) => {
   try {
     const currentPath = req.body.currentPath || '';
-    const targetDir = path.join(GROUPS_ROOT, currentPath);
-    if (!targetDir.startsWith(GROUPS_ROOT)) {
+    const targetDir = path.join(HOMILIES_ROOT, currentPath);
+    if (!targetDir.startsWith(HOMILIES_ROOT)) {
       return res.status(403).send('Access denied');
     }
     if (!req.file) {
@@ -151,8 +151,8 @@ router.get('/edit', requireLogin, async (req, res) => {
   if (!originalFile) {
     return res.redirect('/admin/groups_files?msg=File+name+required&status=error');
   }
-  const filePath = path.join(GROUPS_ROOT, originalFile);
-  const backupPath = path.join(GROUPS_ROOT, draftFile);
+  const filePath = path.join(HOMILIES_ROOT, originalFile);
+  const backupPath = path.join(HOMILIES_ROOT, draftFile);
   try {
     await fs.copyFile(filePath, backupPath);
     const content = await fs.readFile(backupPath, 'utf8');
@@ -173,7 +173,7 @@ router.post('/save', requireLogin, async (req, res) => {
   }
   try {
     await fs.writeFile(
-      path.join(GROUPS_ROOT, draftFile),
+      path.join(HOMILIES_ROOT, draftFile),
       content,
       'utf8'
     );
@@ -193,7 +193,7 @@ router.post('/save-exit', requireLogin, async (req, res) => {
       `/admin/groups_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   }
-  const filePath = path.join(GROUPS_ROOT, originalFile);
+  const filePath = path.join(HOMILIES_ROOT, originalFile);
   try {
     await fs.writeFile(filePath, content, 'utf8');
     const msg =

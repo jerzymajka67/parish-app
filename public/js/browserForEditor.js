@@ -5,14 +5,14 @@ window.openEditorFolder = function (path, parentContainer = null) {
       .then(r => r.json())
       .then(tree => renderContentTree(tree, '', container));
   }else{
-    fetch(`/en/photos/ls`)
+    fetch(`/en/photos_files/ls`)
       .then(r => r.json())
       .then(tree => renderTree(tree, '', container));
   }
 };
 const openEventFolder = function(path, parentContainer){
   const container = parentContainer || document.getElementById('editorMediaContainer');
-  fetch(`/en/photos/ls?path=` +
+  fetch(`/en/photos_files/ls?path=` +
       encodeURIComponent(path))
       .then(r => r.json())
       .then(tree => renderTree(tree, path, container));
@@ -48,7 +48,7 @@ function renderTree(tree, basePath, container) {
       // First check if gallery
       const lang =
         document.documentElement.lang || 'en';
-      fetch(`/${lang}/photos/thumbs?path=` +
+      fetch(`/${lang}/photos_files/thumbs?path=` +
         encodeURIComponent(fullPath))
         .then(r => r.json())
         .then(data => {
@@ -66,8 +66,8 @@ function renderTree(tree, basePath, container) {
 function renderContentTree(tree, basePath, container) {
   for (const name in tree) {
     if(name == 'thumbs'){
-      const pathForGallery = basePath.substring('photos/'.length);
-      fetch(`/en/photos/thumbs?path=` + encodeURIComponent(pathForGallery))
+      const pathForGallery = basePath.substring('photos_files/'.length);
+      fetch(`/en/photos_files/thumbs?path=` + encodeURIComponent(pathForGallery))
         .then(r => r.json())
         .then(data => {
             renderGalleryForEditor(pathForGallery, data.thumbs, childrenContainer);

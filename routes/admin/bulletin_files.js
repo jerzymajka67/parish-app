@@ -51,11 +51,11 @@ const upload = multer({
 });
 router.get('/', requireLogin, (req, res) => {
   tree = {};
-  res.render('pages/admin/bulletin', {
+  res.render('pages/admin/bulletin_files', {
     layout: 'layouts/admin',
-    title: 'Bulletin - admin',
+    title: 'Bulletin_files - admin',
     lang: 'en',
-    page: 'bulletin',
+    page: 'bulletin_files',
     favicon: '/images/logo-olqa-mini.png',
     msg: req.query.msg || null,
     status: req.query.status || null

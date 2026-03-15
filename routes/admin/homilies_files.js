@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs/promises');
 const path = require('path');
 const multer = require('multer');
-const HOMILIES_ROOT = path.join(APP_ROOT, 'content/homilies');
+const HOMILIES_ROOT = path.join(APP_ROOT, 'content/homilies_files');
 const readDir = require(path.join(APP_ROOT, 'helpers', 'readDir'));
 const transformDirList = require(path.join(APP_ROOT, 'helpers', 'transformDirList'));
 const storeDirInTree = require(path.join(APP_ROOT, 'helpers', 'storeDirInTree'));
@@ -27,11 +27,11 @@ function getNode(obj, pathStr) {
 
 router.get('/', requireLogin, (req, res) => {
   tree = {};
-  res.render('pages/admin/homilies', {
+  res.render('pages/admin/homilies_files', {
     layout: 'layouts/admin',
-    title: 'Homilies - admin',
+    title: 'Homilies_files - admin',
     lang: 'en',
-    page: 'homilies',
+    page: 'homilies_files',
     favicon: '/images/logo-olqa-mini.png',
     msg: req.query.msg || null,
     status: req.query.status || null
@@ -57,7 +57,7 @@ router.post('/create-folder', requireLogin, async (req, res) => {
     const safeName = folderName.replace(/[/\\?%*:|"<>]/g, '-');
     const newFolderPath = path.join(HOMILIES_ROOT, currentPath, safeName);
     await fs.mkdir(newFolderPath, { recursive: true });
-    res.redirect(`/admin/homilies?path=${encodeURIComponent(currentPath)}`);
+    res.redirect(`/admin/homilies_files?path=${encodeURIComponent(currentPath)}`);
   } catch (err) {
     console.error(err);
     res.status(500).send('Server error while creating folder');
@@ -70,7 +70,7 @@ router.post('/create-html', requireLogin, async (req, res) => {
       if (!fileName) {
       const msg = 'File name is required';
       const status = 'error';
-       return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+       return res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
     if (!fileName.endsWith('.html')) {
       fileName += '.html';
@@ -80,7 +80,7 @@ router.post('/create-html', requireLogin, async (req, res) => {
       await fs.access(filePath);
       const msg = 'File already exists';
       const status = 'error';
-      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+      return res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     } catch {
       // file does not exist → OK
     }
@@ -90,11 +90,11 @@ router.post('/create-html', requireLogin, async (req, res) => {
    await fs.writeFile(filePath, htmlTemplate, 'utf8');
       const msg = `File ${fileName} created successfully in ${currentPath || 'root'}`;
       const status = 'success';
-      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+      return res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     } catch (err) {
       const msg = `Server error while creating HTML file ${fileName} - ${err.message}`;
       const status = 'error';
-      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+      return res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
 router.post('/delete-selected', requireLogin, async (req, res) => {
@@ -117,9 +117,9 @@ if (folder) {
   } catch (err) {
     console.error(err);
     msg = err.message || 'Server error';
-    res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
+    res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
   }
-  res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
+  res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(messageType)}`);
 });
 router.post('/load-file', requireLogin, upload.single('html'), async (req, res) => {
   try {
@@ -131,25 +131,25 @@ router.post('/load-file', requireLogin, upload.single('html'), async (req, res) 
     if (!req.file) {
       const msg = 'No HTML uploaded';
       const status = 'error';
-      return res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+      return res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
     }
     const safeName = req.file.originalname.replace(/[/\\?%*:|"<>]/g, '-');
     await fs.mkdir(targetDir, { recursive: true });
     await fs.writeFile(path.join(targetDir, safeName), req.file.buffer);
     const msg = `HTML "${safeName}" uploaded successfully to "${targetDir || 'root'}"`;
     const status = 'success';
-    res.redirect(`/admin/homilies?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    res.redirect(`/admin/homilies_files?path=${encodeURIComponent(currentPath)}&msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   } catch (err) {
     const msg = err.message || 'Upload failed';
     const status = 'error';
-    res.redirect(`/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
+    res.redirect(`/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
 router.get('/edit', requireLogin, async (req, res) => {
   const originalFile = req.query.fileName;
   const draftFile = 'temp.html';
   if (!originalFile) {
-    return res.redirect('/admin/homilies?msg=File+name+required&status=error');
+    return res.redirect('/admin/homilies_files?msg=File+name+required&status=error');
   }
   const filePath = path.join(HOMILIES_ROOT, originalFile);
   const backupPath = path.join(HOMILIES_ROOT, draftFile);
@@ -163,13 +163,13 @@ router.get('/edit', requireLogin, async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res.redirect('/admin/homilies?msg=File+error&status=error');
+    return res.redirect('/admin/homilies_files?msg=File+error&status=error');
   }
 });
 router.post('/save', requireLogin, async (req, res) => {
   const { draftFile, content } = req.body;
   if (!draftFile || content === undefined) {
-    return res.redirect('/admin/homilies?msg=Invalid+data&status=error');
+    return res.redirect('/admin/homilies_files?msg=Invalid+data&status=error');
   }
   try {
     await fs.writeFile(
@@ -180,7 +180,7 @@ router.post('/save', requireLogin, async (req, res) => {
     return res.status(204).end();
   } catch (err) {
     console.error(err);
-    return res.redirect('/admin/homilies?msg=Save+failed&status=error');
+    return res.redirect('/admin/homilies_files?msg=Save+failed&status=error');
   }
 });
 router.post('/save-exit', requireLogin, async (req, res) => {
@@ -190,7 +190,7 @@ router.post('/save-exit', requireLogin, async (req, res) => {
     const msg = 'File name and content are required';
     const status = 'error';
     return res.redirect(
-      `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+      `/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   }
   const filePath = path.join(HOMILIES_ROOT, originalFile);
@@ -200,14 +200,14 @@ router.post('/save-exit', requireLogin, async (req, res) => {
       `New version of original file "${originalFile}" saved successfully.`;
     const status = 'success';
     return res.redirect(
-      `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+      `/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   } catch (err) {
     console.error(err);
     const msg = 'Failed to save file';
     const status = 'error';
     return res.redirect(
-      `/admin/homilies?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
+      `/admin/homilies_files?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`
     );
   }
 });

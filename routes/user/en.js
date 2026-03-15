@@ -126,17 +126,17 @@ router.get('/events', (req, res) => {
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-router.get('/photos', (req, res) => {
+router.get('/photos_files', (req, res) => {
   tree = {};
-  res.render('pages/user/en/photos', { 
+  res.render('pages/user/en/photos_files', { 
     layout: 'layouts/user',
     title: 'Parish Photos - Our Lady, Queen of Angels', 
     lang: 'en', 
-    page: 'photos',
+    page: 'photos_files',
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-router.get('/photos/ls',  async (req, res) => {
+router.get('/photos_files/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';
     const content = transformDirList(await readDir(PHOTOS_ROOT, relativePath));
@@ -146,7 +146,7 @@ router.get('/photos/ls',  async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.get('/photos/thumbs', async (req, res) => {
+router.get('/photos_files/thumbs', async (req, res) => {
   const relPath = req.query.path;
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
@@ -154,7 +154,7 @@ router.get('/photos/thumbs', async (req, res) => {
   const thumbsDir = path.join(
     APP_ROOT,
     'content',
-    'photos',
+    'photos_files',
     relPath,
     'thumbs'
   );

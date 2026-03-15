@@ -13,7 +13,7 @@ async function loadEditorGallery(folderPath, containerId) {
   }
   const lang = document.documentElement.lang || 'en';
   const res = await fetch(
-    `/${lang}/photos/thumbs?path=` +
+    `/${lang}/photos_files/thumbs?path=` +
     encodeURIComponent(folderPath)
   );
   const data = await res.json();
@@ -33,10 +33,10 @@ function renderGalleryForEditor(folderPath, thumbs, container) {
   thumbs.forEach(name => {
     const img = document.createElement('img');
     img.src =
-      `/content/photos/${folderPath}/thumbs/${name}`;
+      `/content/photos_files/${folderPath}/thumbs/${name}`;
     img.style.cursor = 'pointer';
     img.onclick = function () {
-      const fullImage = `/content/photos/${folderPath}/${name}`;
+      const fullImage = `/content/photos_files/${folderPath}/${name}`;
       if(browserMode === 'link'){
           const linkInput = document.querySelector('input.tox-textfield[type="url"]');
           if (linkInput) {

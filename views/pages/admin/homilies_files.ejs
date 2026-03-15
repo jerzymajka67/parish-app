@@ -1,0 +1,155 @@
+<body>
+<h2><%= title %></h2>
+<div class="container-fluid">
+  <div class="row">
+    <!-- LEFT COLUMN: ACTIONS -->
+    <div class="col-md-4 border-end p-3">
+      <form id="createFolderForm"
+            action="/admin/<%= page %>/create-folder"
+            method="POST"
+            class="mb-3 d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <button type="submit" class="btn btn-primary">Create Folder</button>
+        <input id="root-folder"
+               type="text"
+               readonly
+               class="form-control"
+               placeholder="Current folder">
+        <input type="text"
+               name="folderName"
+               placeholder="New folder name"
+               required
+               class="form-control">
+      </form>
+      <form id="uploadFileForm"
+            action="/admin/<%= page %>/load-file"
+            method="POST"
+            enctype="multipart/form-data"
+            class="mb-3 d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <button type="submit" class="btn btn-success" id="uploadBtn" disabled>Upload Homily HTML</button>
+        <input type="file"
+               name="html"
+               accept="text/html"
+               required
+               class="form-control">
+      </form>
+        <form id="createHtmlForm"
+            action="/admin/<%= page %>/create-html"
+            method="POST"
+            class="mb-2 d-flex flex-column gap-2">
+
+            <input type="hidden" name="currentPath">
+
+            <button type="submit" class="btn btn-success">
+                Create HTML
+            </button>
+
+            <input type="text"
+                name="fileName"
+                placeholder="New HTML file name"
+                required
+                class="form-control">
+        </form>
+        <div class="mb-3 d-flex flex-column gap-2">
+          <button id="editBtn"
+            type="button"
+            class="btn btn-secondary w-100 mt-3">
+            Edit
+          </button>
+        </div>    
+      <form id="deleteSelectedForm"
+            method="POST"
+            action="/admin/<%= page %>/delete-selected"
+            class="d-flex flex-column gap-2">
+        <input type="hidden" name="currentPath">
+        <input type="hidden" name="files">
+        <input type="hidden" name="folder">
+        <button id="deleteBtn"type="button" class="btn btn-danger" disabled>
+          Delete
+        </button>
+        <input id="delete-folder-name"
+              type="text"
+              readonly
+              class="form-control"
+              placeholder="Nothing selected">
+      </form>
+    </div>
+    <!-- RIGHT COLUMN -->
+    <div class="col-md-8 p-4">
+      <h4>Folders & Homilies HTML</h4>
+      <div class="row mt-3">
+        <!-- LEFT: Browser -->
+        <div class="col-md-7">
+          <div class="border p-3">
+            <div id="browser-container">
+              <div id="browser" class="list-group">
+                <!-- dynamically inserted -->
+              </div>
+            </div>
+          </div>
+        </div>
+              <!-- INFO + FEEDBACK PANEL -->
+        <div class="col-md-5">
+          <div class="border p-3 mb-3 bg-light">
+            <% if (typeof msg !== 'undefined' && msg && status) { %>
+              <div id="server-feedback"
+                   class="server-feedback <%= status %> border p-3 mt-3">
+                <%= msg %>
+              </div>
+            <% } %>
+            <h5>Welcome!</h5>
+            <p>
+              This page allows you to manage
+              <strong>Homilies page</strong> for the parish website.
+            </p>
+            <p class="small">
+                This page will be maintained primarily by me. But in the case of an emergency, 
+                you can upload homilies in HTML format here. 
+                You can also create folders to organize them by year or month.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- BROWSER -->
+<div id="browser-container">
+  <div id="browser" class="list-group"></div>
+</div>
+      <!-- DOCUMENT VIEWER -->
+<div class="container-fluid px-0">
+ <div id="docControls" class="d-flex justify-content-between mb-3 px-3"></div>
+  <div id="documentViewerContainer" class="document-viewer"></div>
+</div>
+<div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image. In gallery mode: click any image to select the gallery. </span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
+    </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
+  </div>
+</div>
+<script>window.ADMIN_PAGE = "<%= page %>";</script>
+
+<script src="/js/bulletinBrowser.js"></script>
+<script src="/js/deleteSelected.js"></script>
+<script src="/js/initSelectedModal.js"></script>
+<script src="/js/docViewer.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  editorHTML();
+  initEditorModal()
+  initEditButton();
+  initSaveButtons();
+  initFileBrowser('admin', window.ADMIN_PAGE);
+  window.selectedFile = null;
+  initSelectedModal();
+  initDeleteModal();
+  feedback();
+});
+</script>
+</body>
+

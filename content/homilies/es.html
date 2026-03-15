@@ -1,0 +1,36 @@
+<body>
+   <html lang="es"></html>
+<main>
+<div class="container-fluid mt-4">
+  <div class="row">
+<!-- LEFT: INTRO + VIEWER -->
+    <div class="col-md-9 p-5 intro-column">
+      <div class="document-viewer mt-4">
+        <h2 class="text-center mb-3">Homilías</h2>
+          <p><strong>Queridos Visitantes,</strong><br>
+          Les damos la bienvenida a la página dedicada a las homilías proclamadas en nuestra parroquia los domingos y solemnidades. 
+          Que las reflexiones aquí compartidas les ayuden a profundizar en la comprensión de la Palabra de Dios 
+          y a descubrir la luz del Evangelio en su vida diaria.</p>
+          <p class="mt-3">
+            Con oración y bendición pastoral,<br>
+            <strong>Padre Jorge</strong>
+          </p>
+      </div>
+<!-- DOCUMENT VIEWER -->
+      <div id="docControls" class="d-flex justify-content-between mb-3"></div>
+      <div id="documentViewerContainer" class="document-viewer mt-4"></div>
+    </div>
+    <!-- RIGHT: BROWSER -->
+    <div class="col-md-3 border-start p-4 browser-column">
+      <div class="document-viewer mt-4">
+        <h2>Homilías para los Domingos y Solemnidades</h2>
+      </div>
+      <div id="browser" class="list-group"></div>
+    </div>
+  </div>
+</div>
+</main>
+  <script> window.USER_PAGE = "<%= page %>";</script>
+  <script src="/js/browserUser.js"></script>
+  <script src="/js/docViewer.js"></script>
+</body>

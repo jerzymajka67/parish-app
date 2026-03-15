@@ -1,129 +1,168 @@
 <body>
-<h2><%= title %></h2>
+ <h2 ><%= title %></h2>
 <div class="container-fluid">
-  <div class="row">
-    <!-- LEFT COLUMN: ACTIONS -->
+  <div class="row" >
+<!-- LEFT COLUMN: ACTIONS -->
     <div class="col-md-4 border-end p-3">
-      <form id="createFolderForm"
-            action="/admin/<%= page %>/create-folder"
-            method="POST"
-            class="mb-3 d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <button type="submit" class="btn btn-primary">Create Folder</button>
-        <input id="root-folder"
-               type="text"
-               readonly
-               class="form-control"
-               placeholder="Current folder">
-        <input type="text"
-               name="folderName"
-               placeholder="New folder name"
-               required
-               class="form-control">
+      <form id="uploadHtmlForm"
+              action="/admin/<%= page %>/upload-file"
+              method="POST"
+              enctype="multipart/form-data"
+              class="mb-3 d-flex flex-column gap-2">
+          <button type="submit"
+                  class="btn btn-success"
+                  id="uploadBtn">
+            Upload HTML File
+          </button>
+          <input type="file"
+                name="html"
+                accept=".html"
+                required
+                class="form-control">
       </form>
-      <form id="uploadFileForm"
-            action="/admin/<%= page %>/load-file"
-            method="POST"
-            enctype="multipart/form-data"
-            class="mb-3 d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <button type="submit" class="btn btn-success" id="uploadBtn" disabled>Upload Bulletin PDF</button>
-        <input type="file"
-               name="pdf"
-               accept="application/pdf"
-               required
-               class="form-control">
+      <form id="createHtmlForm"
+              action="/admin/<%= page %>/create-html"
+              method="POST"
+              class="mb-2 d-flex flex-column gap-2">
+          <button type="submit" class="btn btn-success">
+            Create HTML
+          </button>
+          <input type="text"
+                name="fileName"
+                placeholder="New HTML file name"
+                required
+                class="form-control">
       </form>
-      <form id="deleteSelectedForm"
-            method="POST"
-            action="/admin/<%= page %>/delete-selected"
-            class="d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <input type="hidden" name="files">
-        <input type="hidden" name="folder">
-        <button id="deleteBtn"type="button" class="btn btn-danger" disabled>
+      <form id="renameForm" action="/admin/<%= page %>/rename"
+          method="POST"
+          class="d-flex flex-column gap-2">
+        <input id="renameOldName" type="hidden" name="fileName">
+        <button type="submit"
+            class="btn btn-amber">
+            Rename
+        </button> 
+        <input id="renameNewName" type="text"
+            name="newName"
+            placeholder="New file name"
+            required
+            class="form-control">
+      </form>
+      <button id="editBtn"
+              type="button"
+              class="btn btn-secondary w-100 mt-3">
+        Edit
+      </button>
+      <form id="viewForm" action="/admin/<%= page %>/view"
+              method="GET"
+              target="_blank"
+              class="d-grid gap-2 mt-3">
+        <input id="viewFileName" type="hidden"
+              name="fileName">
+          <button type="submit" class="btn btn-outline-secondary">
+             View
+          </button>
+      </form>
+      <div class="d-flex gap-2 mt-3 mb-2">
+        <form id="publishEnForm"
+                action="/admin/<%= page %>/publish-en"
+                method="POST"
+                class="flex-fill">
+          <input id="publishEN" type="hidden"  name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
+              Publish EN
+          </button>
+        </form>
+        <form id="publishEsForm"
+                action="/admin/<%= page %>/publish-es"
+                method="POST"
+                class="flex-fill">
+          <input id="publishES" type="hidden" name="fileName">
+          <button type="submit" class="btn btn-primary w-100">
+              Publish ES
+          </button>
+        </form>
+      </div>
+      <form id="deleteForm" method="POST"
+            action="/admin/<%= page %>/delete-file"
+            class="mb-3 d-flex gap-2 align-items-center">
+        <button type="button"
+                class="btn btn-danger"
+                id="deleteBtn">
           Delete
         </button>
-        <input id="delete-folder-name"
-              type="text"
-              readonly
-              class="form-control"
-              placeholder="Nothing selected">
+        <input id="deleteFileName"
+              type="hidden"
+              name="fileName">
       </form>
     </div>
-    <!-- RIGHT COLUMN -->
-    <div class="col-md-8 p-4">
-      <h4>Folders & Bulletins PDF</h4>
-      <div class="row mt-3">
-        <!-- LEFT: Browser -->
-        <div class="col-md-7">
-          <div class="border p-3">
-            <div id="browser-container">
-              <div id="browser" class="list-group">
-                <!-- dynamically inserted -->
-              </div>
+  <div class="col-md-8 p-4">
+    <h4>Files</h4>
+    <div class="row mt-3">
+      <!-- LEFT: Browser -->
+      <div class="col-md-7">
+        <div class="border p-3">
+          <div id="browser-container">
+            <div id="browser" class="list-group">
+<!-- dynamically inserted items -->
             </div>
           </div>
         </div>
-              <!-- INFO + FEEDBACK PANEL -->
-        <div class="col-md-5">
-          <div class="border p-3 mb-3 bg-light">
-            <% if (typeof msg !== 'undefined' && msg && status) { %>
-              <div id="server-feedback"
-                   class="server-feedback <%= status %> border p-3 mt-3">
+      </div>
+<!-- RIGHT: Welcome + Feedback -->
+      <div class="col-md-5">
+<!-- WELCOME PANEL -->
+        <div class="border p-3 mb-3 bg-light">
+<!-- SERVER FEEDBACK -->
+            <% if (msg && status) { %>
+              <div id="server-feedback" class="server-feedback <%= status %> border p-3 mt-3">
                 <%= msg %>
               </div>
             <% } %>
-            <h5>Welcome!</h5>
-            <p>
-              This page allows you to manage
-              <strong>Bulletin images</strong> for the parish website.
-            </p>
-            <p class="small">
-              You may create folders (for example by year or month)
-              and upload bulletin images in PDF format.
-            </p>
+          <h5>Welcome, Catalina & Samantha!</h5>
+          <p>
+            This page allows you to manage the <strong>About</strong> section of our parish website.
+          </p>
+          <p class="small">
+            The About page should present who we are as a parish: our history, mission,
+            leadership, and the spirit of our community. It should be clear, welcoming,
+            and reflect our bilingual and multicultural identity.
+          </p>
 
-            <ul class="small">
-              <li>Create folders to organize bulletin archives.</li>
-              <li>Upload images in PDF format.</li>
-              <li>Use clear naming for easy identification.</li>
-            </ul>
-
-            <p class="small mb-0">
-              Selected images will be displayed on the public bulletin page.
-            </p>
-          </div>
+          <ul class="small">
+            <li>You may <strong>upload existing HTML files</strong> or create new ones.</li>
+            <li>You can <strong>edit files safely</strong> using the editor.</li>
+            <li>The original file is never modified.</li>
+            <li>When you edit a file, the system creates a new version with the same name plus the <strong>date and time of editing</strong>.</li>
+            <li>After reviewing your changes, you may publish the page in <strong>English (EN)</strong> or <strong>Spanish (ES)</strong>.</li>
+          </ul>
+          <p class="small mb-0">
+            Thank you for your dedication and generosity in serving our parish community.
+          </p>
         </div>
       </div>
     </div>
   </div>
-</div>
-<!-- BROWSER -->
-<div id="browser-container">
-  <div id="browser" class="list-group"></div>
-</div>
-      <!-- DOCUMENT VIEWER -->
-<div class="container-fluid px-0">
-  <div id="documentViewerContainer" class="document-viewer"></div>
-</div>
 
-<script>
-  window.ADMIN_PAGE = "<%= page %>";
-</script>
-
-<script src="/js/bulletinBrowser.js"></script>
-<script src="/js/deleteSelected.js"></script>
-<script src="/js/initSelectedModal.js"></script>
-<script src="/js/feedback.js"></script>
-<script src="/js/docViewer.js"></script>
-<script>
+<div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image. In gallery mode: click any image to select the gallery. </span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
+    </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
+  </div>
+</div>
+<script> window.ADMIN_PAGE = "<%= page %>";</script>
+<script >
 document.addEventListener('DOMContentLoaded', () => {
-  initFileBrowser('admin', window.ADMIN_PAGE);
+  editorHTML();
+  initEditorModal()
+  initEditButton();
+  initSaveButtons();
   window.selectedFile = null;
-  initSelectedModal();
+  fetchFileList('/admin/' + window.ADMIN_PAGE + '/ls');
+  initDeleteModal();
   feedback();
 });
 </script>
 </body>
-

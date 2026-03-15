@@ -1,10 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
-  let browser = document.getElementById('browser');
-  if (!browser) {
-    browser = document.createElement('div');
-    browser.id = 'browser';
-    document.body.appendChild(browser);
-  }
+const browser = document.getElementById('browser');
+if (!browser) return;
   const lang = document.documentElement.lang;
   const page = window.USER_PAGE; 
   const baseFolder = `content/${page}/${lang}/`;
