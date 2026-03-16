@@ -18,21 +18,34 @@ const docViewer = {
           style="width:100%; height:1000px; border:none; display:block;">
         </iframe>
       `;
-    } else {
-      container.classList.remove('pdf-mode');
-      container.innerHTML = `
-        <iframe 
-          id="docFrame"
-          src="/${filePath}"
-          style="width:100%; border:none;">
-        </iframe>
-      `;
-      const frame = document.getElementById('docFrame');
-      frame.onload = function () {
-        const doc = frame.contentWindow.document;
-        frame.style.height = doc.body.scrollHeight + 'px';
-      };
-    }
+    }else {
+  container.classList.remove('pdf-mode');
+  container.innerHTML = `
+    <iframe 
+      id="docFrame"
+      src="/${filePath}"
+      style="width:100%; border:none;">
+    </iframe>
+  `;
+
+  const frame = document.getElementById('docFrame');
+
+  frame.onload = function () {
+    const doc = frame.contentWindow.document;
+
+    // Increase paragraph font size
+    const style = doc.createElement('style');
+    style.innerHTML = `
+      p {
+        font-size: 1.4rem;
+      }
+    `;
+    doc.head.appendChild(style);
+
+    // adjust height
+    frame.style.height = doc.body.scrollHeight + 'px';
+  };
+}
     this.renderControls(controls);
   },
   renderControls(container) {

@@ -98,16 +98,14 @@
                 <%= msg %>
               </div>
             <% } %>
-            <h5>Welcome!</h5>
-            <p>
-              This page allows you to manage
-              <strong>Homilies page</strong> for the parish website.
-            </p>
-            <p class="small">
-                This page will be maintained primarily by me. But in the case of an emergency, 
-                you can upload homilies in HTML format here. 
-                You can also create folders to organize them by year or month.
-            </p>
+          <h5>Welcome, Catalina & Samantha!</h5>
+          <p>
+            This page is used to manage the HTML files for parish groups.
+            These files can be linked from the main <strong>Groups</strong> page and contain additional information about each group.
+          </p>
+          <p class="small mb-0">
+            Thank you for your dedication and generosity in serving our parish community.
+          </p>
           </div>
         </div>
       </div>
@@ -123,7 +121,15 @@
  <div id="docControls" class="d-flex justify-content-between mb-3 px-3"></div>
   <div id="documentViewerContainer" class="document-viewer"></div>
 </div>
-
+<div id="editorMediaOverlay" class="editor-overlay d-none">
+  <div class="editor-modal">
+    <div class="editor-modal-header">
+      <span>Select Image. In gallery mode: click any image to select the gallery. </span>
+      <button class="close-btn" onclick="closeEditorMedia()">✕</button>
+    </div>
+    <div id="editorMediaContainer" class="editor-modal-body"></div>
+  </div>
+</div>
 <script>window.ADMIN_PAGE = "<%= page %>";</script>
 
 <script src="/js/bulletinBrowser.js"></script>

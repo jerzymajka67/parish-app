@@ -5,14 +5,14 @@ window.openEditorFolder = function (path, parentContainer = null) {
       .then(r => r.json())
       .then(tree => renderContentTree(tree, '', container));
   }else{
-    fetch(`/en/photos_files/ls`)
+    fetch(`/admin/photos_files/ls`)
       .then(r => r.json())
       .then(tree => renderTree(tree, '', container));
   }
 };
 const openEventFolder = function(path, parentContainer){
   const container = parentContainer || document.getElementById('editorMediaContainer');
-  fetch(`/en/photos_files/ls?path=` +
+  fetch(`/admin/photos_files/ls?path=` +
       encodeURIComponent(path))
       .then(r => r.json())
       .then(tree => renderTree(tree, path, container));

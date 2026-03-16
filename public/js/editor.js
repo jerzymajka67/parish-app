@@ -134,19 +134,19 @@ async function openFileInEditor(fileName) {
         menubar: 'edit insert view format',
         plugins: [
           'link',
-          'code',
-          'fullscreen',
           'lists',
           'table',
-          'preview'
+          'code',
+          'preview',
+          'fullscreen'
         ],
         toolbar: `
           undo redo |
           bold italic underline |
           alignleft aligncenter alignright |
           bullist numlist table |
-          eventImage link code insertGallery |
-          fullscreen preview
+          eventImage link  insertGallery |
+          code preview fullscreen 
         `,
         /* ---------------- LINK CONFIGURATION ---------------- */
         link_default_target: '_self',

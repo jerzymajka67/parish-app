@@ -136,7 +136,7 @@ router.get('/photos/ls',  async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.get('/photos/thumbs', async (req, res) => {
+router.get('/photos_files/thumbs', async (req, res) => {
   const relPath = req.query.path;
   if (!relPath) {
     return res.json({ isGallery: false, thumbs: [] });
@@ -144,7 +144,7 @@ router.get('/photos/thumbs', async (req, res) => {
   const thumbsDir = path.join(
     APP_ROOT,
     'content',
-    'photos',
+    'photos_files',
     relPath,
     'thumbs'
   );

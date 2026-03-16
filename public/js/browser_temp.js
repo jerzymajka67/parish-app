@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.body.appendChild(browser);
     }
   function render(tree, basePath, container) {
+    console.log('from render path: ', basePath);
     for (const name in tree) {
       if (name === 'files') continue;
       if (name === 'thumbs') continue;
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function load(path, container) {
     const lang =
       document.documentElement.lang || 'en';
+       console.log('from load path: ', path);
     fetch(`/${lang}/photos_files/ls?path=` +
       encodeURIComponent(path))
       .then(r => r.json())
