@@ -126,7 +126,7 @@ router.get('/fotos', (req, res) => {
     favicon: faviconPath
   });
 });
-router.get('/photos/ls',  async (req, res) => {
+router.get('/photos_files/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';
     const content = transformDirList(await readDir(PHOTOS_ROOT, relativePath));

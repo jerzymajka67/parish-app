@@ -167,30 +167,6 @@ router.post('/delete-file', requireLogin, async (req, res) => {
       return res.redirect(`/admin/groups?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
   }
 });
-router.post('/delete-file', requireLogin, async (req, res) => {
-  const fileName = req.body.fileName;
-  try {
-    if (!fileName) {
-        const msg = ` File name is required for deletion`;
-        const status = 'error';
-        return res.redirect(`/admin/groups?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-    }
-    const filePath = path.join(GROUPS_ROOT, fileName);
-    await fs.unlink(filePath);
-        const msg = ` HTML file ${fileName} - deleted successfully`;
-        const status = 'success';
-        return res.redirect(`/admin/groups?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      const msg = `File ${fileName} not found for deletion`;
-      const status = 'error';
-      return res.redirect(`/admin/groups?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-    }
-      const msg = ` HTML file ${fileName} could not be deleted - ${err.message}`;
-      const status = 'error';
-      return res.redirect(`/admin/groups?msg=${encodeURIComponent(msg)}&status=${encodeURIComponent(status)}`);
-  }
-});
 router.post('/rename', requireLogin, async (req, res) => {
   let { fileName, newName } = req.body;
   try {

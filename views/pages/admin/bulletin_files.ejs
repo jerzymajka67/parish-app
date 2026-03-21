@@ -22,17 +22,22 @@
                class="form-control">
       </form>
       <form id="uploadFileForm"
-            action="/admin/<%= page %>/load-file"
-            method="POST"
-            enctype="multipart/form-data"
-            class="mb-3 d-flex flex-column gap-2">
-        <input type="hidden" name="currentPath">
-        <button type="submit" class="btn btn-success" id="uploadBtn" disabled>Upload Bulletin PDF</button>
-        <input type="file"
-               name="pdf"
-               accept="application/pdf"
-               required
-               class="form-control">
+          action="/admin/<%= page %>/load-file"
+          method="POST"
+          enctype="multipart/form-data"
+          class="mb-3 d-flex flex-column gap-2">
+
+      <input type="hidden" name="currentPath">
+
+      <button type="submit" class="btn btn-success" id="uploadBtn" disabled>
+        Upload Bulletin Image
+      </button>
+
+      <input type="file"
+            name="image"
+            accept="image/*"
+            required
+            class="form-control">
       </form>
       <form id="deleteSelectedForm"
             method="POST"

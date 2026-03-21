@@ -136,16 +136,6 @@ router.get('/photos', (req, res) => {
     favicon: '/images/logo-olqa-mini.png'
   });
 });
-router.get('/photos/ls',  async (req, res) => {
-   try {
-    const relativePath = req.query.path || '';
-    const content = transformDirList(await readDir(PHOTOS_ROOT, relativePath));
-    storeDirInTree(tree, relativePath, content);
-    res.json(getNode(tree, relativePath));
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 router.get('/photos_files/ls',  async (req, res) => {
    try {
     const relativePath = req.query.path || '';

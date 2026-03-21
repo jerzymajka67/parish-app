@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
      PHOTOS PAGE
   ================================= */
 
-  if (page === "photos") {
+  if (page === "photos" || page === "fotos") {
 
     function render(tree, basePath, container) {
 
@@ -177,11 +177,13 @@ document.addEventListener('DOMContentLoaded', function () {
         file.textContent = '📄 ' + fileName;
 
         file.style.cursor = 'pointer';
-
         file.onclick = function () {
-          docViewer.open(fullPath, files);
+          if (page === 'bulletin') {
+            imageViewer.open(fullPath, files);
+          } else {
+            docViewer.open(fullPath, files);
+          }
         };
-
         container.appendChild(file);
 
       }
